@@ -1,4 +1,18 @@
-.react-router
-build
-node_modules
-README.md
+# Node artifacts
+frontend/node_modules
+frontend/dist
+
+# Rust artifacts
+wasm/target
+
+# Wasm build output (regenerate each time)
+frontend/src/pkg
+
+# VCS & editor junk
+.git
+.gitignore
+Dockerfile
+.dockerignore
+*.log
+*.swp
+*.DS_Store

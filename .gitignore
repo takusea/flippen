@@ -1,6 +1,35 @@
-.DS_Store
-/node_modules/
+# Rust (wasm)
+/wasm/target
+/wasm/pkg
+**/*.rs.bk
 
-# React Router
-/.react-router/
-/build/
+# wasm-pack build artifacts
+/frontend/app/pkg
+
+# Node.js / React
+/frontend/node_modules
+/frontend/dist
+/frontend/.vite
+/frontend/.react-router
+/frontend/build
+
+# VS Code
+.vscode/
+
+# OS / Editor junk
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.log
+
+# dotenv
+.env
+.env.*
+
+# Git
+.git
+.gitignore
+
+# Docker artifacts (if any)
+*.tar
