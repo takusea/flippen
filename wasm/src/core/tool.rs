@@ -9,6 +9,6 @@ pub enum ToolPropertyValue {
 }
 
 pub trait Tool {
-    fn apply(&mut self, frame: &mut Image, x: u32, y: u32, color: Color, pressure: Option<f32>);
+    fn apply(&mut self, image: &mut Image, x: u32, y: u32, color: Color, pressure: Option<f32>);
     fn set_property(&mut self, name: &str, value: ToolPropertyValue);
 }

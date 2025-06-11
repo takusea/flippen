@@ -9,12 +9,12 @@ pub struct CircleBrushTool {
 }
 
 impl Tool for CircleBrushTool {
-    fn apply(&mut self, frame: &mut Image, x: u32, y: u32, color: Color, pressure: Option<f32>) {
+    fn apply(&mut self, image: &mut Image, x: u32, y: u32, color: Color, pressure: Option<f32>) {
         let pressure = pressure.unwrap_or(1.0);
         let radius = (self.size as f32 * pressure) as i32;
         let (cr, cg, cb, _) = (color[0], color[1], color[2], color[3]);
-        let fw = frame.width as i32;
-        let fh = frame.height as i32;
+        let fw = image.width as i32;
+        let fh = image.height as i32;
 
         for dy in -radius..=radius {
             for dx in -radius..=radius {
@@ -25,7 +25,7 @@ impl Tool for CircleBrushTool {
                         continue;
                     }
                     let idx = ((py * fw + px) * 4) as usize;
-                    frame.data[idx..idx + 4].copy_from_slice(&[cr, cg, cb, 255]);
+                    image.data[idx..idx + 4].copy_from_slice(&[cr, cg, cb, 255]);
                 }
             }
         }

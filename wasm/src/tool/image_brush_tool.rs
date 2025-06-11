@@ -10,13 +10,13 @@ pub struct ImageBrushTool {
 }
 
 impl Tool for ImageBrushTool {
-    fn apply(&mut self, frame: &mut Image, x: u32, y: u32, color: Color, pressure: Option<f32>) {
+    fn apply(&mut self, image: &mut Image, x: u32, y: u32, color: Color, pressure: Option<f32>) {
         let pressure = pressure.unwrap_or(1.0);
         if let Some(ref brush_image) = self.image {
             let bw = brush_image.width;
             let bh = brush_image.height;
             let brush_data = &brush_image.data;
-            // Use self.size as brush size, and frame.width/height for framebuffer size
+
             let scale = self.size as f32 * pressure / (bw).min(bh) as f32;
             let scaled_w = (bw as f32 * scale) as u32;
             let scaled_h = (bh as f32 * scale) as u32;
@@ -24,8 +24,8 @@ impl Tool for ImageBrushTool {
             let half_w = (scaled_w / 2) as i32;
             let half_h = (scaled_h / 2) as i32;
 
-            let fw = frame.width as i32;
-            let fh = frame.height as i32;
+            let fw = image.width as i32;
+            let fh = image.height as i32;
 
             for sy in 0..scaled_h {
                 for sx in 0..scaled_w {
@@ -55,13 +55,13 @@ impl Tool for ImageBrushTool {
                     let colored_g = (g as u16 * cg as u16 / 255) as u8;
                     let colored_b = (b as u16 * cb as u16 / 255) as u8;
 
-                    let fi = ((dy as u32 * frame.width + dx as u32) * 4) as usize;
+                    let fi = ((dy as u32 * image.width + dx as u32) * 4) as usize;
 
-                    if fi + 4 > frame.data.len() {
+                    if fi + 4 > image.data.len() {
                         continue;
                     }
 
-                    let dst = &mut frame.data[fi..fi + 4];
+                    let dst = &mut image.data[fi..fi + 4];
                     let alpha = a as f32 / 255.0;
 
                     dst[0] = ((1.0 - alpha) * dst[0] as f32 + alpha * colored_r as f32) as u8;

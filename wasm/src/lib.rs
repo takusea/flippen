@@ -9,15 +9,15 @@ use crate::core::image::Image;
 use crate::core::tool::ToolPropertyValue;
 
 #[wasm_bindgen]
-pub struct FlipbookApp {
+pub struct FlippenWasm {
     app: app::app::App,
 }
 
 #[wasm_bindgen]
-impl FlipbookApp {
+impl FlippenWasm {
     #[wasm_bindgen(constructor)]
-    pub fn new(width: u32, height: u32) -> FlipbookApp {
-        FlipbookApp {
+    pub fn new(width: u32, height: u32) -> FlippenWasm {
+        FlippenWasm {
             app: app::app::App::new(width, height),
         }
     }
