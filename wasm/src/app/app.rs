@@ -2,8 +2,8 @@ use crate::app::frame_list::FrameList;
 use crate::core::color::Color;
 use crate::core::image::Image;
 use crate::core::tool::Tool;
+use crate::tool::circle_brush_tool::CircleBrushTool;
 use crate::tool::fill_tool::FillTool;
-use crate::tool::image_brush_tool::ImageBrushTool;
 
 pub struct App {
     pub frames: FrameList,
@@ -27,13 +27,8 @@ impl App {
                 0,
             ),
             tools: vec![
-                Box::new(ImageBrushTool {
+                Box::new(CircleBrushTool {
                     size: 5,
-                    image: Some(Image {
-                        width: 32,
-                        height: 32,
-                        data: vec![0; (32 * 32 * 4) as usize],
-                    }),
                 }),
                 Box::new(FillTool { tolerance: 500 }),
             ],

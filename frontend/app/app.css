@@ -4,6 +4,7 @@
 
 body {
   user-select: none;
+  touch-action: none;
   line-height: 1;
   font-size: 14px;
 }
