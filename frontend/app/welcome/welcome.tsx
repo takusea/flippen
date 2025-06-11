@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import type { FlippenWasm } from "~/pkg/flippen_wasm";
 import { runWasm } from "~/wasm/wasm-loader";
 import DrawCanvas from "./DrawCanvas";
-import Toolbar from "./Toolbar";
-import Timeline from "./Timeline";
-import { useFrameList } from "./useFrameList";
 import Inspector from "./Inspector";
+import Timeline from "./Timeline";
+import Toolbar from "./Toolbar";
+import { useFrameList } from "./useFrameList";
 
 export function Welcome() {
 	const [app, setApp] = useState<FlippenWasm>();

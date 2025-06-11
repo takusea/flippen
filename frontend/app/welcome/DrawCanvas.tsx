@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Props = {
 	currentFrame: () => Uint8ClampedArray;
@@ -72,6 +72,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 		});
 		render();
 	};
+
 	const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
 		if (!drawState.isDrawing) return;
 		const { x, y } = getPointerPosition(e);

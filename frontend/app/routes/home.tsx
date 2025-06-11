@@ -1,7 +1,7 @@
 import { Welcome } from "../welcome/welcome";
 import type { Route } from "./+types/home";
 
-export function meta({}: Route.MetaArgs) {
+export function meta(_: Route.MetaArgs) {
 	return [
 		{ title: "Flippen" },
 		{ name: "description", content: "Flipbook app!" },
