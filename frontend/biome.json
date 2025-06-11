@@ -7,7 +7,7 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"ignore": []
+		"ignore": ["app/pkg/*"]
 	},
 	"formatter": {
 		"enabled": true,
