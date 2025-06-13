@@ -18,7 +18,7 @@ type Props = {
 
 const GlobalNavigation: React.FC<Props> = (props: Props) => {
 	return (
-		<div className="grid grid-rows-[40px_1fr] grid-cols-[64px_1fr] w-screen h-screen bg-gray-100">
+		<div className="grid grid-rows-[40px_1fr] grid-cols-[64px_1fr] w-svw h-svh bg-gray-100">
 			<header className="relative row-span-1 col-span-full flex items-center justify-between">
 				<div className="flex items-center justify-between w-full px-2 gap-2">
 					<div className="flex items-center gap-1">
