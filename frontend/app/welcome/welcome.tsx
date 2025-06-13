@@ -6,26 +6,23 @@ import Inspector from "./Inspector";
 import Timeline from "./Timeline";
 import Toolbar from "./Toolbar";
 import { useFrameList } from "./useFrameList";
+import { hsvaToRgba, type HSVAColor } from "~/util/color";
 
 export function Welcome() {
 	const [app, setApp] = useState<FlippenWasm>();
 	const frameList = useFrameList(app);
 	const [currentTool, setCurrentTool] = useState<string>("move");
-	const [currentColor, setCurrentColor] = useState<{
-		r: number;
-		g: number;
-		b: number;
-		a: number;
-	}>({ r: 0, g: 0, b: 0, a: 255 });
+	const [currentColor, setCurrentColor] = useState<HSVAColor>({
+		h: 0,
+		s: 0,
+		v: 0,
+		a: 255,
+	});
 	const [isOnionSkin, setIsOnionSkin] = useState<boolean>(false);
 
 	useEffect(() => {
-		app?.set_current_color(
-			currentColor.r,
-			currentColor.g,
-			currentColor.b,
-			currentColor.a,
-		);
+		const rgbaColor = hsvaToRgba(currentColor);
+		app?.set_current_color(rgbaColor.r, rgbaColor.g, rgbaColor.b, rgbaColor.a);
 	}, [app, currentColor]);
 
 	useEffect(() => {
