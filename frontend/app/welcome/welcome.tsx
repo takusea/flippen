@@ -112,6 +112,7 @@ export function Welcome() {
 						frameHeight={720}
 						onSelectFrame={frameList.setCurrentIndex}
 						onAddFrame={() => frameList.insertFrame(frameList.currentIndex)}
+						onDeleteFrame={() => frameList.deleteFrame(frameList.currentIndex)}
 					/>
 				)}
 			</div>

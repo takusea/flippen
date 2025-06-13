@@ -9,6 +9,7 @@ type Props = {
 	getFrameData: (index: number) => Uint8ClampedArray;
 	onSelectFrame: (index: number) => void;
 	onAddFrame: (index: number) => void;
+	onDeleteFrame: (index: number) => void;
 };
 
 const Timeline: React.FC<Props> = (props) => {
@@ -62,6 +63,8 @@ const Timeline: React.FC<Props> = (props) => {
 							onKeyDown={(e) => {
 								if (e.key === "Enter" || e.key === " ") {
 									props.onSelectFrame(i);
+								} else if (e.key === "Delete") {
+									props.onDeleteFrame(i);
 								}
 							}}
 							aria-label={`Select frame ${i + 1}`}
