@@ -10,7 +10,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const [drawState, setDrawState] = useState<
 		| { isDrawing: false }
-		| { isDrawing: true; lastX: number; lastY: number; lastPressure: number }
+		| { isDrawing: true; x: number; y: number; pressure: number }
 	>({ isDrawing: false });
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
@@ -49,49 +49,56 @@ const DrawCanvas: React.FC<Props> = (props) => {
 		}
 	};
 
-	const getPointerPosition = (event: React.PointerEvent<HTMLCanvasElement>) => {
+	const getPointerPosition = (x: number, y: number) => {
 		const canvas = canvasRef.current;
 		if (!canvas) return { x: 0, y: 0 };
 		const rect = canvas.getBoundingClientRect();
 		return {
-			x: Math.floor(event.clientX - rect.left),
-			y: Math.floor(event.clientY - rect.top),
+			x: Math.floor(x - rect.left),
+			y: Math.floor(y - rect.top),
 		};
 	};
 
 	const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
-		const { x, y } = getPointerPosition(e);
+		const { x, y } = getPointerPosition(e.clientX, e.clientY);
 
-		props.onDrawBrush(x, y, e.pressure ?? 0.5);
+		const pressure = e.pointerType === "mouse" ? (e.pressure ?? 0.5) : 0.5;
+
+		props.onDrawBrush(x, y, pressure);
 
 		setDrawState({
 			isDrawing: true,
-			lastX: x,
-			lastY: y,
-			lastPressure: e.pressure ?? 0.5,
+			x,
+			y,
+			pressure,
 		});
 		render();
 	};
 
 	const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
 		if (!drawState.isDrawing) return;
-		const { x, y } = getPointerPosition(e);
 
-		drawSmoothLine(
-			{
-				x: drawState.lastX,
-				y: drawState.lastY,
-				pressure: drawState.lastPressure,
-			},
-			{ x, y, pressure: e.pressure ?? 0.5 },
-		);
+		const nativeEvent = e.nativeEvent as PointerEvent;
+		const events = nativeEvent.getCoalescedEvents
+			? nativeEvent.getCoalescedEvents()
+			: [nativeEvent];
 
-		setDrawState({
-			isDrawing: true,
-			lastX: x,
-			lastY: y,
-			lastPressure: e.pressure ?? 0.5,
-		});
+		let coalescedDrawState = {
+			x: drawState.x,
+			y: drawState.y,
+			pressure: drawState.pressure,
+		};
+		for (const event of events) {
+			const { x, y } = getPointerPosition(event.clientX, event.clientY);
+
+			const pressure = e.pointerType === "mouse" ? (e.pressure ?? 0.5) : 0.5;
+			const currentDrawState = { x, y, pressure };
+
+			drawSmoothLine(coalescedDrawState, currentDrawState);
+			coalescedDrawState = currentDrawState;
+		}
+
+		setDrawState({ isDrawing: true, ...coalescedDrawState });
 		render();
 	};
 
