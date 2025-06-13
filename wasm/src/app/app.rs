@@ -21,7 +21,7 @@ impl App {
         Self {
             frames: FrameList::new(
                 vec![Image {
-                    data: vec![255; (width * height * 4) as usize],
+                    data: vec![0; (width * height * 4) as usize],
                     width,
                     height,
                 }],

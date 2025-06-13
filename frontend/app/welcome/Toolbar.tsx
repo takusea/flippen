@@ -7,6 +7,7 @@ import {
 	IconCopy,
 	IconEraser,
 	IconLasso,
+	IconLayersDifference,
 	IconPencil,
 	IconPlayerPause,
 	IconPlayerPlay,
@@ -23,6 +24,7 @@ type Props = {
 	currentTool: string;
 	isPlaying: boolean;
 	isLoop: boolean;
+	isOnionSkin: boolean;
 	onCurrentToolChange: (tool: string) => void;
 	onUndo: () => void;
 	onRedo: () => void;
@@ -31,6 +33,7 @@ type Props = {
 	onPlay: () => void;
 	onStop: () => void;
 	onIsLoop: () => void;
+	onIsOnionSkin: () => void;
 	onRewind: () => void;
 	onPrev: () => void;
 	onNext: () => void;
@@ -86,6 +89,13 @@ const Toolbar: React.FC<Props> = (props) => {
 					variant={props.isLoop ? "primary" : "default"}
 					size="small"
 					onClick={props.onIsLoop}
+				/>
+				<IconButton
+					label="OnionSkin"
+					icon={IconLayersDifference}
+					variant={props.isOnionSkin ? "primary" : "default"}
+					size="small"
+					onClick={props.onIsOnionSkin}
 				/>
 			</div>
 			<div className="flex p-1 border bg-white/90 border-gray-200 rounded-lg shadow-md gap-1">

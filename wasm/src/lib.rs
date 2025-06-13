@@ -99,7 +99,7 @@ impl FlippenWasm {
         self.app.frames.insert(
             self.app.frames.current_index,
             Image {
-                data: vec![255; (self.app.width * self.app.height * 4) as usize],
+                data: vec![0; (self.app.width * self.app.height * 4) as usize],
                 width: self.app.width,
                 height: self.app.height,
             },

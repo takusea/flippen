@@ -17,6 +17,7 @@ export function Welcome() {
 		b: number;
 		a: number;
 	}>({ r: 0, g: 0, b: 0, a: 255 });
+	const [isOnionSkin, setIsOnionSkin] = useState<boolean>(false);
 
 	useEffect(() => {
 		app?.set_current_color(
@@ -36,8 +37,21 @@ export function Welcome() {
 			<div className="relative overflow-hidden">
 				{app && (
 					<DrawCanvas
+						prevFrame={
+							frameList.currentIndex !== 0
+								? () => app.get_data(frameList.currentIndex - 1)
+								: undefined
+						}
 						currentFrame={() => app.get_data(frameList.currentIndex)}
-						onDrawBrush={(x, y, pressure) => app.draw_brush(x, y, pressure)}
+						nextFrame={
+							frameList.currentIndex !== frameList.totalFrames - 1
+								? () => app.get_data(frameList.currentIndex + 1)
+								: undefined
+						}
+						isOnionSkin={isOnionSkin}
+						onDrawBrush={(x, y, pressure) =>
+							app.apply_tool(currentTool, x, y, pressure)
+						}
 						onRender={() => {}}
 					/>
 				)}
@@ -63,10 +77,9 @@ export function Welcome() {
 						onPrev={frameList.prevFrame}
 						onNext={frameList.nextFrame}
 						onForward={frameList.lastFrame}
+						isOnionSkin={isOnionSkin}
+						onIsOnionSkin={() => setIsOnionSkin((prev) => !prev)}
 					/>
-					<div>
-						{frameList.currentIndex} / {frameList.totalFrames}
-					</div>
 				</div>
 			</div>
 			<Inspector
@@ -78,6 +91,18 @@ export function Welcome() {
 				}}
 			/>
 			<div className="col-span-2 border-t border-gray-200 z-10">
+				<div className="flex gap-2 items-center">
+					<span>
+						{frameList.currentIndex} / {frameList.totalFrames}
+					</span>
+					<input
+						type="number"
+						value={frameList.fps}
+						onChange={(event) =>
+							frameList.setFps(Number.parseInt(event.currentTarget.value))
+						}
+					/>
+				</div>
 				{app && (
 					<Timeline
 						totalFrames={frameList.totalFrames}

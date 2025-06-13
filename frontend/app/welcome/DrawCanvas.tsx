@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 
 type Props = {
+	prevFrame?: () => Uint8ClampedArray;
 	currentFrame: () => Uint8ClampedArray;
+	nextFrame?: () => Uint8ClampedArray;
+	isOnionSkin?: boolean;
 	onDrawBrush: (x: number, y: number, pressure: number) => void;
 	onRender: () => void;
 };
@@ -18,18 +21,38 @@ const DrawCanvas: React.FC<Props> = (props) => {
 		render();
 	}, [props.currentFrame]);
 
-	function render() {
+	const render = () => {
 		const canvas = canvasRef.current;
 		const ctx = canvas?.getContext("2d");
 		if (canvas == null || ctx == null) return;
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-		const imgData = new ImageData(
-			props.currentFrame(),
-			canvas.width,
-			canvas.height,
-		);
-		ctx.putImageData(imgData, 0, 0);
-	}
+		const putImageData = (frame: Uint8ClampedArray, alpha: number) => {
+			const imageData = new ImageData(frame, canvas.width, canvas.height);
+			const tempCanvas = document.createElement("canvas");
+			tempCanvas.width = imageData.width;
+			tempCanvas.height = imageData.height;
+
+			const tempCtx = tempCanvas.getContext("2d");
+			if (tempCtx == null) return;
+
+			tempCtx.putImageData(imageData, 0, 0);
+
+			ctx.globalAlpha = alpha;
+			ctx.drawImage(tempCanvas, 0, 0);
+			ctx.globalAlpha = 1.0;
+		};
+
+		if (props.isOnionSkin) {
+			if (props.prevFrame) {
+				putImageData(props.prevFrame(), 0.25);
+			}
+			if (props.nextFrame) {
+				putImageData(props.nextFrame(), 0.25);
+			}
+		}
+		putImageData(props.currentFrame(), 1.0);
+	};
 
 	const drawSmoothLine = (
 		prev: { x: number; y: number; pressure: number },
