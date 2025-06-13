@@ -42,12 +42,18 @@ impl FlippenWasm {
         self.app.redo();
     }
 
-    pub fn fill(&mut self, x: u32, y: u32) {
-        self.app.apply_tool(1, x, y, None);
-    }
+    pub fn apply_tool(&mut self, current_tool: &str, x: u32, y: u32, pressure: f32) {
+        let tool_index = match current_tool {
+            "pen" => 0,
+            "eraser" => 1,
+            "fill" => 2,
+            _ => {
+                eprintln!("Unknown or invalid property: {}.", current_tool);
+                return;
+            }
+        };
 
-    pub fn draw_brush(&mut self, x: u32, y: u32, pressure: f32) {
-        self.app.apply_tool(0, x, y, Some(pressure));
+        self.app.apply_tool(tool_index, x, y, Some(pressure));
     }
 
     pub fn set_fill_tolerance(&mut self, tolerance: f64) {

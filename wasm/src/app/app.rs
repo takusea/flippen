@@ -3,6 +3,7 @@ use crate::core::color::Color;
 use crate::core::image::Image;
 use crate::core::tool::Tool;
 use crate::tool::circle_brush_tool::CircleBrushTool;
+use crate::tool::eraser_tool::EraserTool;
 use crate::tool::fill_tool::FillTool;
 
 pub struct App {
@@ -27,9 +28,8 @@ impl App {
                 0,
             ),
             tools: vec![
-                Box::new(CircleBrushTool {
-                    size: 5,
-                }),
+                Box::new(CircleBrushTool { size: 5 }),
+                Box::new(EraserTool { size: 5 }),
                 Box::new(FillTool { tolerance: 500 }),
             ],
             current_color: [0, 0, 0, 255],
