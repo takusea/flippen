@@ -42,7 +42,7 @@ impl FlippenWasm {
         self.app.redo();
     }
 
-    pub fn apply_tool(&mut self, current_tool: &str, x: u32, y: u32, pressure: f32) {
+    pub fn apply_tool(&mut self, current_tool: &str, x: u32, y: u32, color: &[u8], pressure: f32) {
         let tool_index = match current_tool {
             "pen" => 0,
             "eraser" => 1,
@@ -53,7 +53,13 @@ impl FlippenWasm {
             }
         };
 
-        self.app.apply_tool(tool_index, x, y, Some(pressure));
+        self.app.apply_tool(
+            tool_index,
+            x,
+            y,
+            [color[0], color[1], color[2], color[3]],
+            Some(pressure),
+        );
     }
 
     pub fn set_fill_tolerance(&mut self, tolerance: f64) {
@@ -62,10 +68,6 @@ impl FlippenWasm {
 
     pub fn set_brush_size(&mut self, size: f64) {
         self.app.tools[0].set_property("size", ToolPropertyValue::Number(size));
-    }
-
-    pub fn set_current_color(&mut self, r: u8, g: u8, b: u8, a: u8) {
-        self.app.current_color = [r, g, b, a];
     }
 
     pub fn set_brush_image(&mut self, width: u32, height: u32, data: Vec<u8>) {

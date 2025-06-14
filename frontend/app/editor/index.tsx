@@ -21,11 +21,6 @@ export function Editor() {
 	const [isOnionSkin, setIsOnionSkin] = useState<boolean>(false);
 
 	useEffect(() => {
-		const rgbaColor = hsvaToRgba(currentColor);
-		app?.set_current_color(rgbaColor.r, rgbaColor.g, rgbaColor.b, rgbaColor.a);
-	}, [app, currentColor]);
-
-	useEffect(() => {
 		runWasm(1280, 720).then(setApp);
 	}, []);
 
@@ -46,9 +41,21 @@ export function Editor() {
 								: undefined
 						}
 						isOnionSkin={!frameList.isPlaying && isOnionSkin}
-						onDrawBrush={(x, y, pressure) =>
-							app.apply_tool(currentTool, x, y, pressure)
-						}
+						onDrawBrush={(x, y, pressure) => {
+							const rgbaColor = hsvaToRgba(currentColor);
+							app.apply_tool(
+								currentTool,
+								x,
+								y,
+								new Uint8Array([
+									rgbaColor.r,
+									rgbaColor.g,
+									rgbaColor.b,
+									rgbaColor.a,
+								]),
+								pressure,
+							);
+						}}
 						onRender={() => {}}
 					/>
 				)}

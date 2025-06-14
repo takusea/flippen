@@ -9,7 +9,6 @@ use crate::tool::fill_tool::FillTool;
 pub struct App {
     pub frames: FrameList,
     pub tools: Vec<Box<dyn Tool>>,
-    pub current_color: Color,
     pub width: u32,
     pub height: u32,
     undo_stack: Vec<Vec<u8>>,
@@ -32,7 +31,6 @@ impl App {
                 Box::new(EraserTool { size: 5 }),
                 Box::new(FillTool { tolerance: 500 }),
             ],
-            current_color: [0, 0, 0, 255],
             width,
             height,
             undo_stack: Vec::new(),
@@ -62,11 +60,18 @@ impl App {
         }
     }
 
-    pub fn apply_tool(&mut self, index: usize, x: u32, y: u32, pressure: Option<f32>) {
+    pub fn apply_tool(
+        &mut self,
+        index: usize,
+        x: u32,
+        y: u32,
+        color: Color,
+        pressure: Option<f32>,
+    ) {
         let frame = self.frames.current_frame_mut();
 
         if let Some(tool) = self.tools.get_mut(index) {
-            tool.apply(frame, x, y, self.current_color, pressure);
+            tool.apply(frame, x, y, color, pressure);
         }
     }
 }
