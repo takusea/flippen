@@ -18,7 +18,7 @@ const ColorPicker: React.FC<Props> = (props) => {
 
 		props.onCurrentColorChange({
 			...props.currentColor,
-			h: (angle + 360) % 360,
+			h: (angle + 510) % 360,
 		});
 	};
 
@@ -45,33 +45,39 @@ const ColorPicker: React.FC<Props> = (props) => {
 	};
 
 	return (
-		<div
-			style={{ "--hue": props.currentColor.h } as React.CSSProperties}
-			className="relative w-full h-auto aspect-square p-[32px]"
-		>
+		<div>
 			<div
-				className="absolute inset-0 rounded-full [background-image:conic-gradient(in_hsl,hsl(60_100%_50%),hsl(180_100%_50%),hsl(330_100%_50%),hsl(420_100%_50%))] [mask-image:radial-gradient(transparent,transparent_60%,white_61%,white)]"
-				onPointerMove={handleHueMove}
-			/>
-			<div
-				style={{
-					top: `${50 + Math.sin(props.currentColor.h / 57) * 46}%`,
-					left: `${50 + Math.cos(props.currentColor.h / 57) * 46}%`,
-				}}
-				className="pointer-events-none absolute translate-x-[-50%] translate-y-[-50%] w-2 h-2 border border-black shadow-inner shadow-white rounded-full"
-			/>
-			<div
-				className="relative w-full h-full [background-image:linear-gradient(to_bottom,#fff0_0%,#000_100%),linear-gradient(to_right,#fff_0%,hsl(var(--hue)_100%_50%)_100%)]"
-				onPointerMove={handleSLMove}
+				style={{ "--hue": props.currentColor.h } as React.CSSProperties}
+				className="relative w-full h-auto aspect-square p-[20%]"
 			>
 				<div
-					style={{
-						bottom: `${props.currentColor.v * 100}%`,
-						left: `${props.currentColor.s * 100}%`,
-					}}
-					className="pointer-events-none absolute translate-x-[-50%] translate-y-[50%] w-2 h-2 border border-black shadow-inner shadow-white rounded-full"
-				/>
+					className="absolute inset-0 rounded-full [background-image:conic-gradient(in_hsl,hsl(60_100%_50%),hsl(180_100%_50%),hsl(300_100%_50%),hsl(420_100%_50%))] [mask-image:radial-gradient(transparent,transparent_60%,white_61%,white)]"
+					onPointerMove={handleHueMove}
+				>
+					<div
+						style={{
+							top: `${50 + Math.sin(props.currentColor.h / 57 - 2.6) * 46}%`,
+							left: `${50 + Math.cos(props.currentColor.h / 57 - 2.6) * 46}%`,
+						}}
+						className="pointer-events-none absolute translate-x-[-50%] translate-y-[-50%] w-2 h-2 border border-black shadow-inner shadow-white rounded-full"
+					/>
+				</div>
+				<div
+					className="relative w-full h-full [background-image:linear-gradient(to_bottom,#fff0_0%,#000_100%),linear-gradient(to_right,#fff_0%,hsl(var(--hue)_100%_50%)_100%)]"
+					onPointerMove={handleSLMove}
+				>
+					<div
+						style={{
+							bottom: `${props.currentColor.v * 100}%`,
+							left: `${props.currentColor.s * 100}%`,
+						}}
+						className="pointer-events-none absolute translate-x-[-50%] translate-y-[50%] w-2 h-2 border border-black shadow-inner shadow-white rounded-full"
+					/>
+				</div>
 			</div>
+			h{Math.round(props.currentColor.h)} / s
+			{Math.round(props.currentColor.s * 100)} / v
+			{Math.round(props.currentColor.v * 100)}
 		</div>
 	);
 };

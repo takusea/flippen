@@ -49,7 +49,6 @@ export function useFrameList(app?: FlippenWasm) {
 	const advanceFrame = () => {
 		if (app == null) return;
 		if (currentIndex + 1 < totalFrames) {
-			console.log(currentIndex);
 			setCurrentIndex((prev) => prev + 1);
 		} else if (isLoop) {
 			setCurrentIndex(0);

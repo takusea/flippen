@@ -21,7 +21,7 @@ const Inspector: React.FC<Props> = (props) => {
 				max={100}
 				value={currentSize}
 				onChange={(event) => {
-					setCurrentSize(event.currentTarget.value);
+					setCurrentSize(Number.parseInt(event.currentTarget.value));
 					props.onCurrentSizeChange(currentSize);
 				}}
 			/>

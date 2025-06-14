@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import Button from "~/base/Button";
 
 type Props = {
 	totalFrames: number;
@@ -55,8 +54,8 @@ const Timeline: React.FC<Props> = (props) => {
 							ref={(el) => {
 								canvasRefs.current[i] = el;
 							}}
-							width={64}
-							height={64}
+							width={256}
+							height={256}
 							className={`cursor-pointer rounded-lg w-32 h-32 ${isSelected ? "border-2 border-teal-500" : "border border-gray-400"}`}
 							tabIndex={0}
 							onClick={() => props.onSelectFrame(i)}

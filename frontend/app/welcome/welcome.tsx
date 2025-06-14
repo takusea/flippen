@@ -45,14 +45,14 @@ export function Welcome() {
 								? () => app.get_data(frameList.currentIndex + 1)
 								: undefined
 						}
-						isOnionSkin={isOnionSkin}
+						isOnionSkin={!frameList.isPlaying && isOnionSkin}
 						onDrawBrush={(x, y, pressure) =>
 							app.apply_tool(currentTool, x, y, pressure)
 						}
 						onRender={() => {}}
 					/>
 				)}
-				<div className="absolute bottom-8 w-fit left-0 right-0 m-auto">
+				<div className="absolute bottom-8 w-fit left-0 right-0 m-auto max-w-full overflow-x-auto">
 					<Toolbar
 						isPlaying={frameList.isPlaying}
 						isLoop={frameList.isLoop}
@@ -90,12 +90,25 @@ export function Welcome() {
 			<div className="col-span-2 border-t border-gray-200 z-10">
 				<div className="flex gap-2 items-center">
 					<span>
-						{frameList.currentIndex} / {frameList.totalFrames}
+						<input
+							type="number"
+							min={0}
+							max={frameList.totalFrames}
+							defaultValue={frameList.currentIndex}
+							onBlur={(event) =>
+								frameList.setCurrentIndex(
+									Number.parseInt(event.currentTarget.value),
+								)
+							}
+						/>
+						/ {frameList.totalFrames}
 					</span>
 					<input
 						type="number"
-						value={frameList.fps}
-						onChange={(event) =>
+						min={0}
+						max={120}
+						defaultValue={frameList.fps}
+						onBlur={(event) =>
 							frameList.setFps(Number.parseInt(event.currentTarget.value))
 						}
 					/>

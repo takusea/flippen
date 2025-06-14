@@ -98,10 +98,12 @@ const DrawCanvas: React.FC<Props> = (props) => {
 		render();
 	};
 
-	const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
+	const handlePointerMove = (event: React.PointerEvent<HTMLCanvasElement>) => {
 		if (!drawState.isDrawing) return;
 
-		const nativeEvent = e.nativeEvent as PointerEvent;
+		event.currentTarget.setPointerCapture(event.pointerId);
+
+		const nativeEvent = event.nativeEvent as PointerEvent;
 		const events = nativeEvent.getCoalescedEvents
 			? nativeEvent.getCoalescedEvents()
 			: [nativeEvent];
@@ -114,7 +116,8 @@ const DrawCanvas: React.FC<Props> = (props) => {
 		for (const event of events) {
 			const { x, y } = getPointerPosition(event.clientX, event.clientY);
 
-			const pressure = e.pointerType === "mouse" ? (e.pressure ?? 0.5) : 0.5;
+			const pressure =
+				event.pointerType === "mouse" ? (event.pressure ?? 0.5) : 0.5;
 			const currentDrawState = { x, y, pressure };
 
 			drawSmoothLine(coalescedDrawState, currentDrawState);
@@ -135,7 +138,6 @@ const DrawCanvas: React.FC<Props> = (props) => {
 			onPointerDown={handlePointerDown}
 			onPointerMove={handlePointerMove}
 			onPointerUp={() => setDrawState({ isDrawing: false })}
-			onPointerLeave={() => setDrawState({ isDrawing: false })}
 		/>
 	);
 };
