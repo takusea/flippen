@@ -1,23 +1,26 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FlippenWasm } from "~/pkg/flippen_wasm";
 
 export function useFrameList(app?: FlippenWasm) {
-	const [currentIndex, setCurrentIndex] = useState<number>(
-		app?.current_index ?? 0,
-	);
-	const [totalFrames, setTotalFrames] = useState<number>(
-		app?.total_frames ?? 1,
-	);
-
+	const [currentIndex, setCurrentIndex] = useState<number>(0);
+	const [totalFrames, setTotalFrames] = useState<number>(1);
 	const [isPlaying, setIsPlaying] = useState<boolean>(false);
 	const [isLoop, setIsLoop] = useState<boolean>(false);
 	const [fps, setFps] = useState<number>(8);
 
-	const [playInterval, setPlayInterval] = useState<NodeJS.Timeout | null>(null);
+	const playIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
 	useEffect(() => {
-		if (app == null) return;
-		app.set_current_index(currentIndex);
+		if (app) {
+			setCurrentIndex(() => app.current_index());
+			setTotalFrames(() => app.total_frames());
+		}
+	}, [app]);
+
+	useEffect(() => {
+		if (app) {
+			app.set_current_index(currentIndex);
+		}
 	}, [app, currentIndex]);
 
 	const firstFrame = () => {
@@ -48,26 +51,30 @@ export function useFrameList(app?: FlippenWasm) {
 
 	const advanceFrame = () => {
 		if (app == null) return;
-		if (currentIndex + 1 < totalFrames) {
-			setCurrentIndex((prev) => prev + 1);
-		} else if (isLoop) {
-			setCurrentIndex(0);
-		} else {
+
+		setCurrentIndex((prev) => {
+			if (prev + 1 < totalFrames) {
+				return prev + 1;
+			}
+			if (isLoop) {
+				return 0;
+			}
 			pause();
-		}
+			return prev;
+		});
 	};
 
 	const play = () => {
 		if (isPlaying) return;
 		setIsPlaying(true);
-		setPlayInterval(setInterval(advanceFrame, 1000 / fps));
+		playIntervalRef.current = setInterval(advanceFrame, 1000 / fps);
 	};
 
 	const pause = () => {
 		setIsPlaying(false);
-		if (playInterval !== null) {
-			clearInterval(playInterval);
-			setPlayInterval(null);
+		if (playIntervalRef.current !== null) {
+			clearInterval(playIntervalRef.current);
+			playIntervalRef.current = null;
 		}
 	};
 

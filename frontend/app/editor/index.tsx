@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { FlippenWasm } from "~/pkg/flippen_wasm";
 import { runWasm } from "~/wasm/wasm-loader";
 import DrawCanvas from "./DrawCanvas";
@@ -20,45 +20,39 @@ export function Editor() {
 	});
 	const [isOnionSkin, setIsOnionSkin] = useState<boolean>(false);
 
-	useEffect(() => {
-		runWasm(1280, 720).then(setApp);
-	}, []);
-
-	return (
+	return app !== undefined ? (
 		<main className="relative w-full h-full grid grid-cols-[1fr_auto] grid-rows-[1fr_auto]">
 			<div className="relative overflow-hidden">
-				{app && (
-					<DrawCanvas
-						prevFrame={
-							frameList.currentIndex !== 0
-								? () => app.get_data(frameList.currentIndex - 1)
-								: undefined
-						}
-						currentFrame={() => app.get_data(frameList.currentIndex)}
-						nextFrame={
-							frameList.currentIndex !== frameList.totalFrames - 1
-								? () => app.get_data(frameList.currentIndex + 1)
-								: undefined
-						}
-						isOnionSkin={!frameList.isPlaying && isOnionSkin}
-						onDrawBrush={(x, y, pressure) => {
-							const rgbaColor = hsvaToRgba(currentColor);
-							app.apply_tool(
-								currentTool,
-								x,
-								y,
-								new Uint8Array([
-									rgbaColor.r,
-									rgbaColor.g,
-									rgbaColor.b,
-									rgbaColor.a,
-								]),
-								pressure,
-							);
-						}}
-						onRender={() => {}}
-					/>
-				)}
+				<DrawCanvas
+					prevFrame={
+						frameList.currentIndex !== 0
+							? () => app.get_data(frameList.currentIndex - 1)
+							: undefined
+					}
+					currentFrame={() => app.get_data(frameList.currentIndex)}
+					nextFrame={
+						frameList.currentIndex !== frameList.totalFrames - 1
+							? () => app.get_data(frameList.currentIndex + 1)
+							: undefined
+					}
+					isOnionSkin={!frameList.isPlaying && isOnionSkin}
+					onDrawBrush={(x, y, pressure) => {
+						const rgbaColor = hsvaToRgba(currentColor);
+						app.apply_tool(
+							currentTool,
+							x,
+							y,
+							new Uint8Array([
+								rgbaColor.r,
+								rgbaColor.g,
+								rgbaColor.b,
+								rgbaColor.a,
+							]),
+							pressure,
+						);
+					}}
+					onRender={() => {}}
+				/>
 				<div className="absolute bottom-8 w-fit left-0 right-0 m-auto max-w-full overflow-x-auto">
 					<Toolbar
 						isPlaying={frameList.isPlaying}
@@ -91,7 +85,7 @@ export function Editor() {
 				currentColor={currentColor}
 				onCurrentColorChange={setCurrentColor}
 				onCurrentSizeChange={(size: number) => {
-					app?.set_brush_size(size);
+					app?.set_tool_property(currentTool, "size", size);
 				}}
 			/>
 			<div className="col-span-2 border-t border-gray-200 z-10">
@@ -100,9 +94,9 @@ export function Editor() {
 						<input
 							type="number"
 							min={0}
-							max={frameList.totalFrames}
-							defaultValue={frameList.currentIndex}
-							onBlur={(event) =>
+							max={frameList.totalFrames - 1}
+							value={frameList.currentIndex}
+							onChange={(event) =>
 								frameList.setCurrentIndex(
 									Number.parseInt(event.currentTarget.value),
 								)
@@ -114,25 +108,31 @@ export function Editor() {
 						type="number"
 						min={0}
 						max={120}
-						defaultValue={frameList.fps}
-						onBlur={(event) =>
+						value={frameList.fps}
+						onChange={(event) =>
 							frameList.setFps(Number.parseInt(event.currentTarget.value))
 						}
 					/>
 				</div>
-				{app && (
-					<Timeline
-						totalFrames={frameList.totalFrames}
-						currentIndex={frameList.currentIndex}
-						getFrameData={(index) => app.get_data(index)}
-						frameWidth={1280}
-						frameHeight={720}
-						onSelectFrame={frameList.setCurrentIndex}
-						onAddFrame={() => frameList.insertFrame(frameList.currentIndex)}
-						onDeleteFrame={() => frameList.deleteFrame(frameList.currentIndex)}
-					/>
-				)}
+				<Timeline
+					totalFrames={frameList.totalFrames}
+					currentIndex={frameList.currentIndex}
+					getFrameData={(index) => app.get_data(index)}
+					frameWidth={1280}
+					frameHeight={720}
+					onSelectFrame={frameList.setCurrentIndex}
+					onAddFrame={() => frameList.insertFrame(frameList.currentIndex)}
+					onDeleteFrame={() => frameList.deleteFrame(frameList.currentIndex)}
+				/>
 			</div>
+		</main>
+	) : (
+		<main>
+			<input type="number" value={1280} />
+			<input type="number" value={720} />
+			<button type="button" onClick={() => runWasm(1280, 720).then(setApp)}>
+				新規作成
+			</button>
 		</main>
 	);
 }

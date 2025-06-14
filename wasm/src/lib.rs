@@ -4,6 +4,7 @@ mod tool;
 
 use js_sys::Uint8ClampedArray;
 use wasm_bindgen::prelude::wasm_bindgen;
+use wasm_bindgen::JsValue;
 
 use crate::core::image::Image;
 use crate::core::tool::ToolPropertyValue;
@@ -62,23 +63,55 @@ impl FlippenWasm {
         );
     }
 
-    pub fn set_fill_tolerance(&mut self, tolerance: f64) {
-        self.app.tools[1].set_property("tolerance", ToolPropertyValue::Number(tolerance));
-    }
+    pub fn set_tool_property(&mut self, current_tool: &str, name: &str, value: JsValue) {
+        let tool_index = match current_tool {
+            "pen" => 0,
+            "eraser" => 1,
+            "fill" => 2,
+            _ => {
+                eprintln!("Unknown or invalid property: {}.", current_tool);
+                return;
+            }
+        };
 
-    pub fn set_brush_size(&mut self, size: f64) {
-        self.app.tools[0].set_property("size", ToolPropertyValue::Number(size));
-    }
+        let tool_property: Result<ToolPropertyValue, JsValue> = {
+            if let Some(n) = value.as_f64() {
+                Ok(ToolPropertyValue::Number(n))
+            } else if let Some(b) = value.as_bool() {
+                Ok(ToolPropertyValue::Bool(b))
+            } else if let Some(s) = value.as_string() {
+                Ok(ToolPropertyValue::String(s))
+            } else if js_sys::Array::is_array(&value) {
+                let array = js_sys::Array::from(&value);
+                if array.length() == 4 {
+                    let mut color = [0u8; 4];
+                    for i in 0..4 {
+                        if let Some(n) = array.get(i).as_f64() {
+                            color[i as usize] = n as u8;
+                        } else {
+                            return;
+                        }
+                    }
+                    Ok(ToolPropertyValue::Color(color))
+                } else {
+                    Err(JsValue::from_str("Invalid color array length"))
+                }
+            } else if value.is_object() {
+                let uint8_array = js_sys::Uint8Array::new(&value);
+                let vec = uint8_array.to_vec();
+                Ok(ToolPropertyValue::Image(Image {
+                    data: vec,
+                    width: 512,
+                    height: 512,
+                }))
+            } else {
+                Err(JsValue::from_str("Unsupported property value"))
+            }
+        };
 
-    pub fn set_brush_image(&mut self, width: u32, height: u32, data: Vec<u8>) {
-        self.app.tools[0].set_property(
-            "image",
-            ToolPropertyValue::Image(Image {
-                width,
-                height,
-                data,
-            }),
-        );
+        if let Ok(prop) = tool_property {
+            self.app.tools[tool_index].set_property(name, prop);
+        }
     }
 
     pub fn prev_frame(&mut self) {
