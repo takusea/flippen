@@ -40,12 +40,12 @@ export function useFrameList(app?: FlippenWasm) {
 	};
 
 	const insertFrame = (index: number) => {
-		app?.insert_frame();
+		app?.insert_frame(index);
 		setTotalFrames((prev) => prev + 1);
 	};
 
 	const deleteFrame = (index: number) => {
-		app?.delete_current_frame();
+		app?.delete_frame(index);
 		setTotalFrames((prev) => prev - 1);
 	};
 

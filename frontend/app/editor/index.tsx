@@ -121,8 +121,8 @@ export function Editor() {
 					frameWidth={1280}
 					frameHeight={720}
 					onSelectFrame={frameList.setCurrentIndex}
-					onAddFrame={() => frameList.insertFrame(frameList.currentIndex)}
-					onDeleteFrame={() => frameList.deleteFrame(frameList.currentIndex)}
+					onInsertFrame={frameList.insertFrame}
+					onDeleteFrame={frameList.deleteFrame}
 				/>
 			</div>
 		</main>

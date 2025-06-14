@@ -130,9 +130,9 @@ impl FlippenWasm {
         self.app.frames.last();
     }
 
-    pub fn insert_frame(&mut self) {
+    pub fn insert_frame(&mut self, index: usize) {
         self.app.frames.insert(
-            self.app.frames.current_index,
+            index,
             Image {
                 data: vec![0; (self.app.width * self.app.height * 4) as usize],
                 width: self.app.width,
@@ -141,8 +141,8 @@ impl FlippenWasm {
         );
     }
 
-    pub fn delete_current_frame(&mut self) {
-        self.app.frames.delete(self.app.frames.current_index);
+    pub fn delete_frame(&mut self, index: usize) {
+        self.app.frames.delete(index);
     }
 
     pub fn current_index(&self) -> usize {

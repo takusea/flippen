@@ -7,7 +7,7 @@ type Props = {
 	frameHeight: number;
 	getFrameData: (index: number) => Uint8ClampedArray;
 	onSelectFrame: (index: number) => void;
-	onAddFrame: (index: number) => void;
+	onInsertFrame: (index: number) => void;
 	onDeleteFrame: (index: number) => void;
 };
 
@@ -50,28 +50,34 @@ const Timeline: React.FC<Props> = (props) => {
 				const isSelected = i === props.currentIndex;
 				return (
 					<div key={i} className="contents">
-						<canvas
-							ref={(el) => {
-								canvasRefs.current[i] = el;
-							}}
-							width={256}
-							height={256}
-							className={`cursor-pointer rounded-lg w-32 h-32 ${isSelected ? "border-2 border-teal-500" : "border border-gray-400"}`}
-							tabIndex={0}
+						<button
+							type="button"
 							onClick={() => props.onSelectFrame(i)}
 							onKeyDown={(e) => {
 								if (e.key === "Enter" || e.key === " ") {
 									props.onSelectFrame(i);
 								} else if (e.key === "Delete") {
 									props.onDeleteFrame(i);
+								} else if (e.key === "Insert") {
+									props.onInsertFrame(i);
 								}
 							}}
-							aria-label={`Select frame ${i + 1}`}
-						/>
+						>
+							<canvas
+								ref={(el) => {
+									canvasRefs.current[i] = el;
+								}}
+								width={256}
+								height={256}
+								className={`cursor-pointer rounded-lg w-32 h-32 ${isSelected ? "border-2 border-teal-500" : "border border-gray-400"}`}
+								aria-label={`Select frame ${i + 1}`}
+							/>
+						</button>
 						<button
 							type="button"
 							className="w-2 h-32 rounded hover:bg-black/10 shrink-0"
-							onClick={() => props.onAddFrame(i)}
+							tabIndex={-1}
+							onClick={() => props.onInsertFrame(i)}
 						/>
 					</div>
 				);
