@@ -8,7 +8,7 @@ import Toolbar from "./Toolbar";
 import { useFrameList } from "./useFrameList";
 import { hsvaToRgba, type HSVAColor } from "~/util/color";
 
-export function Welcome() {
+export function Editor() {
 	const [app, setApp] = useState<FlippenWasm>();
 	const frameList = useFrameList(app);
 	const [currentTool, setCurrentTool] = useState<string>("move");
