@@ -5,6 +5,8 @@ import DrawCanvas from "./DrawCanvas";
 import Inspector from "./Inspector";
 import Timeline from "./Timeline";
 import Toolbar from "./Toolbar";
+import TextField from "../base/TextField";
+import Button from "../base/Button";
 import { useFrameList } from "./useFrameList";
 import { hsvaToRgba, type HSVAColor } from "~/util/color";
 
@@ -127,12 +129,19 @@ export function Editor() {
 			</div>
 		</main>
 	) : (
-		<main>
-			<input type="number" value={1280} />
-			<input type="number" value={720} />
-			<button type="button" onClick={() => runWasm(1280, 720).then(setApp)}>
-				新規作成
-			</button>
+		<main className="flex flex-col gap-2 justify-center w-fit h-full m-auto">
+			<h2 className="text-xl font-bold">プロジェクト新規作成</h2>
+			<label htmlFor="name">プロジェクト名</label>
+			<TextField id="name" value={"project"} />
+			<label htmlFor="width">幅</label>
+			<TextField id="width" value={1280} />
+			<label htmlFor="height">高さ</label>
+			<TextField id="height" value={720} />
+			<Button
+				label="新規作成"
+				variant="primary"
+				onClick={() => runWasm(1280, 720).then(setApp)}
+			/>
 		</main>
 	);
 }

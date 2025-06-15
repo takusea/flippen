@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import Tooltip from "../base/Tooltip";
 
 type Props = {
 	totalFrames: number;
@@ -73,12 +74,14 @@ const Timeline: React.FC<Props> = (props) => {
 								aria-label={`Select frame ${i + 1}`}
 							/>
 						</button>
-						<button
-							type="button"
-							className="w-2 h-32 rounded hover:bg-black/10 shrink-0"
-							tabIndex={-1}
-							onClick={() => props.onInsertFrame(i)}
-						/>
+						<Tooltip label="フレームを追加">
+							<button
+								type="button"
+								className="w-2 h-32 rounded hover:bg-black/10 shrink-0"
+								tabIndex={-1}
+								onClick={() => props.onInsertFrame(i)}
+							/>
+						</Tooltip>
 					</div>
 				);
 			})}
