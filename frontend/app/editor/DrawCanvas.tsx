@@ -7,6 +7,7 @@ type Props = {
 	isOnionSkin?: boolean;
 	onDrawBrush: (x: number, y: number, pressure: number) => void;
 	onRender: () => void;
+	onDrawBegin: () => void;
 };
 
 const DrawCanvas: React.FC<Props> = (props) => {
@@ -83,6 +84,8 @@ const DrawCanvas: React.FC<Props> = (props) => {
 	};
 
 	const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+		props.onDrawBegin();
+
 		const { x, y } = getPointerPosition(e.clientX, e.clientY);
 
 		const pressure = e.pointerType === "mouse" ? (e.pressure ?? 0.5) : 0.5;

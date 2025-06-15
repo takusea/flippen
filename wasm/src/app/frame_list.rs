@@ -13,18 +13,6 @@ impl FrameList {
         }
     }
 
-    pub fn get_frame(&self, index: usize) -> &Image {
-        &self.frames[index]
-    }
-
-    pub fn current_frame(&self) -> &Image {
-        &self.frames[self.current_index]
-    }
-
-    pub fn current_frame_mut(&mut self) -> &mut Image {
-        &mut self.frames[self.current_index]
-    }
-
     pub fn prev(&mut self) {
         if self.current_index > 0 {
             self.current_index -= 1;

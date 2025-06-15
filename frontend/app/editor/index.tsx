@@ -54,6 +54,7 @@ export function Editor() {
 						);
 					}}
 					onRender={() => {}}
+					onDrawBegin={() => app.begin_draw()}
 				/>
 				<div className="absolute bottom-8 w-fit left-0 right-0 m-auto max-w-full overflow-x-auto">
 					<Toolbar

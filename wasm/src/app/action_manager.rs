@@ -1,3 +1,6 @@
+use crate::app::action::UndoableAction;
+use crate::app::context::Context;
+
 pub struct ActionManager {
     undo_stack: Vec<Box<dyn UndoableAction>>,
     redo_stack: Vec<Box<dyn UndoableAction>>,
@@ -11,22 +14,22 @@ impl ActionManager {
         }
     }
 
-    pub fn do_action(&mut self, mut action: Box<dyn UndoableAction>, app: &mut App) {
-        action.apply(app);
+    pub fn do_action(&mut self, mut action: Box<dyn UndoableAction>, context: &mut Context) {
+        action.apply(context);
         self.undo_stack.push(action);
-        self.redo_stack.clear(); // redoは新規操作で消える
+        self.redo_stack.clear();
     }
 
-    pub fn undo(&mut self, app: &mut App) {
+    pub fn undo(&mut self, context: &mut Context) {
         if let Some(mut action) = self.undo_stack.pop() {
-            action.undo(app);
+            action.undo(context);
             self.redo_stack.push(action);
         }
     }
 
-    pub fn redo(&mut self, app: &mut App) {
+    pub fn redo(&mut self, context: &mut Context) {
         if let Some(mut action) = self.redo_stack.pop() {
-            action.apply(app);
+            action.apply(context);
             self.undo_stack.push(action);
         }
     }

@@ -1,3 +1,4 @@
+mod action;
 mod app;
 mod core;
 mod tool;
@@ -6,12 +7,17 @@ use js_sys::Uint8ClampedArray;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 
+use crate::action::begin_tool_action::BeginToolAction;
+use crate::action::insert_frame_action::InsertFrameAction;
+use crate::app::action_manager::ActionManager;
+use crate::app::context::Context;
 use crate::core::image::Image;
 use crate::core::tool::ToolPropertyValue;
 
 #[wasm_bindgen]
 pub struct FlippenWasm {
-    app: app::app::App,
+    context: Context,
+    action_manager: ActionManager,
 }
 
 #[wasm_bindgen]
@@ -19,28 +25,32 @@ impl FlippenWasm {
     #[wasm_bindgen(constructor)]
     pub fn new(width: u32, height: u32) -> FlippenWasm {
         FlippenWasm {
-            app: app::app::App::new(width, height),
+            context: Context::new(width, height),
+            action_manager: ActionManager::new(),
         }
     }
 
     pub fn width(&self) -> u32 {
-        self.app.width
+        self.context.width
     }
 
     pub fn height(&self) -> u32 {
-        self.app.height
+        self.context.height
     }
 
-    pub fn push_undo(&mut self) {
-        self.app.push_undo();
+    pub fn begin_draw(&mut self) {
+        self.action_manager.do_action(
+            Box::new(BeginToolAction::new(self.context.frames.current_index)),
+            &mut self.context,
+        );
     }
 
     pub fn undo(&mut self) {
-        self.app.undo();
+        self.action_manager.undo(&mut self.context);
     }
 
     pub fn redo(&mut self) {
-        self.app.redo();
+        self.action_manager.redo(&mut self.context);
     }
 
     pub fn apply_tool(&mut self, current_tool: &str, x: u32, y: u32, color: &[u8], pressure: f32) {
@@ -54,7 +64,7 @@ impl FlippenWasm {
             }
         };
 
-        self.app.apply_tool(
+        self.context.apply_tool(
             tool_index,
             x,
             y,
@@ -110,54 +120,48 @@ impl FlippenWasm {
         };
 
         if let Ok(prop) = tool_property {
-            self.app.tools[tool_index].set_property(name, prop);
+            self.context.tools[tool_index].set_property(name, prop);
         }
     }
 
     pub fn prev_frame(&mut self) {
-        self.app.frames.prev();
+        self.context.frames.prev();
     }
 
     pub fn next_frame(&mut self) {
-        self.app.frames.next();
+        self.context.frames.next();
     }
 
     pub fn first_frame(&mut self) {
-        self.app.frames.first();
+        self.context.frames.first();
     }
 
     pub fn last_frame(&mut self) {
-        self.app.frames.last();
+        self.context.frames.last();
     }
 
     pub fn insert_frame(&mut self, index: usize) {
-        self.app.frames.insert(
-            index,
-            Image {
-                data: vec![0; (self.app.width * self.app.height * 4) as usize],
-                width: self.app.width,
-                height: self.app.height,
-            },
-        );
+        self.action_manager
+            .do_action(Box::new(InsertFrameAction::new(index)), &mut self.context)
     }
 
     pub fn delete_frame(&mut self, index: usize) {
-        self.app.frames.delete(index);
+        self.context.frames.delete(index);
     }
 
     pub fn current_index(&self) -> usize {
-        self.app.frames.current_index
+        self.context.frames.current_index
     }
 
     pub fn set_current_index(&mut self, index: usize) {
-        self.app.frames.current_index = index;
+        self.context.frames.current_index = index;
     }
 
     pub fn total_frames(&self) -> usize {
-        self.app.frames.len()
+        self.context.frames.len()
     }
 
     pub fn get_data(&self, index: usize) -> Uint8ClampedArray {
-        Uint8ClampedArray::from(&self.app.frames.get_frame(index).data[..])
+        Uint8ClampedArray::from(&self.context.frames.frames[index].data[..])
     }
 }
