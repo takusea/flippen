@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import type { FlippenWasm } from "~/pkg/flippen_wasm";
+import type { FlippenCore } from "~/pkg/flippen_wasm";
 
-export function useFrameList(app?: FlippenWasm) {
+export function useFrameList(core?: FlippenCore) {
 	const [currentIndex, setCurrentIndex] = useState<number>(0);
 	const [totalFrames, setTotalFrames] = useState<number>(1);
 	const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -11,17 +11,17 @@ export function useFrameList(app?: FlippenWasm) {
 	const playIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
 	useEffect(() => {
-		if (app) {
-			setCurrentIndex(() => app.current_index());
-			setTotalFrames(() => app.total_frames());
+		if (core) {
+			setCurrentIndex(() => core.current_index());
+			setTotalFrames(() => core.total_frames());
 		}
-	}, [app]);
+	}, [core]);
 
 	useEffect(() => {
-		if (app) {
-			app.set_current_index(currentIndex);
+		if (core) {
+			core.set_current_index(currentIndex);
 		}
-	}, [app, currentIndex]);
+	}, [core, currentIndex]);
 
 	const firstFrame = () => {
 		setCurrentIndex(0);
@@ -40,17 +40,17 @@ export function useFrameList(app?: FlippenWasm) {
 	};
 
 	const insertFrame = (index: number) => {
-		app?.insert_frame(index);
+		core?.insert_frame(index);
 		setTotalFrames((prev) => prev + 1);
 	};
 
 	const deleteFrame = (index: number) => {
-		app?.delete_frame(index);
+		core?.delete_frame(index);
 		setTotalFrames((prev) => prev - 1);
 	};
 
 	const advanceFrame = () => {
-		if (app == null) return;
+		if (core == null) return;
 
 		setCurrentIndex((prev) => {
 			if (prev + 1 < totalFrames) {

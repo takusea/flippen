@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { FlippenWasm } from "~/pkg/flippen_wasm";
+import type { FlippenCore } from "~/pkg/flippen_wasm";
 import { runWasm } from "~/wasm/wasm-loader";
 import DrawCanvas from "./DrawCanvas";
 import Inspector from "./Inspector";
@@ -11,8 +11,8 @@ import { useFrameList } from "./useFrameList";
 import { hsvaToRgba, type HSVAColor } from "~/util/color";
 
 export function Editor() {
-	const [app, setApp] = useState<FlippenWasm>();
-	const frameList = useFrameList(app);
+	const [core, setCore] = useState<FlippenCore>();
+	const frameList = useFrameList(core);
 	const [currentTool, setCurrentTool] = useState<string>("move");
 	const [currentColor, setCurrentColor] = useState<HSVAColor>({
 		h: 0,
@@ -22,25 +22,26 @@ export function Editor() {
 	});
 	const [isOnionSkin, setIsOnionSkin] = useState<boolean>(false);
 
-	return app !== undefined ? (
+	return core !== undefined ? (
 		<main className="relative w-full h-full grid grid-cols-[1fr_auto] grid-rows-[1fr_auto]">
 			<div className="relative overflow-hidden">
+				{JSON.stringify(core)}
 				<DrawCanvas
 					prevFrame={
 						frameList.currentIndex !== 0
-							? () => app.get_data(frameList.currentIndex - 1)
+							? () => core.get_data(frameList.currentIndex - 1)
 							: undefined
 					}
-					currentFrame={() => app.get_data(frameList.currentIndex)}
+					currentFrame={() => core.get_data(frameList.currentIndex)}
 					nextFrame={
 						frameList.currentIndex !== frameList.totalFrames - 1
-							? () => app.get_data(frameList.currentIndex + 1)
+							? () => core.get_data(frameList.currentIndex + 1)
 							: undefined
 					}
 					isOnionSkin={!frameList.isPlaying && isOnionSkin}
 					onDrawBrush={(x, y, pressure) => {
 						const rgbaColor = hsvaToRgba(currentColor);
-						app.apply_tool(
+						core.apply_tool(
 							currentTool,
 							x,
 							y,
@@ -54,7 +55,7 @@ export function Editor() {
 						);
 					}}
 					onRender={() => {}}
-					onDrawBegin={() => app.begin_draw()}
+					onDrawBegin={() => core.begin_draw()}
 				/>
 				<div className="absolute bottom-8 w-fit left-0 right-0 m-auto max-w-full overflow-x-auto">
 					<Toolbar
@@ -62,8 +63,8 @@ export function Editor() {
 						isLoop={frameList.isLoop}
 						currentTool={currentTool}
 						onCurrentToolChange={setCurrentTool}
-						onUndo={() => app?.undo()}
-						onRedo={() => app?.redo()}
+						onUndo={() => core?.undo()}
+						onRedo={() => core?.redo()}
 						onCopy={() => {}}
 						onPaste={() => {}}
 						onPlay={() =>
@@ -88,7 +89,7 @@ export function Editor() {
 				currentColor={currentColor}
 				onCurrentColorChange={setCurrentColor}
 				onCurrentSizeChange={(size: number) => {
-					app?.set_tool_property(currentTool, "size", size);
+					core?.set_tool_property(currentTool, "size", size);
 				}}
 			/>
 			<div className="col-span-2 border-t border-gray-200 z-10">
@@ -120,7 +121,7 @@ export function Editor() {
 				<Timeline
 					totalFrames={frameList.totalFrames}
 					currentIndex={frameList.currentIndex}
-					getFrameData={(index) => app.get_data(index)}
+					getFrameData={(index) => core.get_data(index)}
 					frameWidth={1280}
 					frameHeight={720}
 					onSelectFrame={frameList.setCurrentIndex}
@@ -141,7 +142,7 @@ export function Editor() {
 			<Button
 				label="新規作成"
 				variant="primary"
-				onClick={() => runWasm(1280, 720).then(setApp)}
+				onClick={() => runWasm(1280, 720).then(setCore)}
 			/>
 		</main>
 	);

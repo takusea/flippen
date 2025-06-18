@@ -15,16 +15,16 @@ use crate::core::image::Image;
 use crate::core::tool::ToolPropertyValue;
 
 #[wasm_bindgen]
-pub struct FlippenWasm {
+pub struct FlippenCore {
     context: Context,
     action_manager: ActionManager,
 }
 
 #[wasm_bindgen]
-impl FlippenWasm {
+impl FlippenCore {
     #[wasm_bindgen(constructor)]
-    pub fn new(width: u32, height: u32) -> FlippenWasm {
-        FlippenWasm {
+    pub fn new(width: u32, height: u32) -> FlippenCore {
+        FlippenCore {
             context: Context::new(width, height),
             action_manager: ActionManager::new(),
         }
