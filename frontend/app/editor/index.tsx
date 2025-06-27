@@ -1,14 +1,14 @@
 import { useState } from "react";
 import type { FlippenCore } from "~/pkg/flippen_wasm";
-import { runWasm } from "~/wasm/wasm-loader";
+import { type HSVAColor, hsvaToRgba } from "~/util/color";
+import { run } from "~/wasm/wasm-loader";
+import Button from "../base/Button";
+import TextField from "../base/TextField";
 import DrawCanvas from "./DrawCanvas";
 import Inspector from "./Inspector";
 import Timeline from "./Timeline";
 import Toolbar from "./Toolbar";
-import TextField from "../base/TextField";
-import Button from "../base/Button";
 import { useFrameList } from "./useFrameList";
-import { hsvaToRgba, type HSVAColor } from "~/util/color";
 
 export function Editor() {
 	const [core, setCore] = useState<FlippenCore>();
@@ -142,7 +142,7 @@ export function Editor() {
 			<Button
 				label="新規作成"
 				variant="primary"
-				onClick={() => runWasm(1280, 720).then(setCore)}
+				onClick={() => run(1280, 720).then(setCore)}
 			/>
 		</main>
 	);

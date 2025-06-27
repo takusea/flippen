@@ -1,9 +1,9 @@
 // WebAssemblyのモジュールをロード
-import init, { FlippenWasm } from "../pkg/flippen_wasm";
+import init, { FlippenCore } from "../pkg/flippen_wasm";
 
-export async function runWasm(width: number, height: number) {
+export async function run(width: number, height: number) {
 	await init();
-	const app = new FlippenWasm(width, height);
+	const app = new FlippenCore(width, height);
 
 	return app;
 }

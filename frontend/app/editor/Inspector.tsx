@@ -1,7 +1,7 @@
 import { useState } from "react";
-import ColorPicker from "./ColorPicker";
 import Slider from "../base/Slider";
 import type { HSVAColor } from "../util/color";
+import ColorPicker from "./ColorPicker";
 
 type Props = {
 	currentTool: string;
