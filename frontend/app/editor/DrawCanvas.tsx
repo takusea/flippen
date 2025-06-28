@@ -12,47 +12,62 @@ type Props = {
 
 const DrawCanvas: React.FC<Props> = (props) => {
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
 	const [drawState, setDrawState] = useState<
 		| { isDrawing: false }
 		| { isDrawing: true; x: number; y: number; pressure: number }
 	>({ isDrawing: false });
+	const [scale, setScale] = useState<number>(1);
+	const [position, setPosition] = useState<{ x: number; y: number }>({
+		x: 0,
+		y: 0,
+	});
+	const [angle, setAngle] = useState<number>(0);
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		render();
 	}, [props.currentFrame]);
 
+	const putImageData = (
+		canvas: HTMLCanvasElement,
+		frame: Uint8ClampedArray,
+		alpha: number,
+	) => {
+		const ctx = canvas?.getContext("2d");
+		if (ctx == null) return;
+
+		const imageData = new ImageData(frame, canvas.width, canvas.height);
+		const tempCanvas = document.createElement("canvas");
+		tempCanvas.width = imageData.width;
+		tempCanvas.height = imageData.height;
+
+		const tempCtx = tempCanvas.getContext("2d");
+		if (tempCtx == null) return;
+
+		tempCtx.putImageData(imageData, 0, 0);
+
+		ctx.globalAlpha = alpha;
+		ctx.drawImage(tempCanvas, 0, 0);
+		ctx.globalAlpha = 1.0;
+	};
+
 	const render = () => {
 		const canvas = canvasRef.current;
 		const ctx = canvas?.getContext("2d");
+
 		if (canvas == null || ctx == null) return;
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-		const putImageData = (frame: Uint8ClampedArray, alpha: number) => {
-			const imageData = new ImageData(frame, canvas.width, canvas.height);
-			const tempCanvas = document.createElement("canvas");
-			tempCanvas.width = imageData.width;
-			tempCanvas.height = imageData.height;
-
-			const tempCtx = tempCanvas.getContext("2d");
-			if (tempCtx == null) return;
-
-			tempCtx.putImageData(imageData, 0, 0);
-
-			ctx.globalAlpha = alpha;
-			ctx.drawImage(tempCanvas, 0, 0);
-			ctx.globalAlpha = 1.0;
-		};
-
 		if (props.isOnionSkin) {
 			if (props.prevFrame) {
-				putImageData(props.prevFrame(), 0.25);
+				putImageData(canvas, props.prevFrame(), 0.25);
 			}
 			if (props.nextFrame) {
-				putImageData(props.nextFrame(), 0.25);
+				putImageData(canvas, props.nextFrame(), 0.25);
 			}
 		}
-		putImageData(props.currentFrame(), 1.0);
+		putImageData(canvas, props.currentFrame(), 1.0);
 	};
 
 	const drawSmoothLine = (
@@ -75,11 +90,35 @@ const DrawCanvas: React.FC<Props> = (props) => {
 
 	const getPointerPosition = (x: number, y: number) => {
 		const canvas = canvasRef.current;
-		if (!canvas) return { x: 0, y: 0 };
+		if (canvas == null) {
+			throw new Error("canvas is null");
+		}
+
+		if (canvas.parentElement == null) {
+			throw new Error("canvas.parentElement is null");
+		}
+
+		const parentRect = canvas.parentElement.getBoundingClientRect();
 		const rect = canvas.getBoundingClientRect();
+
+		const centerX = rect.left + rect.width / 2;
+		const centerY = rect.top + rect.height / 2;
+
+		const cx = x - centerX;
+		const cy = y - centerY;
+
+		const sx = cx / scale;
+		const sy = cy / scale;
+
+		const rad = (-angle * Math.PI) / 180;
+		const cos = Math.cos(rad);
+		const sin = Math.sin(rad);
+		const rx = sx * cos - sy * sin;
+		const ry = sx * sin + sy * cos;
+
 		return {
-			x: Math.floor(x - rect.left),
-			y: Math.floor(y - rect.top),
+			x: rx + centerX - position.x - parentRect.left,
+			y: ry + centerY - position.y - parentRect.top,
 		};
 	};
 
@@ -90,7 +129,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 
 		const pressure = e.pointerType === "mouse" ? (e.pressure ?? 0.5) : 0.5;
 
-		props.onDrawBrush(x, y, pressure);
+		// props.onDrawBrush(x, y, pressure);
 
 		setDrawState({
 			isDrawing: true,
@@ -102,7 +141,17 @@ const DrawCanvas: React.FC<Props> = (props) => {
 	};
 
 	const handlePointerMove = (event: React.PointerEvent<HTMLCanvasElement>) => {
-		if (!drawState.isDrawing) return;
+		if (event.buttons === 0 || !drawState.isDrawing) return;
+
+		if (event.altKey) {
+			setPosition((prev) => {
+				return {
+					x: prev.x + event.movementX,
+					y: prev.y + event.movementY,
+				};
+			});
+			return;
+		}
 
 		event.currentTarget.setPointerCapture(event.pointerId);
 
@@ -131,16 +180,39 @@ const DrawCanvas: React.FC<Props> = (props) => {
 		render();
 	};
 
+	const handleWheel = (event: React.WheelEvent<HTMLCanvasElement>) => {
+		if (event.altKey) {
+			const delta = 5;
+			const angle = event.deltaY < 0 ? delta : -delta;
+			setAngle((prev) => prev + angle);
+		} else {
+			const scaleMinimum = 0.0625;
+			const scaleMaximum = 32;
+
+			const delta = 1.25;
+			const scale = event.deltaY < 0 ? delta : 1 / delta;
+			setScale((prev) =>
+				Math.min(Math.max(scaleMinimum, prev * scale), scaleMaximum),
+			);
+		}
+	};
+
 	return (
 		<canvas
 			ref={canvasRef}
 			id="draw-canvas"
 			width="1280"
 			height="720"
-			className="border border-gray-400 absolute inset-0 m-auto"
+			className="border border-gray-400 absolute inset-0 [image-rendering:pixelated]"
+			style={{
+				scale: scale,
+				translate: `${position.x}px ${position.y}px`,
+				rotate: `${angle}deg`,
+			}}
 			onPointerDown={handlePointerDown}
 			onPointerMove={handlePointerMove}
 			onPointerUp={() => setDrawState({ isDrawing: false })}
+			onWheel={handleWheel}
 		/>
 	);
 };
