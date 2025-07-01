@@ -1,9 +1,9 @@
-use crate::app::context::Context;
+use crate::app::timeline::Timeline;
 
 pub trait Action {
-    fn apply(&mut self, context: &mut Context);
+    fn apply(&mut self, timeline: &mut Timeline);
 }
 
 pub trait UndoableAction: Action {
-    fn undo(&mut self, context: &mut Context);
+    fn undo(&mut self, timeline: &mut Timeline);
 }

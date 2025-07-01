@@ -2,37 +2,38 @@ use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::app::action::Action;
 use crate::app::action::UndoableAction;
-use crate::app::context::Context;
-use crate::core::image::Image;
+use crate::app::timeline::Timeline;
 
 #[wasm_bindgen]
 pub struct InsertFrameAction {
-    frame_index: usize,
+    start_frame: u32,
+    track_index: usize,
+    clip_id: Option<u32>,
 }
 
 #[wasm_bindgen]
 impl InsertFrameAction {
     #[wasm_bindgen(constructor)]
-    pub fn new(frame_index: usize) -> InsertFrameAction {
-        InsertFrameAction { frame_index }
+    pub fn new(start_frame: u32, track_index: usize) -> InsertFrameAction {
+        InsertFrameAction {
+            start_frame,
+            track_index,
+            clip_id: None,
+        }
     }
 }
 
 impl Action for InsertFrameAction {
-    fn apply(&mut self, context: &mut Context) {
-        context.frames.insert(
-            self.frame_index,
-            Image {
-                data: vec![0; (context.width * context.height * 4) as usize],
-                width: context.width,
-                height: context.height,
-            },
-        );
+    fn apply(&mut self, timeline: &mut Timeline) {
+        let clip = timeline.add_clip(self.start_frame, 1, self.track_index);
+        self.clip_id = Some(clip.id);
     }
 }
 
 impl UndoableAction for InsertFrameAction {
-    fn undo(&mut self, app: &mut Context) {
-        app.frames.delete(self.frame_index);
+    fn undo(&mut self, timeline: &mut Timeline) {
+        if let Some(clip_id) = self.clip_id {
+            timeline.delete_clip(clip_id);
+        }
     }
 }

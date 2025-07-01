@@ -1,0 +1,57 @@
+use crate::app::clip::Clip;
+use crate::core::image::Image;
+
+pub struct Timeline {
+    pub clips: Vec<Clip>,
+}
+
+impl Timeline {
+    pub fn new() -> Timeline {
+        Timeline { clips: Vec::new() }
+    }
+
+    pub fn add_clip(&mut self, start: u32, duration: u32, track_index: usize) -> Clip {
+        let id = self.clips.len() as u32;
+        let clip = Clip {
+            id,
+            start,
+            track_index,
+            frames: vec![Image::new(1280, 720); duration as usize],
+        };
+        self.clips.push(clip.clone());
+        clip
+    }
+
+    pub fn delete_clip(&mut self, clip_id: u32) {
+        let index = self
+            .clips
+            .iter()
+            .position(|clip| clip.id == clip_id)
+            .unwrap();
+        self.clips.remove(index);
+    }
+
+    pub fn move_clip(&mut self, id: u32, new_start: u32, new_track_index: usize) {
+        if let Some(clip) = self.clips.iter_mut().find(|c| c.id == id) {
+            clip.start = new_start;
+            clip.track_index = new_track_index;
+        }
+    }
+
+    pub fn get_clips(&self) -> &Vec<Clip> {
+        &self.clips
+    }
+
+    pub fn render_frame(&self, time: u32, width: u32, height: u32) -> Image {
+        let mut frame = Image::new(width, height);
+
+        for clip in self.clips.iter() {
+            if clip.start <= time && time < clip.start + clip.frames.len() as u32 {
+                let img = clip.render(time as usize);
+                frame.composite(img, 0, 0); // offset位置は必要に応じて設定
+            }
+        }
+
+        frame
+    }
+}

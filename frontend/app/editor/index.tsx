@@ -8,11 +8,11 @@ import DrawCanvas from "./DrawCanvas";
 import Inspector from "./Inspector";
 import Timeline from "./Timeline";
 import Toolbar from "./Toolbar";
-import { useFrameList } from "./useFrameList";
+import { useTimeline } from "./useTimeline";
 
 export function Editor() {
 	const [core, setCore] = useState<FlippenCore>();
-	const frameList = useFrameList(core);
+	const timeline = useTimeline(core);
 	const [currentTool, setCurrentTool] = useState<string>("move");
 	const [currentColor, setCurrentColor] = useState<HSVAColor>({
 		h: 0,
@@ -22,63 +22,72 @@ export function Editor() {
 	});
 	const [isOnionSkin, setIsOnionSkin] = useState<boolean>(false);
 
+	const handleDrawBrush = (x: number, y: number, pressure: number) => {
+		if (core == null || timeline.selectedClip == null) return;
+
+		const rgbaColor = hsvaToRgba(currentColor);
+		core.apply_tool(
+			timeline.selectedClip,
+			timeline.currentIndex,
+			currentTool,
+			x,
+			y,
+			new Uint8Array([rgbaColor.r, rgbaColor.g, rgbaColor.b, rgbaColor.a]),
+			pressure,
+		);
+	};
+
 	return core !== undefined ? (
 		<main className="relative w-full h-full grid grid-cols-[1fr_auto] grid-rows-[1fr_auto]">
 			<div className="relative overflow-hidden">
-				{JSON.stringify(core)}
 				<DrawCanvas
 					prevFrame={
-						frameList.currentIndex !== 0
-							? () => core.get_data(frameList.currentIndex - 1)
+						timeline.currentIndex !== 0
+							? () => core.get_data(timeline.currentIndex - 1)
 							: undefined
 					}
-					currentFrame={() => core.get_data(frameList.currentIndex)}
+					currentFrame={() => core.get_data(timeline.currentIndex)}
 					nextFrame={
-						frameList.currentIndex !== frameList.totalFrames - 1
-							? () => core.get_data(frameList.currentIndex + 1)
+						timeline.currentIndex !== timeline.totalFrames - 1
+							? () => core.get_data(timeline.currentIndex + 1)
 							: undefined
 					}
-					isOnionSkin={!frameList.isPlaying && isOnionSkin}
-					onDrawBrush={(x, y, pressure) => {
-						const rgbaColor = hsvaToRgba(currentColor);
-						core.apply_tool(
-							currentTool,
-							x,
-							y,
-							new Uint8Array([
-								rgbaColor.r,
-								rgbaColor.g,
-								rgbaColor.b,
-								rgbaColor.a,
-							]),
-							pressure,
-						);
-					}}
+					isOnionSkin={!timeline.isPlaying && isOnionSkin}
+					onDrawBrush={handleDrawBrush}
 					onRender={() => {}}
-					onDrawBegin={() => core.begin_draw()}
+					onDrawBegin={() => {
+						if (timeline.selectedClip == null) return;
+						core.begin_draw(timeline.selectedClip, timeline.currentIndex);
+					}}
 				/>
 				<div className="absolute bottom-8 w-fit left-0 right-0 m-auto max-w-full overflow-x-auto">
 					<Toolbar
-						isPlaying={frameList.isPlaying}
-						isLoop={frameList.isLoop}
+						isPlaying={timeline.isPlaying}
+						isLoop={timeline.isLoop}
 						currentTool={currentTool}
 						onCurrentToolChange={setCurrentTool}
-						onUndo={() => core?.undo()}
-						onRedo={() => core?.redo()}
+						onUndo={() => {
+							core?.undo();
+							timeline.setClips(core.get_clips());
+						}}
+						onRedo={() => {
+							core?.redo();
+							timeline.setClips(core.get_clips());
+						}}
 						onCopy={() => {}}
 						onPaste={() => {}}
 						onPlay={() =>
-							frameList.isPlaying ? frameList.pause() : frameList.play()
+							timeline.isPlaying ? timeline.pause() : timeline.play()
 						}
 						onStop={() => {
-							frameList.stop();
-							frameList.setCurrentIndex(0);
+							timeline.stop();
+							timeline.setCurrentIndex(0);
 						}}
-						onIsLoop={() => frameList.setIsLoop((prev) => !prev)}
-						onRewind={frameList.firstFrame}
-						onPrev={frameList.prevFrame}
-						onNext={frameList.nextFrame}
-						onForward={frameList.lastFrame}
+						onIsLoop={() => timeline.setIsLoop((prev) => !prev)}
+						onRewind={timeline.firstFrame}
+						onPrev={timeline.prevFrame}
+						onNext={timeline.nextFrame}
+						onForward={timeline.lastFrame}
 						isOnionSkin={isOnionSkin}
 						onIsOnionSkin={() => setIsOnionSkin((prev) => !prev)}
 					/>
@@ -98,35 +107,35 @@ export function Editor() {
 						<input
 							type="number"
 							min={0}
-							max={frameList.totalFrames - 1}
-							value={frameList.currentIndex}
+							max={timeline.totalFrames - 1}
+							value={timeline.currentIndex}
 							onChange={(event) =>
-								frameList.setCurrentIndex(
+								timeline.setCurrentIndex(
 									Number.parseInt(event.currentTarget.value),
 								)
 							}
 						/>
-						/ {frameList.totalFrames}
+						/ {timeline.totalFrames}
 					</span>
 					<input
 						type="number"
 						min={0}
 						max={120}
-						value={frameList.fps}
+						value={timeline.fps}
 						onChange={(event) =>
-							frameList.setFps(Number.parseInt(event.currentTarget.value))
+							timeline.setFps(Number.parseInt(event.currentTarget.value))
 						}
 					/>
 				</div>
 				<Timeline
-					totalFrames={frameList.totalFrames}
-					currentIndex={frameList.currentIndex}
-					getFrameData={(index) => core.get_data(index)}
-					frameWidth={1280}
-					frameHeight={720}
-					onSelectFrame={frameList.setCurrentIndex}
-					onInsertFrame={frameList.insertFrame}
-					onDeleteFrame={frameList.deleteFrame}
+					clips={timeline.clips}
+					currentFrame={timeline.currentIndex}
+					selectedClip={timeline.selectedClip}
+					onFrameChange={timeline.setCurrentIndex}
+					onAddClip={timeline.addClip}
+					onMoveClip={timeline.moveClip}
+					onSelectClip={timeline.setSelectedClip}
+					onClipDurationChange={timeline.changeClipDuration}
 				/>
 			</div>
 		</main>

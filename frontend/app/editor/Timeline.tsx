@@ -1,90 +1,81 @@
-import { useEffect, useRef } from "react";
-import Tooltip from "../base/Tooltip";
+import type { ClipMetadata } from "~/util/clip";
+import Clip from "./Clip";
+import { useState } from "react";
+
+const NUM_TRACKS = 10;
 
 type Props = {
-	totalFrames: number;
-	currentIndex: number;
-	frameWidth: number;
-	frameHeight: number;
-	getFrameData: (index: number) => Uint8ClampedArray;
-	onSelectFrame: (index: number) => void;
-	onInsertFrame: (index: number) => void;
-	onDeleteFrame: (index: number) => void;
+	clips: ClipMetadata[];
+	selectedClip?: number;
+	currentFrame: number;
+	onSelectClip: (id: number) => void;
+	onMoveClip: (id: number, startFrame: number, trackIndex: number) => void;
+	onAddClip: (startFrame: number, trackIndex: number) => void;
+	onClipDurationChange: (id: number, duration: number) => void;
+	onFrameChange: (frame: number) => void;
 };
 
 const Timeline: React.FC<Props> = (props) => {
-	const canvasRefs = useRef<(HTMLCanvasElement | null)[]>([]);
+	const [trackHeight, setTrackHeight] = useState<number>(32);
+	const [frameWidth, setFrameWidth] = useState<number>(16);
 
-	useEffect(() => {
-		for (let i = 0; i < props.totalFrames; i++) {
-			const canvas = canvasRefs.current[i];
-			const ctx = canvas?.getContext("2d");
-			if (canvas == null || ctx == null) continue;
+	function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
+		if (event.buttons === 0) return;
+		event.currentTarget.setPointerCapture(event.pointerId);
 
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
+		if (event.currentTarget == null) return;
+		const rect = event.currentTarget.getBoundingClientRect();
+		const startFrame = Math.floor((event.clientX - rect.left) / frameWidth);
+		props.onFrameChange(Math.max(0, startFrame));
+	}
 
-			const imageData = new ImageData(
-				props.getFrameData(i),
-				props.frameWidth,
-				props.frameHeight,
-			);
-
-			const offscreen = document.createElement("canvas");
-			offscreen.width = props.frameWidth;
-			offscreen.height = props.frameHeight;
-			const offCtx = offscreen.getContext("2d");
-			if (!offCtx) continue;
-
-			offCtx.putImageData(imageData, 0, 0);
-			ctx.drawImage(offscreen, 0, 0, canvas.width, canvas.height);
+	function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
+		if (event.currentTarget == null) return;
+		const rect = event.currentTarget.getBoundingClientRect();
+		const startFrame = Math.floor((event.clientX - rect.left) / frameWidth);
+		const trackIndex = Math.floor((event.clientY - rect.top) / trackHeight);
+		if (event.ctrlKey) {
+			props.onAddClip(startFrame, trackIndex);
 		}
-	}, [
-		props.totalFrames,
-		props.frameWidth,
-		props.frameHeight,
-		props.getFrameData,
-	]);
-
+	}
 	return (
-		<div className="p-2 flex overflow-x-scroll bg-white/90">
-			{Array.from({ length: props.totalFrames }, (_, i) => {
-				const isSelected = i === props.currentIndex;
-				return (
-					<div key={i} className="contents">
-						<button
-							type="button"
-							onClick={() => props.onSelectFrame(i)}
-							onKeyDown={(e) => {
-								if (e.key === "Enter" || e.key === " ") {
-									props.onSelectFrame(i);
-								} else if (e.key === "Delete") {
-									props.onDeleteFrame(i);
-								} else if (e.key === "Insert") {
-									props.onInsertFrame(i);
-								}
-							}}
-						>
-							<canvas
-								ref={(el) => {
-									canvasRefs.current[i] = el;
-								}}
-								width={256}
-								height={256}
-								className={`cursor-pointer rounded-lg w-32 h-32 ${isSelected ? "border-2 border-teal-500" : "border border-gray-400"}`}
-								aria-label={`Select frame ${i + 1}`}
-							/>
-						</button>
-						<Tooltip label="フレームを追加">
-							<button
-								type="button"
-								className="w-2 h-32 rounded hover:bg-black/10 shrink-0"
-								tabIndex={-1}
-								onClick={() => props.onInsertFrame(i)}
-							/>
-						</Tooltip>
-					</div>
-				);
-			})}
+		<div
+			className="relative h-32 overflow-scroll"
+			onPointerMove={handlePointerMove}
+			onPointerDown={handlePointerDown}
+		>
+			<div
+				className="absolute top-0 h-full w-px bg-teal-400 z-50"
+				style={{ left: `${props.currentFrame * frameWidth}px` }}
+			/>
+			{[...Array(NUM_TRACKS)].map((_, i) => (
+				<div
+					// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+					key={i}
+					className="absolute top-0 left-0 w-full h-px bg-gray-200"
+					style={{ top: `${i * trackHeight}px` }}
+				/>
+			))}
+
+			{props.clips.map((clip) => (
+				<Clip
+					key={clip.id}
+					id={clip.id}
+					trackHeight={trackHeight}
+					frameWidth={frameWidth}
+					startFrame={clip.start}
+					duration={clip.duration}
+					trackIndex={clip.track_index}
+					isSelected={clip.id === props.selectedClip}
+					onSelect={() => props.onSelectClip(clip.id)}
+					onMove={(startFrame: number, trackIndex: number) => {
+						props.onMoveClip(clip.id, startFrame, trackIndex);
+					}}
+					onDurationChange={(duration) =>
+						props.onClipDurationChange(clip.id, duration)
+					}
+				/>
+			))}
 		</div>
 	);
 };

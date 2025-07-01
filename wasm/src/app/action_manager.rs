@@ -1,5 +1,5 @@
 use crate::app::action::UndoableAction;
-use crate::app::context::Context;
+use crate::app::timeline::Timeline;
 
 pub struct ActionManager {
     undo_stack: Vec<Box<dyn UndoableAction>>,
@@ -14,22 +14,22 @@ impl ActionManager {
         }
     }
 
-    pub fn do_action(&mut self, mut action: Box<dyn UndoableAction>, context: &mut Context) {
-        action.apply(context);
+    pub fn do_action(&mut self, mut action: Box<dyn UndoableAction>, timeline: &mut Timeline) {
+        action.apply(timeline);
         self.undo_stack.push(action);
         self.redo_stack.clear();
     }
 
-    pub fn undo(&mut self, context: &mut Context) {
+    pub fn undo(&mut self, timeline: &mut Timeline) {
         if let Some(mut action) = self.undo_stack.pop() {
-            action.undo(context);
+            action.undo(timeline);
             self.redo_stack.push(action);
         }
     }
 
-    pub fn redo(&mut self, context: &mut Context) {
+    pub fn redo(&mut self, timeline: &mut Timeline) {
         if let Some(mut action) = self.redo_stack.pop() {
-            action.apply(context);
+            action.apply(timeline);
             self.undo_stack.push(action);
         }
     }

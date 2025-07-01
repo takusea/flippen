@@ -1,27 +1,18 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import type { FlippenCore } from "~/pkg/flippen_wasm";
+import type { ClipMetadata } from "~/util/clip";
 
-export function useFrameList(core?: FlippenCore) {
+export function useTimeline(core?: FlippenCore) {
 	const [currentIndex, setCurrentIndex] = useState<number>(0);
-	const [totalFrames, setTotalFrames] = useState<number>(1);
+	const [totalFrames, setTotalFrames] = useState<number>(256);
 	const [isPlaying, setIsPlaying] = useState<boolean>(false);
 	const [isLoop, setIsLoop] = useState<boolean>(false);
 	const [fps, setFps] = useState<number>(8);
 
+	const [clips, setClips] = useState<ClipMetadata[]>([]);
+	const [selectedClip, setSelectedClip] = useState<number>();
+
 	const playIntervalRef = useRef<NodeJS.Timeout | null>(null);
-
-	useEffect(() => {
-		if (core) {
-			setCurrentIndex(() => core.current_index());
-			setTotalFrames(() => core.total_frames());
-		}
-	}, [core]);
-
-	useEffect(() => {
-		if (core) {
-			core.set_current_index(currentIndex);
-		}
-	}, [core, currentIndex]);
 
 	const firstFrame = () => {
 		setCurrentIndex(0);
@@ -37,16 +28,6 @@ export function useFrameList(core?: FlippenCore) {
 
 	const nextFrame = () => {
 		setCurrentIndex((next) => next + 1);
-	};
-
-	const insertFrame = (index: number) => {
-		core?.insert_frame(index);
-		setTotalFrames((prev) => prev + 1);
-	};
-
-	const deleteFrame = (index: number) => {
-		core?.delete_frame(index);
-		setTotalFrames((prev) => prev - 1);
 	};
 
 	const advanceFrame = () => {
@@ -83,6 +64,27 @@ export function useFrameList(core?: FlippenCore) {
 		setCurrentIndex(0);
 	};
 
+	const moveClip = (id: number, startFrame: number, trackIndex: number) => {
+		if (core == null) return;
+
+		core.move_clip(id, startFrame, trackIndex);
+		setClips(core.get_clips());
+	};
+
+	const addClip = (startFrame: number, trackIndex: number) => {
+		if (core == null) return;
+
+		core?.add_clip(startFrame, trackIndex);
+		setClips(core.get_clips());
+	};
+
+	const changeClipDuration = (id: number, duration: number) => {
+		if (core == null) return;
+
+		core.change_clip_duration(id, duration);
+		setClips(core.get_clips());
+	};
+
 	return {
 		currentIndex,
 		setCurrentIndex,
@@ -92,8 +94,13 @@ export function useFrameList(core?: FlippenCore) {
 		setIsLoop,
 		fps,
 		setFps,
-		insertFrame,
-		deleteFrame,
+		clips,
+		setClips,
+		selectedClip,
+		setSelectedClip,
+		moveClip,
+		addClip,
+		changeClipDuration,
 		firstFrame,
 		lastFrame,
 		prevFrame,
