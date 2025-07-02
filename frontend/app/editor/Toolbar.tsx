@@ -18,6 +18,7 @@ import {
 	IconPlayerTrackPrev,
 	IconRefresh,
 } from "@tabler/icons-react";
+import { useHotkeys } from "react-hotkeys-hook";
 import IconButton from "~/base/IconButton";
 
 type Props = {
@@ -41,6 +42,23 @@ type Props = {
 };
 
 const Toolbar: React.FC<Props> = (props) => {
+	useHotkeys("ctrl+z", props.onUndo);
+	useHotkeys("ctrl+shift+z", props.onRedo);
+	useHotkeys("ctrl+c", props.onCopy);
+	useHotkeys("ctrl+v", props.onPaste);
+	useHotkeys("space", props.onPlay);
+	useHotkeys("ctrl+o", props.onIsOnionSkin);
+	useHotkeys("ctrl+l", props.onIsLoop);
+	useHotkeys("ctrl+shift+ArrowLeft", props.onRewind);
+	useHotkeys("ctrl+ArrowLeft", props.onPrev);
+	useHotkeys("ctrl+ArrowRight", props.onNext);
+	useHotkeys("ctrl+shift+ArrowRight", props.onForward);
+	useHotkeys("1", () => props.onCurrentToolChange("move"));
+	useHotkeys("2", () => props.onCurrentToolChange("pen"));
+	useHotkeys("3", () => props.onCurrentToolChange("eraser"));
+	useHotkeys("4", () => props.onCurrentToolChange("fill"));
+	useHotkeys("5", () => props.onCurrentToolChange("select"));
+
 	return (
 		<div className="flex gap-2">
 			<div className="flex p-1 border bg-white/90 border-gray-200 rounded-lg shadow-md gap-1">

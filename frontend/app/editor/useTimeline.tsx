@@ -19,7 +19,7 @@ export function useTimeline(core?: FlippenCore) {
 	};
 
 	const lastFrame = () => {
-		setCurrentIndex(0);
+		setCurrentIndex(totalFrames - 1);
 	};
 
 	const prevFrame = () => {

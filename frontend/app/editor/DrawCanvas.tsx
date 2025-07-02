@@ -122,28 +122,24 @@ const DrawCanvas: React.FC<Props> = (props) => {
 		};
 	};
 
-	const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+	const handlePointerDown = (event: React.PointerEvent<HTMLCanvasElement>) => {
 		props.onDrawBegin();
 
-		const { x, y } = getPointerPosition(e.clientX, e.clientY);
-
-		const pressure = e.pointerType === "mouse" ? (e.pressure ?? 0.5) : 0.5;
-
-		// props.onDrawBrush(x, y, pressure);
+		const { x, y } = getPointerPosition(event.clientX, event.clientY);
 
 		setDrawState({
 			isDrawing: true,
 			x,
 			y,
-			pressure,
+			pressure: event.pressure,
 		});
 		render();
 	};
 
 	const handlePointerMove = (event: React.PointerEvent<HTMLCanvasElement>) => {
-		if (event.buttons === 0 || !drawState.isDrawing) return;
+		if (!drawState.isDrawing) return;
 
-		if (event.altKey) {
+		if (event.shiftKey || event.buttons & 4) {
 			setPosition((prev) => {
 				return {
 					x: prev.x + event.movementX,
@@ -152,6 +148,8 @@ const DrawCanvas: React.FC<Props> = (props) => {
 			});
 			return;
 		}
+
+		if (!(event.buttons & 1)) return;
 
 		event.currentTarget.setPointerCapture(event.pointerId);
 
@@ -168,9 +166,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 		for (const event of events) {
 			const { x, y } = getPointerPosition(event.clientX, event.clientY);
 
-			const pressure =
-				event.pointerType === "mouse" ? (event.pressure ?? 0.5) : 0.5;
-			const currentDrawState = { x, y, pressure };
+			const currentDrawState = { x, y, pressure: event.pressure };
 
 			drawSmoothLine(coalescedDrawState, currentDrawState);
 			coalescedDrawState = currentDrawState;
@@ -181,7 +177,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 	};
 
 	const handleWheel = (event: React.WheelEvent<HTMLCanvasElement>) => {
-		if (event.altKey) {
+		if (event.shiftKey) {
 			const delta = 5;
 			const angle = event.deltaY < 0 ? delta : -delta;
 			setAngle((prev) => prev + angle);
