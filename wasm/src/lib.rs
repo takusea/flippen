@@ -193,7 +193,7 @@ impl FlippenCore {
         }
     }
 
-    pub fn get_data(&self, frame_index: u32) -> Uint8ClampedArray {
+    pub fn render_frame(&self, frame_index: u32) -> Uint8ClampedArray {
         Uint8ClampedArray::from(
             &self
                 .timeline

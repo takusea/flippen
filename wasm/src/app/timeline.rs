@@ -1,4 +1,4 @@
-use crate::app::clip::Clip;
+use crate::app::clip::{Clip, ClipMetadata};
 use crate::core::image::Image;
 
 pub struct Timeline {
@@ -38,16 +38,16 @@ impl Timeline {
         }
     }
 
-    pub fn get_clips(&self) -> &Vec<Clip> {
-        &self.clips
+    pub fn get_clips(&self) -> Vec<ClipMetadata> {
+        self.clips.iter().map(|clip| clip.to_metadata()).collect()
     }
 
-    pub fn render_frame(&self, time: u32, width: u32, height: u32) -> Image {
+    pub fn render_frame(&self, frame_index: u32, width: u32, height: u32) -> Image {
         let mut frame = Image::new(width, height);
 
         for clip in self.clips.iter() {
-            if clip.start <= time && time < clip.start + clip.frames.len() as u32 {
-                let img = clip.render(time as usize);
+            if clip.start <= frame_index && frame_index < clip.start + clip.frames.len() as u32 {
+                let img = clip.render(frame_index as usize);
                 frame.composite(img, 0, 0); // offset位置は必要に応じて設定
             }
         }

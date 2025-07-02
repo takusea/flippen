@@ -1,6 +1,14 @@
 use crate::core::image::Image;
 
-use serde::{ser::SerializeStruct, Serialize, Serializer};
+use serde::{Deserialize, Serialize};
+
+#[derive(Serialize, Deserialize)]
+pub struct ClipMetadata {
+    pub id: u32,
+    pub start: u32,
+    pub track_index: usize,
+    pub duration: usize,
+}
 
 #[derive(Clone)]
 pub struct Clip {
@@ -11,33 +19,28 @@ pub struct Clip {
 }
 
 impl Clip {
-    pub fn render(&self, time: usize) -> &Image {
-        &self.frames[time - self.start as usize]
+    pub fn render(&self, frame_index: usize) -> &Image {
+        &self.frames[frame_index - self.start as usize]
     }
 
-    pub fn get_frame(&self, time: usize) -> &Image {
-        &self.frames[time - self.start as usize]
+    pub fn get_frame(&self, frame_index: usize) -> &Image {
+        &self.frames[frame_index - self.start as usize]
     }
 
-    pub fn get_frame_mut(&mut self, time: usize) -> &mut Image {
-        &mut self.frames[time - self.start as usize]
+    pub fn get_frame_mut(&mut self, frame_index: usize) -> &mut Image {
+        &mut self.frames[frame_index - self.start as usize]
     }
 
-    pub fn set_frame(&mut self, time: usize, frame: Image) {
-        self.frames[time - self.start as usize] = frame;
+    pub fn set_frame(&mut self, frame_index: usize, frame: Image) {
+        self.frames[frame_index - self.start as usize] = frame;
     }
-}
 
-impl Serialize for Clip {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let mut state = serializer.serialize_struct("Clip", 4)?;
-        state.serialize_field("id", &self.id)?;
-        state.serialize_field("start", &self.start)?;
-        state.serialize_field("track_index", &self.track_index)?;
-        state.serialize_field("duration", &self.frames.len())?;
-        state.end()
+    pub fn to_metadata(&self) -> ClipMetadata {
+        ClipMetadata {
+            id: self.id,
+            start: self.start,
+            track_index: self.track_index,
+            duration: self.frames.len(),
+        }
     }
 }

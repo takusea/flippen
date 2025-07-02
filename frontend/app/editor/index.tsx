@@ -43,13 +43,13 @@ export function Editor() {
 				<DrawCanvas
 					prevFrame={
 						timeline.currentIndex !== 0
-							? () => core.get_data(timeline.currentIndex - 1)
+							? () => core.render_frame(timeline.currentIndex - 1)
 							: undefined
 					}
-					currentFrame={() => core.get_data(timeline.currentIndex)}
+					currentFrame={() => core.render_frame(timeline.currentIndex)}
 					nextFrame={
 						timeline.currentIndex !== timeline.totalFrames - 1
-							? () => core.get_data(timeline.currentIndex + 1)
+							? () => core.render_frame(timeline.currentIndex + 1)
 							: undefined
 					}
 					isOnionSkin={!timeline.isPlaying && isOnionSkin}
