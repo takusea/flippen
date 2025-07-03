@@ -10,7 +10,7 @@ pub struct ClipMetadata {
     pub duration: usize,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Clip {
     pub id: u32,
     pub start: u32,

@@ -1,5 +1,8 @@
-#[derive(Clone)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Image {
+    #[serde(with = "serde_bytes")]
     pub data: Vec<u8>,
     pub width: u32,
     pub height: u32,

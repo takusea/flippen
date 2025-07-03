@@ -3,8 +3,6 @@ mod app;
 mod core;
 mod tool;
 
-use std::collections::btree_map::Range;
-
 use gloo::utils::format::JsValueSerdeExt;
 use js_sys::Uint8ClampedArray;
 use wasm_bindgen::prelude::wasm_bindgen;
@@ -204,5 +202,18 @@ impl FlippenCore {
                 )
                 .data[..],
         )
+    }
+
+    pub fn export(&self) -> Vec<u8> {
+        rmp_serde::to_vec(&self.timeline).unwrap()
+    }
+
+    pub fn import(&mut self, data: &[u8]) {
+        match rmp_serde::from_slice::<Timeline>(data) {
+            Ok(timeline) => self.timeline = timeline,
+            Err(e) => {
+                eprintln!("Failed to import timeline: {:?}", e);
+            }
+        }
     }
 }

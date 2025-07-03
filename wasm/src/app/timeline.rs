@@ -1,6 +1,9 @@
+use serde::{Deserialize, Serialize};
+
 use crate::app::clip::{Clip, ClipMetadata};
 use crate::core::image::Image;
 
+#[derive(Serialize, Deserialize)]
 pub struct Timeline {
     pub clips: Vec<Clip>,
 }

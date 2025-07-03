@@ -37,8 +37,54 @@ export function Editor() {
 		);
 	};
 
+	const handleImport = (core: FlippenCore) => {
+		const input = document.createElement("input");
+		input.type = "file";
+		input.addEventListener("change", () => {
+			const file = input.files?.[0];
+			if (!file) {
+				throw new Error("file is null");
+			}
+			const reader = new FileReader();
+			reader.addEventListener("load", (event) => {
+				const result = event.target?.result;
+				if (!(result instanceof ArrayBuffer)) {
+					throw new Error("FileReader result is not an ArrayBuffer");
+				}
+				core.import(new Uint8Array(result));
+				timeline.setClips(core.get_clips());
+			});
+			reader.readAsArrayBuffer(file);
+		});
+		input.click();
+		input.remove();
+	};
+
+	const handleExport = (core: FlippenCore) => {
+		const data = core.export();
+		const blob = new Blob([data], {
+			type: "application/msgpack",
+		});
+		const link = document.createElement("a");
+		link.href = URL.createObjectURL(blob);
+		link.download = "export.flip";
+		link.click();
+		link.remove();
+	};
+
 	return core !== undefined ? (
 		<main className="relative w-full h-full grid grid-cols-[1fr_auto] grid-rows-[1fr_auto]">
+			<div className="flex fixed items-center gap-1 p-2 z-10">
+				デバッグ
+				<Button
+					label="import"
+					onClick={() => core != null && handleImport(core)}
+				/>
+				<Button
+					label="export"
+					onClick={() => core != null && handleExport(core)}
+				/>
+			</div>
 			<div className="relative overflow-hidden">
 				<DrawCanvas
 					prevFrame={
