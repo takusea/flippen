@@ -40,6 +40,7 @@ export function Editor() {
 	const handleImport = (core: FlippenCore) => {
 		const input = document.createElement("input");
 		input.type = "file";
+		input.accept = ".flip";
 		input.addEventListener("change", () => {
 			const file = input.files?.[0];
 			if (!file) {
