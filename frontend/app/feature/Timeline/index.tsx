@@ -38,6 +38,7 @@ const Timeline: React.FC<Props> = (props) => {
 			props.onAddClip(startFrame, trackIndex);
 		}
 	}
+
 	return (
 		<div
 			className="relative h-32 overflow-scroll"
@@ -52,8 +53,8 @@ const Timeline: React.FC<Props> = (props) => {
 				<div
 					// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
 					key={i}
-					className="absolute top-0 left-0 w-full h-px bg-gray-200"
-					style={{ top: `${i * trackHeight}px` }}
+					className="absolute top-0 left-0 w-full h-px bg-slate-500/25"
+					style={{ top: `${(i + 1) * trackHeight}px` }}
 				/>
 			))}
 

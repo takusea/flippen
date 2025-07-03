@@ -13,11 +13,11 @@ const Tooltip: React.FC<Props> = (props) => {
 				</TooltipPrimitive.Trigger>
 				<TooltipPrimitive.Portal>
 					<TooltipPrimitive.Content
-						className="z-50 select-none rounded-md bg-white p-2 leading-none text-black border border-gray-200 shadow-md"
+						className="z-50 select-none rounded-md p-2 leading-none border border-slate-500/25 bg-white/90 dark:bg-slate-950/90 shadow-md backdrop-blur-xl"
 						sideOffset={5}
 					>
 						{props.label}
-						<TooltipPrimitive.Arrow className="fill-white mt-[-1px]" />
+						<TooltipPrimitive.Arrow className="fill-white/90 dark:fill-slate-950/90 mt-[-1px]" />
 					</TooltipPrimitive.Content>
 				</TooltipPrimitive.Portal>
 			</TooltipPrimitive.Root>

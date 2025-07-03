@@ -58,7 +58,7 @@ const Clip: React.FC<Props> = (props) => {
 	return (
 		<div
 			key={props.id}
-			className={`absolute border ${props.isSelected ? "bg-teal-100 border-teal-400 border-2" : "bg-gray-100 border-gray-300"} rounded cursor-move`}
+			className={`absolute border ${props.isSelected ? "bg-teal-400/25 border-teal-400 border-2" : "bg-slate-500/25 border-slate-500/25"} rounded cursor-move`}
 			style={{
 				left: `${props.startFrame * props.frameWidth}px`,
 				top: `${props.trackIndex * props.trackHeight}px`,

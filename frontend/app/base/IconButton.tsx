@@ -26,14 +26,14 @@ const IconButton: React.FC<Props> = (props) => {
 		if (variant === "primary") {
 			return "text-white bg-teal-500 hover:bg-teal-600";
 		}
-		return "text-gray-700 hover:bg-gray-200";
+		return "hover:bg-slate-500/15";
 	};
 
 	return (
 		<Tooltip label={props.label}>
 			<button
 				type="button"
-				className={`flex items-center justify-center rounded-md text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed ${padding(props.size)} ${color(props.variant)}`}
+				className={`flex items-center justify-center rounded-md disabled:opacity-50 disabled:cursor-not-allowed ${padding(props.size)} ${color(props.variant)}`}
 				aria-label={props.label}
 				{...props}
 			>

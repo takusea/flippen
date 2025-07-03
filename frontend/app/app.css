@@ -7,4 +7,10 @@ body {
 	touch-action: none;
 	line-height: 1;
 	font-size: 14px;
+
+  @apply bg-white dark:bg-slate-950 text-slate-950 dark:text-white;
+
+  @media (prefers-color-scheme: dark) {
+    color-scheme: dark;
+  }
 }

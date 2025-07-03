@@ -2,12 +2,12 @@ import { useState } from "react";
 import type { FlippenCore } from "~/pkg/flippen_wasm";
 import { type HSVAColor, hsvaToRgba } from "~/util/color";
 import { run } from "~/wasm/wasm-loader";
-import Button from "../base/Button";
-import TextField from "../base/TextField";
-import DrawCanvas from "./DrawCanvas";
+import Button from "~/base/Button";
+import TextField from "~/base/TextField";
+import DrawCanvas from "~/feature/Canvas";
 import Inspector from "./Inspector";
-import Timeline from "./Timeline";
-import Toolbar from "./Toolbar";
+import Timeline from "~/feature/Timeline";
+import Toolbar from "~/feature/Toolbar";
 import { useTimeline } from "./useTimeline";
 
 export function Editor() {
@@ -74,7 +74,7 @@ export function Editor() {
 	};
 
 	return core !== undefined ? (
-		<main className="relative w-full h-full grid grid-cols-[1fr_auto] grid-rows-[1fr_auto]">
+		<main className="relative w-full h-full bg-[url(/transparent.png)] grid grid-cols-[1fr_auto] grid-rows-[1fr_auto] overflow-hidden">
 			<div className="flex fixed items-center gap-1 p-2 z-10">
 				デバッグ
 				<Button
@@ -85,8 +85,31 @@ export function Editor() {
 					label="export"
 					onClick={() => core != null && handleExport(core)}
 				/>
+				<span>
+					<input
+						type="number"
+						min={0}
+						max={timeline.totalFrames - 1}
+						value={timeline.currentIndex}
+						onChange={(event) =>
+							timeline.setCurrentIndex(
+								Number.parseInt(event.currentTarget.value),
+							)
+						}
+					/>
+					/ {timeline.totalFrames}
+				</span>
+				<input
+					type="number"
+					min={0}
+					max={120}
+					value={timeline.fps}
+					onChange={(event) =>
+						timeline.setFps(Number.parseInt(event.currentTarget.value))
+					}
+				/>
 			</div>
-			<div className="relative overflow-hidden">
+			<div className="relative">
 				<DrawCanvas
 					prevFrame={
 						timeline.currentIndex !== 0
@@ -107,7 +130,7 @@ export function Editor() {
 						core.begin_draw(timeline.selectedClip, timeline.currentIndex);
 					}}
 				/>
-				<div className="absolute bottom-8 w-fit left-0 right-0 m-auto max-w-full overflow-x-auto">
+				<div className="absolute bottom-4 w-fit left-0 right-0 mx-auto max-w-full overflow-x-auto">
 					<Toolbar
 						isPlaying={timeline.isPlaying}
 						isLoop={timeline.isLoop}
@@ -139,41 +162,18 @@ export function Editor() {
 						onIsOnionSkin={() => setIsOnionSkin((prev) => !prev)}
 					/>
 				</div>
-			</div>
-			<Inspector
-				currentTool={currentTool}
-				currentColor={currentColor}
-				onCurrentColorChange={setCurrentColor}
-				onCurrentSizeChange={(size: number) => {
-					core?.set_tool_property(currentTool, "size", size);
-				}}
-			/>
-			<div className="col-span-2 border-t border-gray-200 z-10">
-				<div className="flex gap-2 items-center">
-					<span>
-						<input
-							type="number"
-							min={0}
-							max={timeline.totalFrames - 1}
-							value={timeline.currentIndex}
-							onChange={(event) =>
-								timeline.setCurrentIndex(
-									Number.parseInt(event.currentTarget.value),
-								)
-							}
-						/>
-						/ {timeline.totalFrames}
-					</span>
-					<input
-						type="number"
-						min={0}
-						max={120}
-						value={timeline.fps}
-						onChange={(event) =>
-							timeline.setFps(Number.parseInt(event.currentTarget.value))
-						}
+				<div className="absolute p-4 h-full right-0 border-l-2 border-slate-500/25 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl">
+					<Inspector
+						currentTool={currentTool}
+						currentColor={currentColor}
+						onCurrentColorChange={setCurrentColor}
+						onCurrentSizeChange={(size: number) => {
+							core?.set_tool_property(currentTool, "size", size);
+						}}
 					/>
 				</div>
+			</div>
+			<div className="col-span-2 border-t-2 border-slate-500/25 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl z-10">
 				<Timeline
 					clips={timeline.clips}
 					currentFrame={timeline.currentIndex}

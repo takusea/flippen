@@ -5,7 +5,7 @@ const TextField: React.FC<Props> = (props) => {
 		<input
 			{...props}
 			type="text"
-			className="h-8 px-2 border border-gray-300 rounded"
+			className="h-8 px-2 border border-slate-500/25 bg-slate-500/25 rounded"
 		/>
 	);
 };
