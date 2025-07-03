@@ -61,7 +61,7 @@ const Toolbar: React.FC<Props> = (props) => {
 
 	return (
 		<div className="flex gap-2">
-			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-slate-950/90 border-slate-500/25 rounded-lg shadow-sm backdrop-blur-xl">
+			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/25 rounded-lg shadow-sm backdrop-blur-xl">
 				<IconButton
 					label="Undo"
 					icon={IconArrowBackUp}
@@ -87,7 +87,7 @@ const Toolbar: React.FC<Props> = (props) => {
 					onClick={props.onPaste}
 				/>
 			</div>
-			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-slate-950/90 border-slate-500/25 rounded-lg shadow-sm backdrop-blur-xl">
+			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/25 rounded-lg shadow-sm backdrop-blur-xl">
 				<IconButton
 					label="Play"
 					icon={props.isPlaying ? IconPlayerPause : IconPlayerPlay}
@@ -116,7 +116,7 @@ const Toolbar: React.FC<Props> = (props) => {
 					onClick={props.onIsOnionSkin}
 				/>
 			</div>
-			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-slate-950/90 border-slate-500/25 rounded-lg shadow-sm backdrop-blur-xl">
+			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/25 rounded-lg shadow-sm backdrop-blur-xl">
 				<IconButton
 					label="Rewind"
 					icon={IconPlayerSkipBack}
@@ -142,7 +142,7 @@ const Toolbar: React.FC<Props> = (props) => {
 					onClick={props.onForward}
 				/>
 			</div>
-			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-slate-950/90 border-slate-500/25 rounded-lg shadow-sm backdrop-blur-xl">
+			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/25 rounded-lg shadow-sm backdrop-blur-xl">
 				<IconButton
 					label="Move"
 					icon={IconArrowsMove}

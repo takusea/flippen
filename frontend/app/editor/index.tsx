@@ -74,7 +74,7 @@ export function Editor() {
 	};
 
 	return core !== undefined ? (
-		<main className="relative w-full h-full bg-[url(/transparent.png)] grid grid-cols-[1fr_auto] grid-rows-[1fr_auto] overflow-hidden">
+		<main className="w-full h-full bg-[url(/transparent.png)] grid grid-cols-[1fr_auto] grid-rows-[1fr_auto]">
 			<div className="flex fixed items-center gap-1 p-2 z-10">
 				デバッグ
 				<Button
@@ -162,7 +162,7 @@ export function Editor() {
 						onIsOnionSkin={() => setIsOnionSkin((prev) => !prev)}
 					/>
 				</div>
-				<div className="absolute p-4 h-full right-0 border-l-2 border-slate-500/25 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl">
+				<div className="absolute p-4 h-full right-0 border-l-2 border-zinc-500/25 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl">
 					<Inspector
 						currentTool={currentTool}
 						currentColor={currentColor}
@@ -173,7 +173,7 @@ export function Editor() {
 					/>
 				</div>
 			</div>
-			<div className="col-span-2 border-t-2 border-slate-500/25 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl z-10">
+			<div className="col-span-2 border-t-2 border-zinc-500/25 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl z-10">
 				<Timeline
 					clips={timeline.clips}
 					currentFrame={timeline.currentIndex}

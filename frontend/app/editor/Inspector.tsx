@@ -48,7 +48,7 @@ const Inspector: React.FC<Props> = (props) => {
 			/>
 			<div className="flex gap-2">
 				<div
-					className="relative w-8 h-8 rounded border border-slate-500/25 bg-[url(/transparent.png)] before:content-[''] before:rounded-sm before:absolute before:inset-1 before:bg-[--color] before:z-10"
+					className="relative w-8 h-8 rounded border border-zinc-500/25 bg-[url(/transparent.png)] before:content-[''] before:rounded-sm before:absolute before:inset-1 before:bg-[--color] before:z-10"
 					style={
 						{
 							"--color": `rgb(${rgbaColor.r} ${rgbaColor.g} ${rgbaColor.b} / ${rgbaColor.a / 255})`,

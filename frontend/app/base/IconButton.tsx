@@ -26,7 +26,7 @@ const IconButton: React.FC<Props> = (props) => {
 		if (variant === "primary") {
 			return "text-white bg-teal-500 hover:bg-teal-600";
 		}
-		return "hover:bg-slate-500/15";
+		return "hover:bg-zinc-500/15";
 	};
 
 	return (

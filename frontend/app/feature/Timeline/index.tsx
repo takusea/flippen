@@ -53,7 +53,7 @@ const Timeline: React.FC<Props> = (props) => {
 				<div
 					// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
 					key={i}
-					className="absolute top-0 left-0 w-full h-px bg-slate-500/25"
+					className="absolute top-0 left-0 w-full h-px bg-zinc-500/25"
 					style={{ top: `${(i + 1) * trackHeight}px` }}
 				/>
 			))}
