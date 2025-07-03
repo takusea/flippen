@@ -41,7 +41,7 @@ const Timeline: React.FC<Props> = (props) => {
 
 	return (
 		<div
-			className="relative h-32 overflow-scroll"
+			className="relative overflow-scroll"
 			onPointerMove={handlePointerMove}
 			onPointerDown={handlePointerDown}
 		>

@@ -162,7 +162,7 @@ export function Editor() {
 						onIsOnionSkin={() => setIsOnionSkin((prev) => !prev)}
 					/>
 				</div>
-				<div className="absolute p-4 h-full right-0 border-l-2 border-zinc-500/25 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl">
+				<div className="absolute p-4 h-full w-[240px] right-0 border-l-2 border-zinc-500/25 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl">
 					<Inspector
 						currentTool={currentTool}
 						currentColor={currentColor}
@@ -173,7 +173,7 @@ export function Editor() {
 					/>
 				</div>
 			</div>
-			<div className="col-span-2 border-t-2 border-zinc-500/25 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl z-10">
+			<div className="h-[160px] grid place-content-stretch col-span-2 border-t-2 border-zinc-500/25 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl z-10">
 				<Timeline
 					clips={timeline.clips}
 					currentFrame={timeline.currentIndex}
