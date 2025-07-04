@@ -17,6 +17,9 @@ const Clip: React.FC<Props> = (props) => {
 	const [startPosX, setStartPosX] = useState(0);
 
 	const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+		event.stopPropagation();
+		if (!(event.buttons & 1)) return;
+
 		props.onSelect();
 
 		const rect = event.currentTarget.getBoundingClientRect();
@@ -24,8 +27,8 @@ const Clip: React.FC<Props> = (props) => {
 	};
 
 	const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-		if (event.buttons === 0) return;
 		event.stopPropagation();
+		if (!(event.buttons & 1)) return;
 		event.currentTarget.setPointerCapture(event.pointerId);
 
 		const rect = event.currentTarget.getBoundingClientRect();
@@ -45,8 +48,8 @@ const Clip: React.FC<Props> = (props) => {
 	const handleRightPointerMove = (
 		event: React.PointerEvent<HTMLDivElement>,
 	) => {
-		if (event.buttons === 0) return;
 		event.stopPropagation();
+		if (!(event.buttons & 1)) return;
 		event.currentTarget.setPointerCapture(event.pointerId);
 
 		const rect = event.currentTarget.getBoundingClientRect();
@@ -58,24 +61,20 @@ const Clip: React.FC<Props> = (props) => {
 	return (
 		<div
 			key={props.id}
-			className={`absolute border ${props.isSelected ? "bg-teal-400/25 border-teal-400 border-2" : "bg-zinc-500/25 border-zinc-500/25"} rounded cursor-move`}
+			className={`absolute grid grid-cols-[1fr_8px] items-stretch rounded border ${props.isSelected ? "bg-teal-400/25 border-teal-400 border-2" : "bg-zinc-500/25 border-zinc-500/25"}`}
 			style={{
 				left: `${props.startFrame * props.frameWidth}px`,
 				top: `${props.trackIndex * props.trackHeight}px`,
 				width: `${props.duration * props.frameWidth}px`,
 				height: `${props.trackHeight}px`,
 			}}
-			data-id={props.id}
-			onPointerMove={handlePointerMove}
 			onPointerDown={handlePointerDown}
 		>
-			<span className="absolute inset-1 flex items-center text-nowrap">
+			<div className="absolute h-full flex items-center text-nowrap pointer-events-none">
 				Clip {props.id}
-			</span>
-			<div
-				className="absolute top-0 right-0 h-full w-4 cursor-w-resize"
-				onPointerMove={handleRightPointerMove}
-			/>
+			</div>
+			<div className="cursor-move" onPointerMove={handlePointerMove} />
+			<div className="cursor-w-resize" onPointerMove={handleRightPointerMove} />
 		</div>
 	);
 };

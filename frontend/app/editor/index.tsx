@@ -176,8 +176,9 @@ export function Editor() {
 			<div className="h-[160px] grid place-content-stretch col-span-2 border-t-2 border-zinc-500/25 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl z-10">
 				<Timeline
 					clips={timeline.clips}
-					currentFrame={timeline.currentIndex}
 					selectedClip={timeline.selectedClip}
+					totalFrames={timeline.totalFrames}
+					currentFrame={timeline.currentIndex}
 					onFrameChange={timeline.setCurrentIndex}
 					onAddClip={timeline.addClip}
 					onMoveClip={timeline.moveClip}
