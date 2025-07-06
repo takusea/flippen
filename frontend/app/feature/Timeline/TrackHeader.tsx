@@ -8,7 +8,7 @@ type Props = {
 
 const TrackHeader: React.FC<Props> = (props) => {
 	function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
-		if (event.buttons === 0) return;
+		if (!(event.buttons & 1)) return;
 		event.currentTarget.setPointerCapture(event.pointerId);
 
 		const rect = event.currentTarget.getBoundingClientRect();
@@ -20,8 +20,11 @@ const TrackHeader: React.FC<Props> = (props) => {
 
 	return (
 		<div
-			className="absolute size-full"
-			style={{ left: `-${props.scrollX}px` }}
+			className="absolute h-full"
+			style={{
+				translate: `-${props.scrollX}px 0`,
+				width: `${props.totalFrames * props.frameWidth}px`,
+			}}
 			onPointerMove={handlePointerMove}
 		>
 			{[...Array(props.totalFrames)].map((_, i) => (
@@ -35,7 +38,7 @@ const TrackHeader: React.FC<Props> = (props) => {
 			<div
 				className="absolute h-full flex items-center px-1 border-b border-teal-500"
 				style={{
-					left: `${props.currentFrame * props.frameWidth}px`,
+					translate: `${props.currentFrame * props.frameWidth}px 0`,
 					width: `${props.frameWidth}px`,
 				}}
 			>

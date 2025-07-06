@@ -6,7 +6,10 @@ type Props = {
 
 const TrackSide: React.FC<Props> = (props) => {
 	return (
-		<div className="absolute size-full" style={{ top: `-${props.scrollY}px` }}>
+		<div
+			className="absolute size-full"
+			style={{ translate: `0 -${props.scrollY}px` }}
+		>
 			{[...Array(props.numTracks)].map((_, i) => (
 				<div
 					// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>

@@ -36,8 +36,12 @@ const Timeline: React.FC<Props> = (props) => {
 	function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
 		if (!(event.buttons & 1)) return;
 		const rect = event.currentTarget.getBoundingClientRect();
-		const startFrame = Math.floor((event.clientX - rect.left) / frameWidth);
-		const trackIndex = Math.floor((event.clientY - rect.top) / trackHeight);
+		const startFrame = Math.floor(
+			(event.clientX - rect.left + scrollPosition.x) / frameWidth,
+		);
+		const trackIndex = Math.floor(
+			(event.clientY - rect.top + scrollPosition.y) / trackHeight,
+		);
 
 		props.onFrameChange(startFrame);
 		props.onAddClip(startFrame, trackIndex);
@@ -77,8 +81,11 @@ const Timeline: React.FC<Props> = (props) => {
 				onScroll={handleScroll}
 			>
 				<div
-					className="absolute top-0 bottom-0 w-px bg-teal-400 z-50"
-					style={{ left: `${props.currentFrame * frameWidth}px` }}
+					className="absolute top-0 w-px bg-teal-400 z-50"
+					style={{
+						height: `${trackHeight * NUM_TRACKS}px`,
+						translate: `${props.currentFrame * frameWidth}px 0`,
+					}}
 				/>
 				{[...Array(NUM_TRACKS)].map((_, i) => (
 					<div
