@@ -7,7 +7,7 @@ pub struct ClipMetadata {
     pub id: u32,
     pub start: u32,
     pub track_index: usize,
-    pub duration: usize,
+    pub duration: u32,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -15,24 +15,25 @@ pub struct Clip {
     pub id: u32,
     pub start: u32,
     pub track_index: usize,
-    pub frames: Vec<Image>,
+    pub image: Image,
+    pub duration: u32,
 }
 
 impl Clip {
     pub fn render(&self, frame_index: usize) -> &Image {
-        &self.frames[frame_index - self.start as usize]
+        &self.image
     }
 
-    pub fn get_frame(&self, frame_index: usize) -> &Image {
-        &self.frames[frame_index - self.start as usize]
+    pub fn get_image(&self) -> &Image {
+        &self.image
     }
 
-    pub fn get_frame_mut(&mut self, frame_index: usize) -> &mut Image {
-        &mut self.frames[frame_index - self.start as usize]
+    pub fn get_image_mut(&mut self) -> &mut Image {
+        &mut self.image
     }
 
-    pub fn set_frame(&mut self, frame_index: usize, frame: Image) {
-        self.frames[frame_index - self.start as usize] = frame;
+    pub fn set_image(&mut self, image: Image) {
+        self.image = image;
     }
 
     pub fn to_metadata(&self) -> ClipMetadata {
@@ -40,7 +41,7 @@ impl Clip {
             id: self.id,
             start: self.start,
             track_index: self.track_index,
-            duration: self.frames.len(),
+            duration: self.duration,
         }
     }
 }

@@ -61,7 +61,7 @@ const Clip: React.FC<Props> = (props) => {
 	return (
 		<div
 			key={props.id}
-			className={`absolute grid grid-cols-[1fr_8px] items-stretch rounded border ${props.isSelected ? "bg-teal-400/25 border-teal-400 border-2" : "bg-zinc-500/25 border-zinc-500/25"}`}
+			className={`absolute grid grid-cols-[1fr_8px] items-stretch rounded border overflow-hidden ${props.isSelected ? "bg-teal-400/25 border-teal-400 border-2" : "bg-zinc-500/25 border-zinc-500/25"}`}
 			style={{
 				left: `${props.startFrame * props.frameWidth}px`,
 				top: `${props.trackIndex * props.trackHeight}px`,
@@ -70,7 +70,7 @@ const Clip: React.FC<Props> = (props) => {
 			}}
 			onPointerDown={handlePointerDown}
 		>
-			<div className="absolute h-full flex items-center text-nowrap pointer-events-none">
+			<div className="absolute h-full flex items-center text-nowrap pointer-events-none px-1">
 				Clip {props.id}
 			</div>
 			<div className="cursor-move" onPointerMove={handlePointerMove} />

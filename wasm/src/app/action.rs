@@ -1,9 +1,9 @@
-use crate::app::timeline::Timeline;
+use crate::app::project::Project;
 
 pub trait Action {
-    fn apply(&mut self, timeline: &mut Timeline);
+    fn apply(&mut self, project: &mut Project);
 }
 
 pub trait UndoableAction: Action {
-    fn undo(&mut self, timeline: &mut Timeline);
+    fn undo(&mut self, project: &mut Project);
 }

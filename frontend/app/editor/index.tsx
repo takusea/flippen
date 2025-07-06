@@ -28,7 +28,6 @@ export function Editor() {
 		const rgbaColor = hsvaToRgba(currentColor);
 		core.apply_tool(
 			timeline.selectedClip,
-			timeline.currentIndex,
 			currentTool,
 			x,
 			y,

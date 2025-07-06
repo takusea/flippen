@@ -1,41 +1,45 @@
-use wasm_bindgen::prelude::wasm_bindgen;
-
-use crate::app::action::Action;
-use crate::app::action::UndoableAction;
-use crate::app::timeline::Timeline;
+use crate::app::action::{Action, UndoableAction};
+use crate::app::project::Project;
 use crate::core::image::Image;
 
-#[wasm_bindgen]
 pub struct BeginToolAction {
-    clip_id: usize,
-    current_frame: usize,
+    clip_id: u32,
     prev_image: Option<Image>,
 }
 
-#[wasm_bindgen]
 impl BeginToolAction {
-    #[wasm_bindgen(constructor)]
-    pub fn new(clip_id: usize, current_frame: usize) -> BeginToolAction {
-        BeginToolAction {
+    pub fn new(clip_id: u32) -> Self {
+        Self {
             clip_id,
-            current_frame,
             prev_image: None,
+        }
+    }
+
+    fn replace_clip_image(&mut self, project: &mut Project) {
+        if let Some(clip) = project.composition.find_clip(self.clip_id) {
+            if let Some(ref prev) = self.prev_image {
+                let current = clip.get_image().clone();
+                clip.set_image(prev.clone());
+                self.prev_image = Some(current);
+            }
         }
     }
 }
 
 impl Action for BeginToolAction {
-    fn apply(&mut self, timeline: &mut Timeline) {
-        let frame = &mut timeline.clips[self.clip_id].get_frame(self.current_frame);
-
-        self.prev_image = Some(frame.clone());
+    fn apply(&mut self, project: &mut Project) {
+        if self.prev_image.is_none() {
+            if let Some(clip) = project.composition.find_clip(self.clip_id) {
+                self.prev_image = Some(clip.get_image().clone());
+            }
+        } else {
+            self.replace_clip_image(project);
+        }
     }
 }
 
 impl UndoableAction for BeginToolAction {
-    fn undo(&mut self, timeline: &mut Timeline) {
-        if let Some(ref frame) = self.prev_image {
-            timeline.clips[self.clip_id].set_frame(self.current_frame, frame.clone());
-        }
+    fn undo(&mut self, project: &mut Project) {
+        self.replace_clip_image(project);
     }
 }
