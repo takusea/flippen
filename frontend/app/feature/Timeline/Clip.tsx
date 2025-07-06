@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 type Props = {
-	id: number;
+	id: string;
 	trackHeight: number;
 	frameWidth: number;
 	startFrame: number;

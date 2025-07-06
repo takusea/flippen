@@ -1,10 +1,11 @@
 use crate::core::image::Image;
 
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 #[derive(Serialize, Deserialize)]
 pub struct ClipMetadata {
-    pub id: u32,
+    pub id: Uuid,
     pub start: u32,
     pub track_index: usize,
     pub duration: u32,
@@ -12,7 +13,7 @@ pub struct ClipMetadata {
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Clip {
-    pub id: u32,
+    pub id: Uuid,
     pub start: u32,
     pub track_index: usize,
     pub image: Image,

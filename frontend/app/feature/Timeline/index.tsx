@@ -3,22 +3,29 @@ import Clip from "./Clip";
 import { useState } from "react";
 import TrackHeader from "./TrackHeader";
 import TrackSide from "./TrackSide";
+import { useHotkeys } from "react-hotkeys-hook";
 
 const NUM_TRACKS = 100;
 
 type Props = {
 	clips: ClipMetadata[];
-	selectedClip?: number;
+	selectedClip?: string;
 	currentFrame: number;
 	totalFrames: number;
-	onSelectClip: (id: number) => void;
-	onMoveClip: (id: number, startFrame: number, trackIndex: number) => void;
+	onSelectClip: (id: string) => void;
+	onMoveClip: (id: string, startFrame: number, trackIndex: number) => void;
 	onAddClip: (startFrame: number, trackIndex: number) => void;
-	onClipDurationChange: (id: number, duration: number) => void;
+	onDeleteClip: (id: string) => void;
+	onClipDurationChange: (id: string, duration: number) => void;
 	onFrameChange: (frame: number) => void;
 };
 
 const Timeline: React.FC<Props> = (props) => {
+	useHotkeys("delete", () => {
+		if (props.selectedClip != null) {
+			props.onDeleteClip(props.selectedClip);
+		}
+	});
 	const [trackHeight, setTrackHeight] = useState<number>(32);
 	const [frameWidth, setFrameWidth] = useState<number>(16);
 	const [scrollPosition, setScrollPosition] = useState<{

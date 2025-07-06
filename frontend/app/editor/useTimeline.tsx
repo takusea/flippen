@@ -10,7 +10,7 @@ export function useTimeline(core?: FlippenCore) {
 	const [fps, setFps] = useState<number>(8);
 
 	const [clips, setClips] = useState<ClipMetadata[]>([]);
-	const [selectedClip, setSelectedClip] = useState<number>();
+	const [selectedClip, setSelectedClip] = useState<string>();
 
 	const playIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -64,7 +64,7 @@ export function useTimeline(core?: FlippenCore) {
 		setCurrentIndex(0);
 	};
 
-	const moveClip = (id: number, startFrame: number, trackIndex: number) => {
+	const moveClip = (id: string, startFrame: number, trackIndex: number) => {
 		if (core == null) return;
 
 		core.move_clip(id, startFrame, trackIndex);
@@ -74,11 +74,17 @@ export function useTimeline(core?: FlippenCore) {
 	const addClip = (startFrame: number, trackIndex: number) => {
 		if (core == null) return;
 
-		core?.add_clip(startFrame, trackIndex);
+		core.add_clip(startFrame, trackIndex);
 		setClips(core.get_clips());
 	};
 
-	const changeClipDuration = (id: number, duration: number) => {
+	const deleteClip = (id: string) => {
+		if (core == null) return;
+
+		core.delete_clip(id);
+	};
+
+	const changeClipDuration = (id: string, duration: number) => {
 		if (core == null) return;
 
 		core.change_clip_duration(id, duration);
@@ -100,6 +106,7 @@ export function useTimeline(core?: FlippenCore) {
 		setSelectedClip,
 		moveClip,
 		addClip,
+		deleteClip,
 		changeClipDuration,
 		firstFrame,
 		lastFrame,

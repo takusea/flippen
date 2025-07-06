@@ -1,14 +1,16 @@
+use uuid::Uuid;
+
 use crate::app::action::{Action, UndoableAction};
 use crate::app::project::Project;
 use crate::core::image::Image;
 
 pub struct BeginToolAction {
-    clip_id: u32,
+    clip_id: Uuid,
     prev_image: Option<Image>,
 }
 
 impl BeginToolAction {
-    pub fn new(clip_id: u32) -> Self {
+    pub fn new(clip_id: Uuid) -> Self {
         Self {
             clip_id,
             prev_image: None,

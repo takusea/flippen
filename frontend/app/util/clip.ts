@@ -1,5 +1,5 @@
 export type ClipMetadata = {
-	id: number;
+	id: string;
 	start: number;
 	duration: number;
 	track_index: number;

@@ -5,11 +5,13 @@ mod tool;
 
 use gloo::utils::format::JsValueSerdeExt;
 use js_sys::Uint8ClampedArray;
+use uuid::Uuid;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
 
+use crate::action::add_clip_action::AddClipAction;
 use crate::action::begin_tool_action::BeginToolAction;
-use crate::action::insert_frame_action::InsertFrameAction;
+use crate::action::delete_clip_action::DeleteClipAction;
 use crate::app::action_manager::ActionManager;
 use crate::app::clip::ClipMetadata;
 use crate::app::composition::Composition;
@@ -55,7 +57,14 @@ impl FlippenCore {
         self.project.settings.height
     }
 
-    pub fn begin_draw(&mut self, clip_id: u32) {
+    pub fn begin_draw(&mut self, clip_id_str: String) {
+        let clip_id = match Uuid::parse_str(&clip_id_str) {
+            Ok(id) => id,
+            Err(e) => {
+                eprintln!("Failed to parse clip_id: {:?}", e);
+                return;
+            }
+        };
         let action = Box::new(BeginToolAction::new(clip_id));
         self.action_manager.do_action(action, &mut self.project);
     }
@@ -70,13 +79,21 @@ impl FlippenCore {
 
     pub fn apply_tool(
         &mut self,
-        clip_id: u32,
+        clip_id_str: String,
         current_tool: &str,
         x: u32,
         y: u32,
         color: &[u8],
         pressure: f32,
     ) {
+        let clip_id = match Uuid::parse_str(&clip_id_str) {
+            Ok(id) => id,
+            Err(e) => {
+                eprintln!("Failed to parse clip_id: {:?}", e);
+                return;
+            }
+        };
+
         let tool_index = match current_tool {
             "pen" => 0,
             "eraser" => 1,
@@ -176,23 +193,46 @@ impl FlippenCore {
     }
 
     pub fn add_clip(&mut self, start_frame: u32, track_index: usize) {
-        self.action_manager.do_action(
-            Box::new(InsertFrameAction::new(start_frame, track_index)),
-            &mut self.project,
-        )
+        let action = Box::new(AddClipAction::new(start_frame, track_index));
+        self.action_manager.do_action(action, &mut self.project);
     }
 
-    pub fn delete_clip(&mut self, clip_id: u32) {
-        self.project.composition.delete_clip(clip_id);
+    pub fn delete_clip(&mut self, clip_id_str: String) {
+        let clip_id = match Uuid::parse_str(&clip_id_str) {
+            Ok(id) => id,
+            Err(e) => {
+                eprintln!("Failed to parse clip_id: {:?}", e);
+                return;
+            }
+        };
+
+        let action = Box::new(DeleteClipAction::new(clip_id));
+        self.action_manager.do_action(action, &mut self.project);
     }
 
-    pub fn move_clip(&mut self, clip_id: u32, start_frame: u32, track_index: usize) {
+    pub fn move_clip(&mut self, clip_id_str: String, start_frame: u32, track_index: usize) {
+        let clip_id = match Uuid::parse_str(&clip_id_str) {
+            Ok(id) => id,
+            Err(e) => {
+                eprintln!("Failed to parse clip_id: {:?}", e);
+                return;
+            }
+        };
+
         self.project
             .composition
             .move_clip(clip_id, start_frame, track_index);
     }
 
-    pub fn change_clip_duration(&mut self, clip_id: u32, duration: u32) {
+    pub fn change_clip_duration(&mut self, clip_id_str: String, duration: u32) {
+        let clip_id = match Uuid::parse_str(&clip_id_str) {
+            Ok(id) => id,
+            Err(e) => {
+                eprintln!("Failed to parse clip_id: {:?}", e);
+                return;
+            }
+        };
+
         if let Some(clip) = self.project.composition.find_clip(clip_id) {
             clip.duration = duration;
         }

@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
-use crate::app::clip::{Clip, ClipMetadata};
+use crate::app::clip::Clip;
 use crate::core::image::Image;
 
 #[derive(Serialize, Deserialize)]
@@ -13,30 +14,20 @@ impl Composition {
         Self { clips: Vec::new() }
     }
 
-    pub fn add_clip(&mut self, start: u32, duration: u32, track_index: usize) -> Clip {
-        let id = self.clips.len() as u32;
-        let clip = Clip {
-            id,
-            start,
-            track_index,
-            duration,
-            image: Image::new(1280, 720),
-        };
-        self.clips.push(clip.clone());
-        clip
+    pub fn add_clip(&mut self, clip: Clip) {
+        self.clips.push(clip);
     }
 
-    pub fn delete_clip(&mut self, clip_id: u32) {
-        let index = self
-            .clips
-            .iter()
-            .position(|clip| clip.id == clip_id)
-            .unwrap();
-        self.clips.remove(index);
+    pub fn delete_clip(&mut self, clip_id: Uuid) -> Option<Clip> {
+        if let Some(pos) = self.clips.iter().position(|clip| clip.id == clip_id) {
+            Some(self.clips.remove(pos))
+        } else {
+            None
+        }
     }
 
-    pub fn move_clip(&mut self, id: u32, new_start: u32, new_track_index: usize) {
-        if let Some(clip) = self.clips.iter_mut().find(|c| c.id == id) {
+    pub fn move_clip(&mut self, clip_id: Uuid, new_start: u32, new_track_index: usize) {
+        if let Some(clip) = self.clips.iter_mut().find(|c| c.id == clip_id) {
             clip.start = new_start;
             clip.track_index = new_track_index;
         }
@@ -46,7 +37,7 @@ impl Composition {
         &self.clips
     }
 
-    pub fn find_clip(&mut self, clip_id: u32) -> Option<&mut Clip> {
+    pub fn find_clip(&mut self, clip_id: Uuid) -> Option<&mut Clip> {
         self.clips.iter_mut().find(|clip| clip.id == clip_id)
     }
 

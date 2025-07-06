@@ -126,7 +126,7 @@ export function Editor() {
 					onRender={() => {}}
 					onDrawBegin={() => {
 						if (timeline.selectedClip == null) return;
-						core.begin_draw(timeline.selectedClip, timeline.currentIndex);
+						core.begin_draw(timeline.selectedClip);
 					}}
 				/>
 				<div className="absolute bottom-4 w-fit left-0 right-0 mx-auto max-w-full overflow-x-auto">
@@ -183,6 +183,10 @@ export function Editor() {
 					onMoveClip={timeline.moveClip}
 					onSelectClip={timeline.setSelectedClip}
 					onClipDurationChange={timeline.changeClipDuration}
+					onDeleteClip={(id) => {
+						timeline.deleteClip(id);
+						timeline.setClips(core.get_clips());
+					}}
 				/>
 			</div>
 		</main>
