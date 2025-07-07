@@ -1,13 +1,13 @@
 import { useState } from "react";
-import type { FlippenCore } from "~/pkg/flippen_wasm";
-import { type HSVAColor, hsvaToRgba } from "~/util/color";
-import { run } from "~/wasm/wasm-loader";
 import Button from "~/base/Button";
 import TextField from "~/base/TextField";
 import DrawCanvas from "~/feature/Canvas";
-import Inspector from "./Inspector";
 import Timeline from "~/feature/Timeline";
 import Toolbar from "~/feature/Toolbar";
+import type { FlippenCore } from "~/pkg/flippen_wasm";
+import { type HSVAColor, hsvaToRgba } from "~/util/color";
+import { run } from "~/wasm/wasm-loader";
+import Inspector from "./Inspector";
 import { useTimeline } from "./useTimeline";
 
 export function Editor() {

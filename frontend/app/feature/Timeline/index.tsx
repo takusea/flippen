@@ -1,9 +1,9 @@
+import { useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 import type { ClipMetadata } from "~/util/clip";
 import Clip from "./Clip";
-import { useState } from "react";
 import TrackHeader from "./TrackHeader";
 import TrackSide from "./TrackSide";
-import { useHotkeys } from "react-hotkeys-hook";
 
 const NUM_TRACKS = 100;
 
