@@ -56,18 +56,21 @@ impl Composition {
     }
 
     pub fn render_frame(&self, frame_index: u32, width: u32, height: u32) -> Image {
-        let mut frame = Image::new(width, height);
+        let mut clips: Vec<&Clip> = self
+            .clips
+            .iter()
+            .filter(|clip| clip.contains_frame(frame_index))
+            .filter(|clip| !self.hidden_layers.contains(&clip.layer_index))
+            .collect();
 
-        for clip in self.clips.iter() {
-            if self.hidden_layers.contains(&clip.layer_index) {
-                continue;
-            }
-            if clip.start <= frame_index && frame_index < clip.start + clip.duration {
-                let img = clip.render(frame_index as usize);
-                frame.composite(img, 0, 0);
-            }
-        }
+        clips.sort_by_key(|clip| clip.layer_index);
 
-        frame
+        clips
+            .into_iter()
+            .map(|clip| clip.render(frame_index as usize))
+            .fold(Image::new(width, height), |mut acc, img| {
+                acc.composite(img, 0, 0);
+                acc
+            })
     }
 }

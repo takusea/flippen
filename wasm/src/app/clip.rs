@@ -37,6 +37,10 @@ impl Clip {
         self.image = image;
     }
 
+    pub fn contains_frame(&self, frame_index: u32) -> bool {
+        self.start <= frame_index && frame_index < self.start + self.duration
+    }
+
     pub fn to_metadata(&self) -> ClipMetadata {
         ClipMetadata {
             id: self.id,
