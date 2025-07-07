@@ -31,7 +31,7 @@ const IconButton: React.FC<Props> = (props) => {
 	return (
 		<button
 			type="button"
-			className={`flex items-center justify-center gap-1 rounded-md font-semibold disabled:opacity-50 disabled:cursor-not-allowed ${padding(props.size)} ${color(props.variant)}`}
+			className={`flex items-center justify-center gap-1 rounded-md font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${padding(props.size)} ${color(props.variant)}`}
 			{...props}
 		>
 			{props.icon && <props.icon />}

@@ -5,7 +5,7 @@ export type Props = React.ComponentProps<typeof SliderPrimitive.Root>;
 const Slider: React.FC<Props> = (props) => {
 	return (
 		<SliderPrimitive.Root
-			className="relative flex items-center h-8 touch-none select-none"
+			className="relative flex items-center h-8 cursor-pointer touch-none select-none"
 			{...props}
 		>
 			<SliderPrimitive.Track className="relative h-2 grow rounded-full border border-zinc-500/25 bg-zinc-500/25">

@@ -9,7 +9,7 @@ type Props = {
 const MenubarMenu: React.FC<Props> = (props) => {
 	return (
 		<Menubar.Menu>
-			<Menubar.Trigger className="flex items-center justify-between rounded-md h-8 px-2 font-medium data-[highlighted]:bg-zinc-500/25 data-[state=open]:bg-zinc-500/25 hover:bg-zinc-500/15 disabled:opacity-50 disabled:cursor-not-allowed">
+			<Menubar.Trigger className="flex items-center justify-between rounded-md h-8 px-2 font-medium cursor-pointer data-[highlighted]:bg-zinc-500/25 data-[state=open]:bg-zinc-500/25 hover:bg-zinc-500/15 disabled:opacity-50 disabled:cursor-not-allowed">
 				{props.label}
 			</Menubar.Trigger>
 			<Menubar.Portal>

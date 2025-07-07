@@ -34,7 +34,7 @@ const IconButton: React.FC<Props> = (props) => {
 		<Tooltip label={props.label} side={props.toolTipSide ?? "top"}>
 			<button
 				type="button"
-				className={`flex items-center justify-center rounded-md disabled:opacity-50 disabled:cursor-not-allowed ${padding(props.size)} ${color(props.variant)}`}
+				className={`flex items-center justify-center rounded-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${padding(props.size)} ${color(props.variant)}`}
 				aria-label={props.label}
 				{...props}
 			>
