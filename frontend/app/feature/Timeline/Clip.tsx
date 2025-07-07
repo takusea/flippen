@@ -2,14 +2,14 @@ import { useState } from "react";
 
 type Props = {
 	id: string;
-	trackHeight: number;
+	layerHeight: number;
 	frameWidth: number;
 	startFrame: number;
 	duration: number;
-	trackIndex: number;
+	layerIndex: number;
 	isSelected: boolean;
 	onSelect: () => void;
-	onMove: (startFrame: number, trackIndex: number) => void;
+	onMove: (startFrame: number, layerIndex: number) => void;
 	onDurationChange: (duration: number) => void;
 };
 
@@ -35,13 +35,13 @@ const Clip: React.FC<Props> = (props) => {
 		const startFrame = Math.floor(
 			(event.clientX - rect.left - startPosX) / props.frameWidth,
 		);
-		const trackIndex = Math.floor(
-			(event.clientY - rect.top) / props.trackHeight,
+		const layerIndex = Math.floor(
+			(event.clientY - rect.top) / props.layerHeight,
 		);
 
 		props.onMove(
 			Math.max(0, props.startFrame + startFrame),
-			Math.max(0, props.trackIndex + trackIndex),
+			Math.max(0, props.layerIndex + layerIndex),
 		);
 	};
 
@@ -64,9 +64,9 @@ const Clip: React.FC<Props> = (props) => {
 			className={`absolute grid grid-cols-[1fr_8px] items-stretch rounded border overflow-hidden ${props.isSelected ? "bg-teal-400/25 border-teal-400 border-2" : "bg-zinc-500/25 border-zinc-500/25"}`}
 			style={{
 				left: `${props.startFrame * props.frameWidth}px`,
-				top: `${props.trackIndex * props.trackHeight}px`,
+				top: `${props.layerIndex * props.layerHeight}px`,
 				width: `${props.duration * props.frameWidth}px`,
-				height: `${props.trackHeight}px`,
+				height: `${props.layerHeight}px`,
 			}}
 			onPointerDown={handlePointerDown}
 		>

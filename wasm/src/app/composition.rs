@@ -7,11 +7,15 @@ use crate::core::image::Image;
 #[derive(Serialize, Deserialize)]
 pub struct Composition {
     pub clips: Vec<Clip>,
+    pub hidden_layers: Vec<usize>,
 }
 
 impl Composition {
     pub fn new() -> Self {
-        Self { clips: Vec::new() }
+        Self {
+            clips: Vec::new(),
+            hidden_layers: Vec::new(),
+        }
     }
 
     pub fn add_clip(&mut self, clip: Clip) {
@@ -26,10 +30,10 @@ impl Composition {
         }
     }
 
-    pub fn move_clip(&mut self, clip_id: Uuid, new_start: u32, new_track_index: usize) {
+    pub fn move_clip(&mut self, clip_id: Uuid, new_start: u32, new_layer_index: usize) {
         if let Some(clip) = self.clips.iter_mut().find(|c| c.id == clip_id) {
             clip.start = new_start;
-            clip.track_index = new_track_index;
+            clip.layer_index = new_layer_index;
         }
     }
 
@@ -41,10 +45,23 @@ impl Composition {
         self.clips.iter_mut().find(|clip| clip.id == clip_id)
     }
 
+    pub fn show_layer(&mut self, layer_index: usize) {
+        self.hidden_layers.push(layer_index);
+    }
+
+    pub fn hide_layer(&mut self, layer_index: usize) {
+        if let Some(index) = self.hidden_layers.iter().position(|i| i == &layer_index) {
+            self.hidden_layers.remove(index);
+        }
+    }
+
     pub fn render_frame(&self, frame_index: u32, width: u32, height: u32) -> Image {
         let mut frame = Image::new(width, height);
 
         for clip in self.clips.iter() {
+            if self.hidden_layers.contains(&clip.layer_index) {
+                continue;
+            }
             if clip.start <= frame_index && frame_index < clip.start + clip.duration {
                 let img = clip.render(frame_index as usize);
                 frame.composite(img, 0, 0);

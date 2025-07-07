@@ -7,7 +7,7 @@ use uuid::Uuid;
 pub struct ClipMetadata {
     pub id: Uuid,
     pub start: u32,
-    pub track_index: usize,
+    pub layer_index: usize,
     pub duration: u32,
 }
 
@@ -15,7 +15,7 @@ pub struct ClipMetadata {
 pub struct Clip {
     pub id: Uuid,
     pub start: u32,
-    pub track_index: usize,
+    pub layer_index: usize,
     pub image: Image,
     pub duration: u32,
 }
@@ -41,7 +41,7 @@ impl Clip {
         ClipMetadata {
             id: self.id,
             start: self.start,
-            track_index: self.track_index,
+            layer_index: self.layer_index,
             duration: self.duration,
         }
     }

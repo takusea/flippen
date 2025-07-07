@@ -192,8 +192,8 @@ impl FlippenCore {
         JsValue::from_serde(&clip_metadatas).unwrap()
     }
 
-    pub fn add_clip(&mut self, start_frame: u32, track_index: usize) {
-        let action = Box::new(AddClipAction::new(start_frame, track_index));
+    pub fn add_clip(&mut self, start_frame: u32, layer_index: usize) {
+        let action = Box::new(AddClipAction::new(start_frame, layer_index));
         self.action_manager.do_action(action, &mut self.project);
     }
 
@@ -210,7 +210,7 @@ impl FlippenCore {
         self.action_manager.do_action(action, &mut self.project);
     }
 
-    pub fn move_clip(&mut self, clip_id_str: String, start_frame: u32, track_index: usize) {
+    pub fn move_clip(&mut self, clip_id_str: String, start_frame: u32, layer_index: usize) {
         let clip_id = match Uuid::parse_str(&clip_id_str) {
             Ok(id) => id,
             Err(e) => {
@@ -221,7 +221,7 @@ impl FlippenCore {
 
         self.project
             .composition
-            .move_clip(clip_id, start_frame, track_index);
+            .move_clip(clip_id, start_frame, layer_index);
     }
 
     pub fn change_clip_duration(&mut self, clip_id_str: String, duration: u32) {
@@ -236,6 +236,18 @@ impl FlippenCore {
         if let Some(clip) = self.project.composition.find_clip(clip_id) {
             clip.duration = duration;
         }
+    }
+
+    pub fn get_hidden_layers(&self) -> Vec<usize> {
+        self.project.composition.hidden_layers.clone()
+    }
+
+    pub fn show_layer(&mut self, layer_index: usize) {
+        self.project.composition.show_layer(layer_index);
+    }
+
+    pub fn hide_layer(&mut self, layer_index: usize) {
+        self.project.composition.hide_layer(layer_index);
     }
 
     pub fn render_frame(&self, frame_index: u32) -> Uint8ClampedArray {

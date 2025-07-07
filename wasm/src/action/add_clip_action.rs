@@ -8,15 +8,15 @@ use crate::core::image::Image;
 
 pub struct AddClipAction {
     start_frame: u32,
-    track_index: usize,
+    layer_index: usize,
     clip_id: Option<Uuid>,
 }
 
 impl AddClipAction {
-    pub fn new(start_frame: u32, track_index: usize) -> Self {
+    pub fn new(start_frame: u32, layer_index: usize) -> Self {
         Self {
             start_frame,
-            track_index,
+            layer_index,
             clip_id: None,
         }
     }
@@ -27,7 +27,7 @@ impl Action for AddClipAction {
         let clip = Clip {
             id: Uuid::new_v4(),
             start: self.start_frame,
-            track_index: self.track_index,
+            layer_index: self.layer_index,
             duration: 1,
             image: Image::new(1280, 720),
         };

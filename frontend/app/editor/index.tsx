@@ -187,6 +187,9 @@ export function Editor() {
 						timeline.deleteClip(id);
 						timeline.setClips(core.get_clips());
 					}}
+					hiddenLayers={timeline.hiddenLayers}
+					onLayerShow={timeline.showLayer}
+					onLayerHide={timeline.hideLayer}
 				/>
 			</div>
 		</main>

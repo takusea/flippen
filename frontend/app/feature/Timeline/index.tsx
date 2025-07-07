@@ -9,15 +9,18 @@ const NUM_TRACKS = 100;
 
 type Props = {
 	clips: ClipMetadata[];
+	hiddenLayers: number[];
 	selectedClip?: string;
 	currentFrame: number;
 	totalFrames: number;
 	onSelectClip: (id: string) => void;
-	onMoveClip: (id: string, startFrame: number, trackIndex: number) => void;
-	onAddClip: (startFrame: number, trackIndex: number) => void;
+	onMoveClip: (id: string, startFrame: number, layerIndex: number) => void;
+	onAddClip: (startFrame: number, layerIndex: number) => void;
 	onDeleteClip: (id: string) => void;
 	onClipDurationChange: (id: string, duration: number) => void;
 	onFrameChange: (frame: number) => void;
+	onLayerShow: (id: number) => void;
+	onLayerHide: (id: number) => void;
 };
 
 const Timeline: React.FC<Props> = (props) => {
@@ -26,7 +29,7 @@ const Timeline: React.FC<Props> = (props) => {
 			props.onDeleteClip(props.selectedClip);
 		}
 	});
-	const [trackHeight, setTrackHeight] = useState<number>(32);
+	const [layerHeight, setTrackHeight] = useState<number>(32);
 	const [frameWidth, setFrameWidth] = useState<number>(16);
 	const [scrollPosition, setScrollPosition] = useState<{
 		x: number;
@@ -39,12 +42,12 @@ const Timeline: React.FC<Props> = (props) => {
 		const startFrame = Math.floor(
 			(event.clientX - rect.left + scrollPosition.x) / frameWidth,
 		);
-		const trackIndex = Math.floor(
-			(event.clientY - rect.top + scrollPosition.y) / trackHeight,
+		const layerIndex = Math.floor(
+			(event.clientY - rect.top + scrollPosition.y) / layerHeight,
 		);
 
 		props.onFrameChange(startFrame);
-		props.onAddClip(startFrame, trackIndex);
+		props.onAddClip(startFrame, layerIndex);
 	}
 
 	function handleScroll(event: React.UIEvent<HTMLDivElement, UIEvent>) {
@@ -71,8 +74,11 @@ const Timeline: React.FC<Props> = (props) => {
 			<div className="relative overflow-hidden border-r border-zinc-500/25">
 				<TrackSide
 					numTracks={NUM_TRACKS}
-					trackHeight={trackHeight}
+					layerHeight={layerHeight}
 					scrollY={scrollPosition.y}
+					hiddenLayers={props.hiddenLayers}
+					onLayerShow={props.onLayerShow}
+					onLayerHide={props.onLayerHide}
 				/>
 			</div>
 			<div
@@ -83,7 +89,7 @@ const Timeline: React.FC<Props> = (props) => {
 				<div
 					className="absolute top-0 w-px bg-teal-400 z-50"
 					style={{
-						height: `${trackHeight * NUM_TRACKS}px`,
+						height: `${layerHeight * NUM_TRACKS}px`,
 						translate: `${props.currentFrame * frameWidth}px 0`,
 					}}
 				/>
@@ -93,7 +99,7 @@ const Timeline: React.FC<Props> = (props) => {
 						key={i}
 						className="absolute top-0 left-0 h-px bg-zinc-500/25"
 						style={{
-							top: `${(i + 1) * trackHeight}px`,
+							top: `${(i + 1) * layerHeight}px`,
 							width: `${frameWidth * props.totalFrames}px`,
 						}}
 					/>
@@ -103,15 +109,15 @@ const Timeline: React.FC<Props> = (props) => {
 					<Clip
 						key={clip.id}
 						id={clip.id}
-						trackHeight={trackHeight}
+						layerHeight={layerHeight}
 						frameWidth={frameWidth}
 						startFrame={clip.start}
 						duration={clip.duration}
-						trackIndex={clip.track_index}
+						layerIndex={clip.layer_index}
 						isSelected={clip.id === props.selectedClip}
 						onSelect={() => props.onSelectClip(clip.id)}
-						onMove={(startFrame: number, trackIndex: number) => {
-							props.onMoveClip(clip.id, startFrame, trackIndex);
+						onMove={(startFrame: number, layerIndex: number) => {
+							props.onMoveClip(clip.id, startFrame, layerIndex);
 						}}
 						onDurationChange={(duration) =>
 							props.onClipDurationChange(clip.id, duration)

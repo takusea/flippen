@@ -9,6 +9,8 @@ export function useTimeline(core?: FlippenCore) {
 	const [isLoop, setIsLoop] = useState<boolean>(false);
 	const [fps, setFps] = useState<number>(8);
 
+	const [hiddenLayers, setHiddenLayers] = useState<number[]>([]);
+
 	const [clips, setClips] = useState<ClipMetadata[]>([]);
 	const [selectedClip, setSelectedClip] = useState<string>();
 
@@ -64,17 +66,17 @@ export function useTimeline(core?: FlippenCore) {
 		setCurrentIndex(0);
 	};
 
-	const moveClip = (id: string, startFrame: number, trackIndex: number) => {
+	const moveClip = (id: string, startFrame: number, LayerIndex: number) => {
 		if (core == null) return;
 
-		core.move_clip(id, startFrame, trackIndex);
+		core.move_clip(id, startFrame, LayerIndex);
 		setClips(core.get_clips());
 	};
 
-	const addClip = (startFrame: number, trackIndex: number) => {
+	const addClip = (startFrame: number, LayerIndex: number) => {
 		if (core == null) return;
 
-		core.add_clip(startFrame, trackIndex);
+		core.add_clip(startFrame, LayerIndex);
 		setClips(core.get_clips());
 	};
 
@@ -89,6 +91,23 @@ export function useTimeline(core?: FlippenCore) {
 
 		core.change_clip_duration(id, duration);
 		setClips(core.get_clips());
+	};
+
+	const fetchHiddenLayers = () => {
+		if (core == null) return;
+		setHiddenLayers(Array.from(core.get_hidden_layers()));
+	};
+
+	const showLayer = (index: number) => {
+		if (core == null) return;
+		core.show_layer(index);
+		fetchHiddenLayers();
+	};
+
+	const hideLayer = (index: number) => {
+		if (core == null) return;
+		core.hide_layer(index);
+		fetchHiddenLayers();
 	};
 
 	return {
@@ -108,6 +127,9 @@ export function useTimeline(core?: FlippenCore) {
 		addClip,
 		deleteClip,
 		changeClipDuration,
+		hiddenLayers,
+		showLayer,
+		hideLayer,
 		firstFrame,
 		lastFrame,
 		prevFrame,
