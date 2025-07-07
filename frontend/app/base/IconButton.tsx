@@ -9,6 +9,7 @@ type Props = Omit<React.ComponentProps<"button">, "className" | "type"> & {
 	icon: TablerIcon;
 	variant?: Variant;
 	size?: Size;
+	toolTipSide?: "top" | "right" | "bottom" | "left";
 };
 
 const IconButton: React.FC<Props> = (props) => {
@@ -30,7 +31,7 @@ const IconButton: React.FC<Props> = (props) => {
 	};
 
 	return (
-		<Tooltip label={props.label}>
+		<Tooltip label={props.label} side={props.toolTipSide ?? "top"}>
 			<button
 				type="button"
 				className={`flex items-center justify-center rounded-md disabled:opacity-50 disabled:cursor-not-allowed ${padding(props.size)} ${color(props.variant)}`}

@@ -30,6 +30,7 @@ const TrackSide: React.FC<Props> = (props) => {
 							label={`Layer ${i} を${props.hiddenLayers.includes(i) ? "表示" : "非表示"}`}
 							icon={isHidden ? IconEyeOff : IconEye}
 							size="small"
+							toolTipSide="right"
 							onClick={() =>
 								isHidden ? props.onLayerHide(i) : props.onLayerShow(i)
 							}

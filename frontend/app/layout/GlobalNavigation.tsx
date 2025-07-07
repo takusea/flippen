@@ -55,11 +55,31 @@ const GlobalNavigation: React.FC<Props> = (props: Props) => {
 				<h1 className="absolute inset-0 w-fit h-fit m-auto">untitled.flip</h1>
 			</header>
 			<nav className="row-span-2 col-span-1 flex flex-col items-center gap-1 pb-2 px-2">
-				<IconButton label="Home" icon={IconHome} size="large" />
-				<IconButton label="Library" icon={IconLibrary} size="large" />
-				<IconButton label="Edit" icon={IconEdit} size="large" />
+				<IconButton
+					label="Home"
+					icon={IconHome}
+					size="large"
+					toolTipSide="right"
+				/>
+				<IconButton
+					label="Library"
+					icon={IconLibrary}
+					size="large"
+					toolTipSide="right"
+				/>
+				<IconButton
+					label="Edit"
+					icon={IconEdit}
+					size="large"
+					toolTipSide="right"
+				/>
 				<div className="h-px w-full mt-auto bg-zinc-500/25" />
-				<IconButton label="Settings" icon={IconSettings} size="large" />
+				<IconButton
+					label="Settings"
+					icon={IconSettings}
+					size="large"
+					toolTipSide="right"
+				/>
 			</nav>
 			<div className="relative z-0 overflow-hidden row-span-1 col-span-1 rounded-tl-xl border-t border-l border-zinc-500/25 bg-white dark:bg-zinc-900">
 				{props.children}

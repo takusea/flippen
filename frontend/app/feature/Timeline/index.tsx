@@ -58,7 +58,7 @@ const Timeline: React.FC<Props> = (props) => {
 	}
 
 	return (
-		<div className="grid grid-rows-[24px_1fr] grid-cols-[96px_1fr]">
+		<div className="grid grid-rows-[24px_1fr] grid-cols-[128px_1fr]">
 			<div className="size-full grid place-content-center font-mono border-b border-r border-zinc-500/25">
 				{props.currentFrame}/{props.totalFrames}
 			</div>

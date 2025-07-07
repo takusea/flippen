@@ -2,6 +2,7 @@ import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 
 export type Props = React.ComponentProps<typeof TooltipPrimitive.Root> & {
 	label: string;
+	side: "top" | "right" | "bottom" | "left";
 };
 
 const Tooltip: React.FC<Props> = (props) => {
@@ -15,6 +16,7 @@ const Tooltip: React.FC<Props> = (props) => {
 					<TooltipPrimitive.Content
 						className="z-50 select-none rounded-md p-2 leading-none border border-zinc-500/25 bg-white/90 dark:bg-zinc-950/90 shadow-md backdrop-blur-xl"
 						sideOffset={5}
+						side={props.side}
 					>
 						{props.label}
 						<TooltipPrimitive.Arrow className="fill-white/90 dark:fill-zinc-950/90 mt-[-1px]" />

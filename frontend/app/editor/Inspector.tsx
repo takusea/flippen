@@ -55,7 +55,7 @@ const Inspector: React.FC<Props> = (props) => {
 						} as React.CSSProperties
 					}
 				/>
-				<div className="flex flex-col gap-1">
+				<div className="flex flex-col gap-1 font-mono">
 					<span>
 						h{hsvaColor.h} / s{hsvaColor.s} / v{hsvaColor.v}
 					</span>
