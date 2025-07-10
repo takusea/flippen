@@ -1,16 +1,20 @@
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
+import { PlaybackContext } from "../PlayBack/PlayBackContext";
+import { CoreContext } from "../Core/CoreContext";
+import { ClipContext } from "../Clip/ClipContext";
+import { LayerContext } from "../layer/LayerContext";
 
 type Props = {
-	prevFrame?: () => Uint8ClampedArray;
-	currentFrame: () => Uint8ClampedArray;
-	nextFrame?: () => Uint8ClampedArray;
 	isOnionSkin?: boolean;
 	onDrawBrush: (x: number, y: number, pressure: number) => void;
-	onRender: () => void;
-	onDrawBegin: () => void;
 };
 
 const DrawCanvas: React.FC<Props> = (props) => {
+	const { core } = use(CoreContext);
+	const playBackContext = use(PlaybackContext);
+	const clipContext = use(ClipContext);
+	const layerContext = use(LayerContext);
+
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
 	const [drawState, setDrawState] = useState<
@@ -27,7 +31,11 @@ const DrawCanvas: React.FC<Props> = (props) => {
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		render();
-	}, [props.currentFrame]);
+	}, [
+		clipContext.clips,
+		layerContext.hiddenLayers,
+		playBackContext.currentFrame,
+	]);
 
 	const putImageData = (
 		canvas: HTMLCanvasElement,
@@ -53,21 +61,43 @@ const DrawCanvas: React.FC<Props> = (props) => {
 	};
 
 	const render = () => {
+		if (!core) return;
+
 		const canvas = canvasRef.current;
 		const ctx = canvas?.getContext("2d");
 
 		if (canvas == null || ctx == null) return;
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-		if (props.isOnionSkin) {
-			if (props.prevFrame) {
-				putImageData(canvas, props.prevFrame(), 0.25);
+		if (props.isOnionSkin && !playBackContext.isPlaying) {
+			const isFirstFrame = playBackContext.currentFrame === 0;
+			if (!isFirstFrame) {
+				const prevFrame = playBackContext.renderFrame(
+					playBackContext.currentFrame - 1,
+				);
+				if (prevFrame != null) {
+					putImageData(canvas, prevFrame, 0.25);
+				}
 			}
-			if (props.nextFrame) {
-				putImageData(canvas, props.nextFrame(), 0.25);
+
+			const isLastFrame =
+				playBackContext.currentFrame === playBackContext.maxFrameCount - 1;
+			if (!isLastFrame) {
+				const nextFrame = playBackContext.renderFrame(
+					playBackContext.currentFrame + 1,
+				);
+				if (nextFrame != null) {
+					putImageData(canvas, nextFrame, 0.25);
+				}
 			}
 		}
-		putImageData(canvas, props.currentFrame(), 1.0);
+
+		const currentFrame = playBackContext.renderFrame(
+			playBackContext.currentFrame,
+		);
+		if (currentFrame != null) {
+			putImageData(canvas, currentFrame, 1.0);
+		}
 	};
 
 	const drawSmoothLine = (
@@ -123,7 +153,9 @@ const DrawCanvas: React.FC<Props> = (props) => {
 	};
 
 	const handlePointerDown = (event: React.PointerEvent<HTMLCanvasElement>) => {
-		props.onDrawBegin();
+		if (core != null && clipContext.selectedClipId != null) {
+			core.begin_draw(clipContext.selectedClipId);
+		}
 
 		const { x, y } = getPointerPosition(event.clientX, event.clientY);
 

@@ -39,7 +39,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				<Links />
 			</head>
 			<body>
-				<GlobalNavigation>{children}</GlobalNavigation>
+				{children}
 				<ScrollRestoration />
 				<Scripts />
 			</body>

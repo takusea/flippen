@@ -1,34 +1,25 @@
-import { useState } from "react";
+import { use, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
-import type { ClipMetadata } from "~/util/clip";
 import Clip from "./Clip";
 import TrackHeader from "./TrackHeader";
 import TrackSide from "./TrackSide";
+import { ClipContext } from "../Clip/ClipContext";
+import { PlaybackContext } from "../PlayBack/PlayBackContext";
+import { LayerContext } from "../layer/LayerContext";
 
 const NUM_TRACKS = 100;
 
-type Props = {
-	clips: ClipMetadata[];
-	hiddenLayers: number[];
-	selectedClip?: string;
-	currentFrame: number;
-	totalFrames: number;
-	onSelectClip: (id: string) => void;
-	onMoveClip: (id: string, startFrame: number, layerIndex: number) => void;
-	onAddClip: (startFrame: number, layerIndex: number) => void;
-	onDeleteClip: (id: string) => void;
-	onClipDurationChange: (id: string, duration: number) => void;
-	onFrameChange: (frame: number) => void;
-	onLayerShow: (id: number) => void;
-	onLayerHide: (id: number) => void;
-};
+const Timeline: React.FC = () => {
+	const clipContext = use(ClipContext);
+	const playbackContext = use(PlaybackContext);
+	const layerContext = use(LayerContext);
 
-const Timeline: React.FC<Props> = (props) => {
 	useHotkeys("delete", () => {
-		if (props.selectedClip != null) {
-			props.onDeleteClip(props.selectedClip);
+		if (clipContext.selectedClipId != null) {
+			clipContext.deleteClip(clipContext.selectedClipId);
 		}
 	});
+
 	const [layerHeight, setTrackHeight] = useState<number>(32);
 	const [frameWidth, setFrameWidth] = useState<number>(16);
 	const [scrollPosition, setScrollPosition] = useState<{
@@ -46,8 +37,7 @@ const Timeline: React.FC<Props> = (props) => {
 			(event.clientY - rect.top + scrollPosition.y) / layerHeight,
 		);
 
-		props.onFrameChange(startFrame);
-		props.onAddClip(startFrame, layerIndex);
+		clipContext.addClip(startFrame, layerIndex);
 	}
 
 	function handleScroll(event: React.UIEvent<HTMLDivElement, UIEvent>) {
@@ -60,15 +50,15 @@ const Timeline: React.FC<Props> = (props) => {
 	return (
 		<div className="grid grid-rows-[24px_1fr] grid-cols-[128px_1fr]">
 			<div className="size-full grid place-content-center font-mono border-b border-r border-zinc-500/25">
-				{props.currentFrame}/{props.totalFrames}
+				{playbackContext.currentFrame}/{playbackContext.maxFrameCount}
 			</div>
 			<div className="relative overflow-hidden border-b border-zinc-500/25">
 				<TrackHeader
 					frameWidth={frameWidth}
-					totalFrames={props.totalFrames}
+					totalFrames={playbackContext.maxFrameCount}
 					scrollX={scrollPosition.x}
-					currentFrame={props.currentFrame}
-					onFrameChange={props.onFrameChange}
+					currentFrame={playbackContext.currentFrame}
+					onFrameChange={playbackContext.setCurrentFrame}
 				/>
 			</div>
 			<div className="relative overflow-hidden border-r border-zinc-500/25">
@@ -76,9 +66,9 @@ const Timeline: React.FC<Props> = (props) => {
 					numTracks={NUM_TRACKS}
 					layerHeight={layerHeight}
 					scrollY={scrollPosition.y}
-					hiddenLayers={props.hiddenLayers}
-					onLayerShow={props.onLayerShow}
-					onLayerHide={props.onLayerHide}
+					hiddenLayers={layerContext.hiddenLayers}
+					onLayerShow={layerContext.showLayer}
+					onLayerHide={layerContext.hideLayer}
 				/>
 			</div>
 			<div
@@ -90,7 +80,7 @@ const Timeline: React.FC<Props> = (props) => {
 					className="absolute top-0 w-px bg-teal-400 z-50"
 					style={{
 						height: `${layerHeight * NUM_TRACKS}px`,
-						translate: `${props.currentFrame * frameWidth}px 0`,
+						translate: `${playbackContext.currentFrame * frameWidth}px 0`,
 					}}
 				/>
 				{[...Array(NUM_TRACKS)].map((_, i) => (
@@ -100,12 +90,12 @@ const Timeline: React.FC<Props> = (props) => {
 						className="absolute top-0 left-0 h-px bg-zinc-500/25"
 						style={{
 							top: `${(i + 1) * layerHeight}px`,
-							width: `${frameWidth * props.totalFrames}px`,
+							width: `${frameWidth * playbackContext.maxFrameCount}px`,
 						}}
 					/>
 				))}
 
-				{props.clips.map((clip) => (
+				{clipContext.clips.map((clip) => (
 					<Clip
 						key={clip.id}
 						id={clip.id}
@@ -114,13 +104,13 @@ const Timeline: React.FC<Props> = (props) => {
 						startFrame={clip.start}
 						duration={clip.duration}
 						layerIndex={clip.layer_index}
-						isSelected={clip.id === props.selectedClip}
-						onSelect={() => props.onSelectClip(clip.id)}
+						isSelected={clip.id === clipContext.selectedClipId}
+						onSelect={() => clipContext.selectClip(clip.id)}
 						onMove={(startFrame: number, layerIndex: number) => {
-							props.onMoveClip(clip.id, startFrame, layerIndex);
+							clipContext.moveClip(clip.id, startFrame, layerIndex);
 						}}
 						onDurationChange={(duration) =>
-							props.onClipDurationChange(clip.id, duration)
+							clipContext.changeClipDuration(clip.id, duration)
 						}
 					/>
 				))}

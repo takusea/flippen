@@ -20,39 +20,43 @@ import {
 } from "@tabler/icons-react";
 import { useHotkeys } from "react-hotkeys-hook";
 import IconButton from "~/base/IconButton";
+import { PlaybackContext } from "../PlayBack/PlayBackContext";
+import { use } from "react";
+import { UndoStackContext } from "../UndoStack/UndoStackContext";
 
 type Props = {
 	currentTool: string;
-	isPlaying: boolean;
-	isLoop: boolean;
 	isOnionSkin: boolean;
 	onCurrentToolChange: (tool: string) => void;
-	onUndo: () => void;
-	onRedo: () => void;
-	onCopy: () => void;
-	onPaste: () => void;
-	onPlay: () => void;
-	onStop: () => void;
-	onIsLoop: () => void;
-	onIsOnionSkin: () => void;
-	onRewind: () => void;
-	onPrev: () => void;
-	onNext: () => void;
-	onForward: () => void;
+	onIsOnionSkinChange: () => void;
 };
 
 const Toolbar: React.FC<Props> = (props) => {
-	useHotkeys("ctrl+z", props.onUndo);
-	useHotkeys("ctrl+shift+z", props.onRedo);
-	useHotkeys("ctrl+c", props.onCopy);
-	useHotkeys("ctrl+v", props.onPaste);
-	useHotkeys("space", props.onPlay);
-	useHotkeys("ctrl+o", props.onIsOnionSkin);
-	useHotkeys("ctrl+l", props.onIsLoop);
-	useHotkeys("ctrl+shift+ArrowLeft", props.onRewind);
-	useHotkeys("ctrl+ArrowLeft", props.onPrev);
-	useHotkeys("ctrl+ArrowRight", props.onNext);
-	useHotkeys("ctrl+shift+ArrowRight", props.onForward);
+	const playBackContext = use(PlaybackContext);
+	const { undo, redo } = use(UndoStackContext);
+
+	useHotkeys("ctrl+z", undo);
+	useHotkeys("ctrl+shift+z", redo);
+	useHotkeys("ctrl+c", () => {});
+	useHotkeys("ctrl+v", () => {});
+	useHotkeys(
+		"space",
+		playBackContext.isPlaying ? playBackContext.play : playBackContext.pause,
+	);
+	useHotkeys("ctrl+o", props.onIsOnionSkinChange);
+	useHotkeys("ctrl+l", () =>
+		playBackContext.setIsLoop(!playBackContext.isLoop),
+	);
+	useHotkeys("ctrl+shift+ArrowLeft", () => playBackContext.setCurrentFrame(0));
+	useHotkeys("ctrl+ArrowLeft", () =>
+		playBackContext.setCurrentFrame(playBackContext.currentFrame - 1),
+	);
+	useHotkeys("ctrl+ArrowRight", () =>
+		playBackContext.setCurrentFrame(playBackContext.currentFrame + 1),
+	);
+	useHotkeys("ctrl+shift+ArrowRight", () =>
+		playBackContext.setCurrentFrame(playBackContext.maxFrameCount),
+	);
 	useHotkeys("1", () => props.onCurrentToolChange("move"));
 	useHotkeys("2", () => props.onCurrentToolChange("pen"));
 	useHotkeys("3", () => props.onCurrentToolChange("eraser"));
@@ -66,54 +70,58 @@ const Toolbar: React.FC<Props> = (props) => {
 					label="Undo"
 					icon={IconArrowBackUp}
 					size="small"
-					onClick={props.onUndo}
+					onClick={undo}
 				/>
 				<IconButton
 					label="Redo"
 					icon={IconArrowForwardUp}
 					size="small"
-					onClick={props.onRedo}
+					onClick={redo}
 				/>
 				<IconButton
 					label="Copy"
 					icon={IconCopy}
 					size="small"
-					onClick={props.onCopy}
+					onClick={() => {}}
 				/>
 				<IconButton
 					label="Paste"
 					icon={IconClipboard}
 					size="small"
-					onClick={props.onPaste}
+					onClick={() => {}}
 				/>
 			</div>
 			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/25 rounded-lg shadow-sm backdrop-blur-xl">
 				<IconButton
 					label="Play"
-					icon={props.isPlaying ? IconPlayerPause : IconPlayerPlay}
-					variant={props.isPlaying ? "primary" : "default"}
+					icon={playBackContext.isPlaying ? IconPlayerPause : IconPlayerPlay}
+					variant={playBackContext.isPlaying ? "primary" : "default"}
 					size="small"
-					onClick={props.onPlay}
+					onClick={() =>
+						playBackContext.isPlaying
+							? playBackContext.play
+							: playBackContext.pause
+					}
 				/>
 				<IconButton
 					label="Stop"
 					icon={IconPlayerStop}
 					size="small"
-					onClick={props.onStop}
+					onClick={playBackContext.stop}
 				/>
 				<IconButton
 					label="Loop"
 					icon={IconRefresh}
-					variant={props.isLoop ? "primary" : "default"}
+					variant={playBackContext.isLoop ? "primary" : "default"}
 					size="small"
-					onClick={props.onIsLoop}
+					onClick={() => playBackContext.setIsLoop(!playBackContext.isLoop)}
 				/>
 				<IconButton
 					label="OnionSkin"
 					icon={IconLayersDifference}
 					variant={props.isOnionSkin ? "primary" : "default"}
 					size="small"
-					onClick={props.onIsOnionSkin}
+					onClick={props.onIsOnionSkinChange}
 				/>
 			</div>
 			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/25 rounded-lg shadow-sm backdrop-blur-xl">
@@ -121,25 +129,31 @@ const Toolbar: React.FC<Props> = (props) => {
 					label="Rewind"
 					icon={IconPlayerSkipBack}
 					size="small"
-					onClick={props.onRewind}
+					onClick={() => playBackContext.setCurrentFrame(0)}
 				/>
 				<IconButton
 					label="Prev"
 					icon={IconPlayerTrackPrev}
 					size="small"
-					onClick={props.onPrev}
+					onClick={() =>
+						playBackContext.setCurrentFrame(playBackContext.currentFrame - 1)
+					}
 				/>
 				<IconButton
 					label="Next"
 					icon={IconPlayerTrackNext}
 					size="small"
-					onClick={props.onNext}
+					onClick={() =>
+						playBackContext.setCurrentFrame(playBackContext.currentFrame + 1)
+					}
 				/>
 				<IconButton
 					label="Forward"
 					icon={IconPlayerSkipForward}
 					size="small"
-					onClick={props.onForward}
+					onClick={() =>
+						playBackContext.setCurrentFrame(playBackContext.maxFrameCount)
+					}
 				/>
 			</div>
 			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/25 rounded-lg shadow-sm backdrop-blur-xl">
