@@ -1,5 +1,5 @@
-import { createContext, use, useEffect, useRef, useState } from "react";
-import { CoreContext } from "../Core/CoreContext";
+import { createContext, useEffect, useRef, useState } from "react";
+import { useCore } from "../Core/useCore";
 
 type PlaybackContextType = {
 	currentFrame: number;
@@ -19,12 +19,12 @@ type PlaybackContextType = {
 	renderFrame: (frame: number) => Uint8ClampedArray | undefined;
 };
 
-export const PlaybackContext = createContext<PlaybackContextType>({} as any);
+export const PlaybackContext = createContext<PlaybackContextType | null>(null);
 
 export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({
 	children,
 }) => {
-	const { core } = use(CoreContext);
+	const core = useCore();
 
 	const [currentFrame, setCurrentFrame] = useState(0);
 	const [fps, setFps] = useState(8);

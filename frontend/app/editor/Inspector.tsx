@@ -1,15 +1,15 @@
-import { use, useState } from "react";
+import { useState } from "react";
 import Slider from "../base/Slider";
 import ColorPicker from "../feature/ColorPicker";
-import { type HSVAColor, hsvaToRgba } from "../util/color";
-import { ToolContext } from "~/feature/Tool/ToolContext";
+import { hsvaToRgba } from "../util/color";
+import { useTool } from "~/feature/Tool/useTool";
 
 type Props = {
 	onCurrentSizeChange: (size: number) => void;
 };
 
 const Inspector: React.FC<Props> = (props) => {
-	const toolContext = use(ToolContext);
+	const toolContext = useTool();
 
 	const [currentSize, setCurrentSize] = useState<number>(5);
 

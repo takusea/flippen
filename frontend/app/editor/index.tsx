@@ -4,25 +4,25 @@ import TextField from "~/base/TextField";
 import DrawCanvas from "~/feature/Canvas";
 import Timeline from "~/feature/Timeline";
 import Toolbar from "~/feature/Toolbar";
-import { hsvaToRgba, type HSVAColor } from "~/util/color";
+import { hsvaToRgba } from "~/util/color";
 import Inspector from "./Inspector";
-import { CoreContext } from "~/feature/Core/CoreContext";
-import { ClipContext } from "~/feature/Clip/ClipContext";
-import { ToolContext } from "~/feature/Tool/ToolContext";
+import { useCore } from "~/feature/Core/useCore";
+import { useClip } from "~/feature/Clip/useClip";
+import { useTool } from "~/feature/Tool/useTool";
 
 export function Editor() {
-	const { core } = use(CoreContext);
-	const clipContext = use(ClipContext);
-	const toolContext = use(ToolContext);
+	const core = useCore();
+	const clipContext = useClip();
+	const toolContext = useTool();
 	const [isOnionSkin, setIsOnionSkin] = useState<boolean>(false);
 
 	const handleDrawBrush = (x: number, y: number, pressure: number) => {
 		if (core == null || clipContext.selectedClipId == null) return;
 
-		const rgbaColor = hsvaToRgba(currentColor);
+		const rgbaColor = hsvaToRgba(toolContext.color);
 		core.apply_tool(
 			clipContext.selectedClipId,
-			currentTool,
+			toolContext.tool,
 			x,
 			y,
 			new Uint8Array([rgbaColor.r, rgbaColor.g, rgbaColor.b, rgbaColor.a]),

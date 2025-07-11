@@ -1,5 +1,5 @@
-import { createContext, use, useEffect, useState } from "react";
-import { CoreContext } from "~/feature/Core/CoreContext";
+import { createContext, useEffect, useState } from "react";
+import { useCore } from "../Core/useCore";
 
 type LayerContextType = {
 	hiddenLayers: number[];
@@ -8,12 +8,12 @@ type LayerContextType = {
 	hideLayer: (layer: number) => void;
 };
 
-export const LayerContext = createContext<LayerContextType>({} as any);
+export const LayerContext = createContext<LayerContextType | null>(null);
 
 export const LayerProvider: React.FC<{ children: React.ReactNode }> = ({
 	children,
 }) => {
-	const { core } = use(CoreContext);
+	const core = useCore();
 
 	const [hiddenLayers, setHiddenLayers] = useState<number[]>([]);
 
@@ -24,12 +24,12 @@ export const LayerProvider: React.FC<{ children: React.ReactNode }> = ({
 	};
 
 	const showLayer = (layer: number) => {
-		core?.show_layer(layer);
+		core.show_layer(layer);
 		refreshHiddenLayers();
 	};
 
 	const hideLayer = (layer: number) => {
-		core?.hide_layer(layer);
+		core.hide_layer(layer);
 		refreshHiddenLayers();
 	};
 

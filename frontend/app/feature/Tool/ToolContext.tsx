@@ -9,7 +9,7 @@ type ToolContextType = {
 	setColor: (color: HSVAColor) => void;
 };
 
-export const ToolContext = createContext<ToolContextType>({} as any);
+export const ToolContext = createContext<ToolContextType | null>(null);
 
 export const ToolProvider: React.FC<{ children: React.ReactNode }> = ({
 	children,

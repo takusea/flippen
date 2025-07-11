@@ -1,18 +1,18 @@
-import { use, useState } from "react";
+import { useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import Clip from "./Clip";
 import TrackHeader from "./TrackHeader";
 import TrackSide from "./TrackSide";
-import { ClipContext } from "../Clip/ClipContext";
-import { PlaybackContext } from "../PlayBack/PlayBackContext";
-import { LayerContext } from "../layer/LayerContext";
+import { useClip } from "../Clip/useClip";
+import { usePlayback } from "../Playback/usePlayback";
+import { useLayer } from "../layer/useLayer";
 
 const NUM_TRACKS = 100;
 
 const Timeline: React.FC = () => {
-	const clipContext = use(ClipContext);
-	const playbackContext = use(PlaybackContext);
-	const layerContext = use(LayerContext);
+	const clipContext = useClip();
+	const playbackContext = usePlayback();
+	const layerContext = useLayer();
 
 	useHotkeys("delete", () => {
 		if (clipContext.selectedClipId != null) {

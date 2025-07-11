@@ -1,37 +1,35 @@
-import { createContext, use } from "react";
-import { CoreContext } from "../Core/CoreContext";
-import { ClipContext } from "../Clip/ClipContext";
-import { LayerContext } from "../layer/LayerContext";
+import { createContext } from "react";
+import { useCore } from "../Core/useCore";
+import { useClip } from "../Clip/useClip";
+import { useLayer } from "../layer/useLayer";
 
 type UndoStackContextType = {
-  undo: () => void;
-  redo: () => void;
+	undo: () => void;
+	redo: () => void;
 };
 
-export const UndoStackContext = createContext<UndoStackContextType>({} as any);
+export const UndoStackContext = createContext<UndoStackContextType | null>(
+	null,
+);
 
 export const UndoStackProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
+	children,
 }) => {
-  const { core } = use(CoreContext);
-  const clipContext = use(ClipContext);
-  const layerContext = use(LayerContext);
+	const core = useCore();
+	const clipContext = useClip();
+	const layerContext = useLayer();
 
-  const undo = () => {
-    if (core == null) return;
+	const undo = () => {
+		core.undo();
+		clipContext.refreshClips();
+		layerContext.refreshHiddenLayers();
+	};
 
-    core.undo();
-    clipContext.refreshClips();
-    layerContext.refreshHiddenLayers();
-  };
+	const redo = () => {
+		core.redo();
+		clipContext.refreshClips();
+		layerContext.refreshHiddenLayers();
+	};
 
-  const redo = () => {
-    if (core == null) return;
-
-    core.redo();
-    clipContext.refreshClips();
-    layerContext.refreshHiddenLayers();
-  };
-
-  return <UndoStackContext value={{ undo, redo }}>{children}</UndoStackContext>;
+	return <UndoStackContext value={{ undo, redo }}>{children}</UndoStackContext>;
 };

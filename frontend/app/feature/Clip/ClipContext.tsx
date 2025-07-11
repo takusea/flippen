@@ -1,6 +1,6 @@
-import { createContext, use, useEffect, useState } from "react";
-import { CoreContext } from "~/feature/Core/CoreContext";
+import { createContext, useEffect, useState } from "react";
 import type { ClipMetadata } from "~/util/clip";
+import { useCore } from "../Core/useCore";
 
 type ClipContextType = {
 	clips: ClipMetadata[];
@@ -18,7 +18,7 @@ export const ClipContext = createContext<ClipContextType>({} as any);
 export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 	children,
 }) => {
-	const { core } = use(CoreContext);
+	const core = useCore();
 
 	const [clips, setClips] = useState<ClipMetadata[]>([]);
 	const [selectedClipId, setSelectedClipId] = useState<string>();

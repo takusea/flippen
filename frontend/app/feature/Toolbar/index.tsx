@@ -20,10 +20,9 @@ import {
 } from "@tabler/icons-react";
 import { useHotkeys } from "react-hotkeys-hook";
 import IconButton from "~/base/IconButton";
-import { PlaybackContext } from "../PlayBack/PlayBackContext";
-import { use } from "react";
-import { UndoStackContext } from "../UndoStack/UndoStackContext";
-import { ToolContext } from "../Tool/ToolContext";
+import { useUndoStack } from "../UndoStack/useUndoStack";
+import { usePlayback } from "../Playback/usePlayback";
+import { useTool } from "../Tool/useTool";
 
 type Props = {
 	isOnionSkin: boolean;
@@ -31,9 +30,9 @@ type Props = {
 };
 
 const Toolbar: React.FC<Props> = (props) => {
-	const playBackContext = use(PlaybackContext);
-	const toolContext = use(ToolContext);
-	const { undo, redo } = use(UndoStackContext);
+	const playBackContext = usePlayback();
+	const toolContext = useTool();
+	const { undo, redo } = useUndoStack();
 
 	useHotkeys("ctrl+z", undo);
 	useHotkeys("ctrl+shift+z", redo);

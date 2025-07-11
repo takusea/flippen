@@ -1,8 +1,8 @@
-import { use, useEffect, useRef, useState } from "react";
-import { PlaybackContext } from "../PlayBack/PlayBackContext";
-import { CoreContext } from "../Core/CoreContext";
-import { ClipContext } from "../Clip/ClipContext";
-import { LayerContext } from "../layer/LayerContext";
+import { useEffect, useRef, useState } from "react";
+import { useCore } from "../Core/useCore";
+import { usePlayback } from "../Playback/usePlayback";
+import { useClip } from "../Clip/useClip";
+import { useLayer } from "../layer/useLayer";
 
 type Props = {
 	isOnionSkin?: boolean;
@@ -10,10 +10,10 @@ type Props = {
 };
 
 const DrawCanvas: React.FC<Props> = (props) => {
-	const { core } = use(CoreContext);
-	const playBackContext = use(PlaybackContext);
-	const clipContext = use(ClipContext);
-	const layerContext = use(LayerContext);
+	const core = useCore();
+	const playbackContext = usePlayback();
+	const clipContext = useClip();
+	const layerContext = useLayer();
 
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -34,7 +34,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 	}, [
 		clipContext.clips,
 		layerContext.hiddenLayers,
-		playBackContext.currentFrame,
+		playbackContext.currentFrame,
 	]);
 
 	const putImageData = (
@@ -61,19 +61,17 @@ const DrawCanvas: React.FC<Props> = (props) => {
 	};
 
 	const render = () => {
-		if (!core) return;
-
 		const canvas = canvasRef.current;
 		const ctx = canvas?.getContext("2d");
 
 		if (canvas == null || ctx == null) return;
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-		if (props.isOnionSkin && !playBackContext.isPlaying) {
-			const isFirstFrame = playBackContext.currentFrame === 0;
+		if (props.isOnionSkin && !playbackContext.isPlaying) {
+			const isFirstFrame = playbackContext.currentFrame === 0;
 			if (!isFirstFrame) {
-				const prevFrame = playBackContext.renderFrame(
-					playBackContext.currentFrame - 1,
+				const prevFrame = playbackContext.renderFrame(
+					playbackContext.currentFrame - 1,
 				);
 				if (prevFrame != null) {
 					putImageData(canvas, prevFrame, 0.25);
@@ -81,10 +79,10 @@ const DrawCanvas: React.FC<Props> = (props) => {
 			}
 
 			const isLastFrame =
-				playBackContext.currentFrame === playBackContext.maxFrameCount - 1;
+				playbackContext.currentFrame === playbackContext.maxFrameCount - 1;
 			if (!isLastFrame) {
-				const nextFrame = playBackContext.renderFrame(
-					playBackContext.currentFrame + 1,
+				const nextFrame = playbackContext.renderFrame(
+					playbackContext.currentFrame + 1,
 				);
 				if (nextFrame != null) {
 					putImageData(canvas, nextFrame, 0.25);
@@ -92,8 +90,8 @@ const DrawCanvas: React.FC<Props> = (props) => {
 			}
 		}
 
-		const currentFrame = playBackContext.renderFrame(
-			playBackContext.currentFrame,
+		const currentFrame = playbackContext.renderFrame(
+			playbackContext.currentFrame,
 		);
 		if (currentFrame != null) {
 			putImageData(canvas, currentFrame, 1.0);
@@ -153,7 +151,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 	};
 
 	const handlePointerDown = (event: React.PointerEvent<HTMLCanvasElement>) => {
-		if (core != null && clipContext.selectedClipId != null) {
+		if (clipContext.selectedClipId != null) {
 			core.begin_draw(clipContext.selectedClipId);
 		}
 
