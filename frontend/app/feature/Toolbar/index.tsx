@@ -38,9 +38,10 @@ const Toolbar: React.FC<Props> = (props) => {
 	useHotkeys("ctrl+shift+z", redo);
 	useHotkeys("ctrl+c", () => {});
 	useHotkeys("ctrl+v", () => {});
-	useHotkeys(
-		"space",
-		playBackContext.isPlaying ? playBackContext.play : playBackContext.pause,
+	useHotkeys("space", () =>
+		playBackContext.isPlaying
+			? playBackContext.pause()
+			: playBackContext.play(),
 	);
 	useHotkeys("ctrl+o", props.onIsOnionSkinChange);
 	useHotkeys("ctrl+l", () =>
@@ -98,8 +99,8 @@ const Toolbar: React.FC<Props> = (props) => {
 					size="small"
 					onClick={() =>
 						playBackContext.isPlaying
-							? playBackContext.play
-							: playBackContext.pause
+							? playBackContext.pause()
+							: playBackContext.play()
 					}
 				/>
 				<IconButton
