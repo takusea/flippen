@@ -1,8 +1,8 @@
 import MenubarItem from "~/base/Menubar/MenubarItem";
 import MenubarMenu from "~/base/Menubar/MenubarMenu";
 import MenubarRoot from "~/base/Menubar/MenubarRoot";
-import { useUndoStack } from "../UndoStack/useUndoStack";
 import { useProject } from "../Project/useProject";
+import { useUndoStack } from "../UndoStack/useUndoStack";
 
 const GlobalMenubar: React.FC = () => {
 	const undoStack = useUndoStack();

@@ -20,9 +20,9 @@ import {
 } from "@tabler/icons-react";
 import { useHotkeys } from "react-hotkeys-hook";
 import IconButton from "~/base/IconButton";
-import { useUndoStack } from "../UndoStack/useUndoStack";
 import { usePlayback } from "../Playback/usePlayback";
 import { useTool } from "../Tool/useTool";
+import { useUndoStack } from "../UndoStack/useUndoStack";
 
 type Props = {
 	isOnionSkin: boolean;

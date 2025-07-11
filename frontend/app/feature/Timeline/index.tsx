@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
+import { useClip } from "../Clip/useClip";
+import { useLayer } from "../layer/useLayer";
+import { usePlayback } from "../Playback/usePlayback";
 import Clip from "./Clip";
 import TrackHeader from "./TrackHeader";
 import TrackSide from "./TrackSide";
-import { useClip } from "../Clip/useClip";
-import { usePlayback } from "../Playback/usePlayback";
-import { useLayer } from "../layer/useLayer";
 
 const NUM_TRACKS = 100;
 

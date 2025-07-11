@@ -1,7 +1,7 @@
 import { createContext, useState } from "react";
 import type { HSVAColor } from "~/util/color";
-import type { ToolKind } from "./type";
 import { useCore } from "../Core/useCore";
+import type { ToolKind } from "./type";
 
 type ToolContextType = {
 	tool: ToolKind;

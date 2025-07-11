@@ -1,12 +1,12 @@
 import { useState } from "react";
 import DrawCanvas from "~/feature/Canvas";
+import { useClip } from "~/feature/Clip/useClip";
+import { useCore } from "~/feature/Core/useCore";
 import Timeline from "~/feature/Timeline";
+import { useTool } from "~/feature/Tool/useTool";
 import Toolbar from "~/feature/Toolbar";
 import { hsvaToRgba } from "~/util/color";
 import Inspector from "./Inspector";
-import { useCore } from "~/feature/Core/useCore";
-import { useClip } from "~/feature/Clip/useClip";
-import { useTool } from "~/feature/Tool/useTool";
 
 export function Editor() {
 	const core = useCore();

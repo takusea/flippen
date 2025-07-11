@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { useCore } from "../Core/useCore";
-import { usePlayback } from "../Playback/usePlayback";
 import { useClip } from "../Clip/useClip";
+import { useCore } from "../Core/useCore";
 import { useLayer } from "../layer/useLayer";
+import { usePlayback } from "../Playback/usePlayback";
 
 type Props = {
 	isOnionSkin?: boolean;

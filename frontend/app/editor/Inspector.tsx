@@ -1,8 +1,8 @@
 import { useState } from "react";
+import { useTool } from "~/feature/Tool/useTool";
 import Slider from "../base/Slider";
 import ColorPicker from "../feature/ColorPicker";
 import { hsvaToRgba } from "../util/color";
-import { useTool } from "~/feature/Tool/useTool";
 
 const Inspector: React.FC = () => {
 	const toolContext = useTool();

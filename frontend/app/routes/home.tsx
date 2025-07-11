@@ -1,13 +1,13 @@
-import { Editor } from "../editor";
-import type { Route } from "./+types/home";
-import GlobalNavigation from "~/layout/GlobalNavigation";
-import { CoreProvider } from "~/feature/Core/CoreContext";
 import { ClipProvider } from "~/feature/Clip/ClipContext";
+import { CoreProvider } from "~/feature/Core/CoreContext";
 import { LayerProvider } from "~/feature/layer/LayerContext";
 import { PlaybackProvider } from "~/feature/Playback/PlaybackContext";
 import { ProjectProvider } from "~/feature/Project/ProjectContext";
-import { UndoStackProvider } from "~/feature/UndoStack/UndoStackContext";
 import { ToolProvider } from "~/feature/Tool/ToolContext";
+import { UndoStackProvider } from "~/feature/UndoStack/UndoStackContext";
+import GlobalNavigation from "~/layout/GlobalNavigation";
+import { Editor } from "../editor";
+import type { Route } from "./+types/home";
 
 export function meta(_: Route.MetaArgs) {
 	return [
