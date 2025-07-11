@@ -1,30 +1,30 @@
-import { useState } from "react";
+import { use, useState } from "react";
 import Slider from "../base/Slider";
 import ColorPicker from "../feature/ColorPicker";
 import { type HSVAColor, hsvaToRgba } from "../util/color";
+import { ToolContext } from "~/feature/Tool/ToolContext";
 
 type Props = {
-	currentTool: string;
-	currentColor: HSVAColor;
-	onCurrentColorChange: (color: HSVAColor) => void;
 	onCurrentSizeChange: (size: number) => void;
 };
 
 const Inspector: React.FC<Props> = (props) => {
+	const toolContext = use(ToolContext);
+
 	const [currentSize, setCurrentSize] = useState<number>(5);
 
-	const rgbaColor = hsvaToRgba(props.currentColor);
+	const rgbaColor = hsvaToRgba(toolContext.color);
 	const hsvaColor = {
-		h: Math.round(props.currentColor.h),
-		s: Math.round(props.currentColor.s * 100),
-		v: Math.round(props.currentColor.v * 100),
-		a: props.currentColor.a,
+		h: Math.round(toolContext.color.h),
+		s: Math.round(toolContext.color.s * 100),
+		v: Math.round(toolContext.color.v * 100),
+		a: toolContext.color.a,
 	};
 
 	return (
 		<div className="flex flex-col gap-4">
 			<h2 className="font-bold">
-				Property of {props.currentTool.toUpperCase()} Tool
+				Property of {toolContext.tool.toUpperCase()} Tool
 			</h2>
 			<div>
 				<div className="flex gap-1 justify-between">
@@ -43,8 +43,8 @@ const Inspector: React.FC<Props> = (props) => {
 			</div>
 			<h2 className="font-bold">ColorPicker</h2>
 			<ColorPicker
-				currentColor={props.currentColor}
-				onCurrentColorChange={props.onCurrentColorChange}
+				currentColor={toolContext.color}
+				onCurrentColorChange={toolContext.setColor}
 			/>
 			<div className="flex gap-2">
 				<div

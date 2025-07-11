@@ -23,16 +23,16 @@ import IconButton from "~/base/IconButton";
 import { PlaybackContext } from "../PlayBack/PlayBackContext";
 import { use } from "react";
 import { UndoStackContext } from "../UndoStack/UndoStackContext";
+import { ToolContext } from "../Tool/ToolContext";
 
 type Props = {
-	currentTool: string;
 	isOnionSkin: boolean;
-	onCurrentToolChange: (tool: string) => void;
 	onIsOnionSkinChange: () => void;
 };
 
 const Toolbar: React.FC<Props> = (props) => {
 	const playBackContext = use(PlaybackContext);
+	const toolContext = use(ToolContext);
 	const { undo, redo } = use(UndoStackContext);
 
 	useHotkeys("ctrl+z", undo);
@@ -57,11 +57,11 @@ const Toolbar: React.FC<Props> = (props) => {
 	useHotkeys("ctrl+shift+ArrowRight", () =>
 		playBackContext.setCurrentFrame(playBackContext.maxFrameCount),
 	);
-	useHotkeys("1", () => props.onCurrentToolChange("move"));
-	useHotkeys("2", () => props.onCurrentToolChange("pen"));
-	useHotkeys("3", () => props.onCurrentToolChange("eraser"));
-	useHotkeys("4", () => props.onCurrentToolChange("fill"));
-	useHotkeys("5", () => props.onCurrentToolChange("select"));
+	useHotkeys("1", () => toolContext.setTool("move"));
+	useHotkeys("2", () => toolContext.setTool("pen"));
+	useHotkeys("3", () => toolContext.setTool("eraser"));
+	useHotkeys("4", () => toolContext.setTool("fill"));
+	useHotkeys("5", () => toolContext.setTool("select"));
 
 	return (
 		<div className="flex gap-2">
@@ -161,36 +161,36 @@ const Toolbar: React.FC<Props> = (props) => {
 					label="Move"
 					icon={IconArrowsMove}
 					size="small"
-					variant={props.currentTool === "move" ? "primary" : "default"}
-					onClick={() => props.onCurrentToolChange("move")}
+					variant={toolContext.tool === "move" ? "primary" : "default"}
+					onClick={() => toolContext.setTool("move")}
 				/>
 				<IconButton
 					label="Pen"
 					icon={IconPencil}
 					size="small"
-					variant={props.currentTool === "pen" ? "primary" : "default"}
-					onClick={() => props.onCurrentToolChange("pen")}
+					variant={toolContext.tool === "pen" ? "primary" : "default"}
+					onClick={() => toolContext.setTool("pen")}
 				/>
 				<IconButton
 					label="Eraser"
 					icon={IconEraser}
 					size="small"
-					variant={props.currentTool === "eraser" ? "primary" : "default"}
-					onClick={() => props.onCurrentToolChange("eraser")}
+					variant={toolContext.tool === "eraser" ? "primary" : "default"}
+					onClick={() => toolContext.setTool("eraser")}
 				/>
 				<IconButton
 					label="Fill"
 					icon={IconBucketDroplet}
 					size="small"
-					variant={props.currentTool === "fill" ? "primary" : "default"}
-					onClick={() => props.onCurrentToolChange("fill")}
+					variant={toolContext.tool === "fill" ? "primary" : "default"}
+					onClick={() => toolContext.setTool("fill")}
 				/>
 				<IconButton
 					label="Select"
 					icon={IconLasso}
 					size="small"
-					variant={props.currentTool === "select" ? "primary" : "default"}
-					onClick={() => props.onCurrentToolChange("select")}
+					variant={toolContext.tool === "select" ? "primary" : "default"}
+					onClick={() => toolContext.setTool("select")}
 				/>
 			</div>
 		</div>

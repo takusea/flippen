@@ -7,6 +7,7 @@ import { LayerProvider } from "~/feature/layer/LayerContext";
 import { PlaybackProvider } from "~/feature/PlayBack/PlayBackContext";
 import { ProjectProvider } from "~/feature/Project/ProjectContext";
 import { UndoStackProvider } from "~/feature/UndoStack/UndoStackContext";
+import { ToolProvider } from "~/feature/Tool/ToolContext";
 
 export function meta(_: Route.MetaArgs) {
 	return [
@@ -23,9 +24,11 @@ export default function Home() {
 					<PlaybackProvider>
 						<ProjectProvider>
 							<UndoStackProvider>
-								<GlobalNavigation>
-									<Editor />
-								</GlobalNavigation>
+								<ToolProvider>
+									<GlobalNavigation>
+										<Editor />
+									</GlobalNavigation>
+								</ToolProvider>
 							</UndoStackProvider>
 						</ProjectProvider>
 					</PlaybackProvider>

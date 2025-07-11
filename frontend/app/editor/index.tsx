@@ -8,18 +8,12 @@ import { hsvaToRgba, type HSVAColor } from "~/util/color";
 import Inspector from "./Inspector";
 import { CoreContext } from "~/feature/Core/CoreContext";
 import { ClipContext } from "~/feature/Clip/ClipContext";
+import { ToolContext } from "~/feature/Tool/ToolContext";
 
 export function Editor() {
 	const { core } = use(CoreContext);
 	const clipContext = use(ClipContext);
-
-	const [currentTool, setCurrentTool] = useState<string>("move");
-	const [currentColor, setCurrentColor] = useState<HSVAColor>({
-		h: 0,
-		s: 0,
-		v: 0,
-		a: 255,
-	});
+	const toolContext = use(ToolContext);
 	const [isOnionSkin, setIsOnionSkin] = useState<boolean>(false);
 
 	const handleDrawBrush = (x: number, y: number, pressure: number) => {
@@ -42,19 +36,14 @@ export function Editor() {
 				<DrawCanvas isOnionSkin={isOnionSkin} onDrawBrush={handleDrawBrush} />
 				<div className="absolute bottom-4 w-fit left-0 right-0 mx-auto max-w-full overflow-x-auto">
 					<Toolbar
-						currentTool={currentTool}
 						isOnionSkin={isOnionSkin}
-						onCurrentToolChange={setCurrentTool}
 						onIsOnionSkinChange={() => setIsOnionSkin((prev) => !prev)}
 					/>
 				</div>
 				<div className="absolute p-4 h-full w-[240px] right-0 border-l-2 border-zinc-500/25 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl">
 					<Inspector
-						currentTool={currentTool}
-						currentColor={currentColor}
-						onCurrentColorChange={setCurrentColor}
 						onCurrentSizeChange={(size: number) => {
-							core?.set_tool_property(currentTool, "size", size);
+							core?.set_tool_property(toolContext.tool, "size", size);
 						}}
 					/>
 				</div>
