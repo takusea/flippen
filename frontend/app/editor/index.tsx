@@ -4,7 +4,6 @@ import TextField from "~/base/TextField";
 import DrawCanvas from "~/feature/Canvas";
 import Timeline from "~/feature/Timeline";
 import Toolbar from "~/feature/Toolbar";
-import type { FlippenCore } from "~/pkg/flippen_wasm";
 import { hsvaToRgba, type HSVAColor } from "~/util/color";
 import Inspector from "./Inspector";
 import { CoreContext } from "~/feature/Core/CoreContext";
