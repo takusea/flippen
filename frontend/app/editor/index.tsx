@@ -1,6 +1,4 @@
-import { use, useState } from "react";
-import Button from "~/base/Button";
-import TextField from "~/base/TextField";
+import { useState } from "react";
 import DrawCanvas from "~/feature/Canvas";
 import Timeline from "~/feature/Timeline";
 import Toolbar from "~/feature/Toolbar";
@@ -17,7 +15,7 @@ export function Editor() {
 	const [isOnionSkin, setIsOnionSkin] = useState<boolean>(false);
 
 	const handleDrawBrush = (x: number, y: number, pressure: number) => {
-		if (core == null || clipContext.selectedClipId == null) return;
+		if (clipContext.selectedClipId == null) return;
 
 		const rgbaColor = hsvaToRgba(toolContext.color);
 		core.apply_tool(
@@ -30,7 +28,7 @@ export function Editor() {
 		);
 	};
 
-	return core !== null ? (
+	return (
 		<main className="w-full h-full bg-[url(/transparent.png)] grid grid-cols-[1fr_auto] grid-rows-[1fr_auto]">
 			<div className="relative">
 				<DrawCanvas isOnionSkin={isOnionSkin} onDrawBrush={handleDrawBrush} />
@@ -41,27 +39,12 @@ export function Editor() {
 					/>
 				</div>
 				<div className="absolute p-4 h-full w-[240px] right-0 border-l-2 border-zinc-500/25 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl">
-					<Inspector
-						onCurrentSizeChange={(size: number) => {
-							core?.set_tool_property(toolContext.tool, "size", size);
-						}}
-					/>
+					<Inspector />
 				</div>
 			</div>
 			<div className="h-[160px] grid place-content-stretch col-span-2 border-t-2 border-zinc-500/25 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl z-10">
 				<Timeline />
 			</div>
-		</main>
-	) : (
-		<main className="flex flex-col gap-2 justify-center w-fit h-full m-auto">
-			<h2 className="text-xl font-bold">プロジェクト新規作成</h2>
-			<label htmlFor="name">プロジェクト名</label>
-			<TextField id="name" value={"project"} />
-			<label htmlFor="width">幅</label>
-			<TextField id="width" value={1280} />
-			<label htmlFor="height">高さ</label>
-			<TextField id="height" value={720} />
-			<Button label="新規作成" variant="primary" onClick={() => {}} />
 		</main>
 	);
 }
