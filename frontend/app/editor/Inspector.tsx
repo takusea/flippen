@@ -4,11 +4,7 @@ import ColorPicker from "../feature/ColorPicker";
 import { hsvaToRgba } from "../util/color";
 import { useTool } from "~/feature/Tool/useTool";
 
-type Props = {
-	onCurrentSizeChange: (size: number) => void;
-};
-
-const Inspector: React.FC<Props> = (props) => {
+const Inspector: React.FC = () => {
 	const toolContext = useTool();
 
 	const [currentSize, setCurrentSize] = useState<number>(5);
@@ -37,7 +33,7 @@ const Inspector: React.FC<Props> = (props) => {
 					value={[currentSize]}
 					onValueChange={(value) => {
 						setCurrentSize(value[0]);
-						props.onCurrentSizeChange(currentSize);
+						toolContext.setProperty("size", value[0]);
 					}}
 				/>
 			</div>
