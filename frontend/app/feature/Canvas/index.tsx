@@ -167,19 +167,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 	};
 
 	const handlePointerMove = (event: React.PointerEvent<HTMLCanvasElement>) => {
-		if (!drawState.isDrawing) return;
-
-		if (event.shiftKey || event.buttons & 4) {
-			setPosition((prev) => {
-				return {
-					x: prev.x + event.movementX,
-					y: prev.y + event.movementY,
-				};
-			});
-			return;
-		}
-
-		if (!(event.buttons & 1)) return;
+		if (!drawState.isDrawing || !(event.buttons & 1) || event.shiftKey) return;
 
 		event.currentTarget.setPointerCapture(event.pointerId);
 
@@ -206,7 +194,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 		render();
 	};
 
-	const handleWheel = (event: React.WheelEvent<HTMLCanvasElement>) => {
+	const handleWheel = (event: React.WheelEvent<HTMLDivElement>) => {
 		if (event.shiftKey) {
 			const delta = 5;
 			const angle = event.deltaY < 0 ? delta : -delta;
@@ -223,23 +211,42 @@ const DrawCanvas: React.FC<Props> = (props) => {
 		}
 	};
 
+	const handleContainerPointerMove = (
+		event: React.PointerEvent<HTMLDivElement>,
+	) => {
+		if ((event.buttons & 1 && event.shiftKey) || event.buttons & 4) {
+			setPosition((prev) => {
+				return {
+					x: prev.x + event.movementX,
+					y: prev.y + event.movementY,
+				};
+			});
+			return;
+		}
+	};
+
 	return (
-		<canvas
-			ref={canvasRef}
-			id="draw-canvas"
-			width="1280"
-			height="720"
-			className="absolute inset-0 border border-zinc-500 [image-rendering:pixelated]"
-			style={{
-				scale: scale,
-				translate: `${position.x}px ${position.y}px`,
-				rotate: `${angle}deg`,
-			}}
-			onPointerDown={handlePointerDown}
-			onPointerMove={handlePointerMove}
-			onPointerUp={() => setDrawState({ isDrawing: false })}
+		<div
+			className="absolute inset-0 bg-[url(/transparent.png)]"
+			onPointerMove={handleContainerPointerMove}
 			onWheel={handleWheel}
-		/>
+		>
+			<canvas
+				ref={canvasRef}
+				id="draw-canvas"
+				width="1280"
+				height="720"
+				className="absolute inset-0 border border-zinc-500 [image-rendering:pixelated]"
+				style={{
+					scale: scale,
+					translate: `${position.x}px ${position.y}px`,
+					rotate: `${angle}deg`,
+				}}
+				onPointerDown={handlePointerDown}
+				onPointerMove={handlePointerMove}
+				onPointerUp={() => setDrawState({ isDrawing: false })}
+			/>
+		</div>
 	);
 };
 
