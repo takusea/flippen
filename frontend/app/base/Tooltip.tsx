@@ -1,6 +1,6 @@
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 
-export type Props = React.ComponentProps<typeof TooltipPrimitive.Root> & {
+type Props = React.ComponentProps<typeof TooltipPrimitive.Root> & {
 	label: string;
 	side: "top" | "right" | "bottom" | "left";
 };

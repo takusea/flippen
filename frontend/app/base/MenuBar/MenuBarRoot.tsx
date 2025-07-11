@@ -1,12 +1,13 @@
 import { Menubar } from "radix-ui";
-import type { ReactNode } from "react";
 
-type Props = {
-	children: ReactNode;
+type Props = React.ComponentProps<typeof Menubar.Root>;
+
+const MenubarRoot: React.FC<Props> = (props) => {
+	return (
+		<Menubar.Root className="flex" {...props}>
+			{props.children}
+		</Menubar.Root>
+	);
 };
 
-const MenuBarRoot: React.FC<Props> = (props) => {
-	return <Menubar.Root className="flex">{props.children}</Menubar.Root>;
-};
-
-export default MenuBarRoot;
+export default MenubarRoot;

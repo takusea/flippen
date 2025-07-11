@@ -8,9 +8,7 @@ import {
 import type { ReactNode } from "react";
 import Button from "~/base/Button";
 import IconButton from "~/base/IconButton";
-import MenuBarItem from "~/base/MenuBar/MenuBarItem";
-import MenuBarMenu from "~/base/MenuBar/MenuBarMenu";
-import MenuBarRoot from "~/base/MenuBar/MenuBarRoot";
+import GlobalMenubar from "~/feature/GlobalMenuBar";
 
 type Props = {
 	children: ReactNode;
@@ -23,32 +21,7 @@ const GlobalNavigation: React.FC<Props> = (props: Props) => {
 				<div className="flex items-center justify-between w-full px-2 gap-2">
 					<div className="flex items-center gap-1">
 						<img src="/favicon.png" width={24} height={24} alt="" />
-						<MenuBarRoot>
-							<MenuBarMenu label="File">
-								<MenuBarItem label="New Project" shortcut="Ctrl+N" />
-								<MenuBarItem label="Open" shortcut="Ctrl+O" />
-								<MenuBarItem label="Save" shortcut="Ctrl+S" />
-								<MenuBarItem label="Save with..." shortcut="Ctrl+Shift+S" />
-								<MenuBarItem label="Close" />
-							</MenuBarMenu>
-							<MenuBarMenu label="Edit">
-								<MenuBarItem label="Undo" shortcut="Ctrl+Z" />
-								<MenuBarItem label="Redo" shortcut="Ctrl+Shift+Z" />
-								<MenuBarItem label="Cut" shortcut="Ctrl+X" />
-								<MenuBarItem label="Copy" shortcut="Ctrl+C" />
-								<MenuBarItem label="Paste" shortcut="Ctrl+V" />
-								<MenuBarItem label="Select All" shortcut="Ctrl+A" />
-							</MenuBarMenu>
-							<MenuBarMenu label="View">
-								<MenuBarItem label="test" shortcut="Ctrl+S" />
-							</MenuBarMenu>
-							<MenuBarMenu label="Setting">
-								<MenuBarItem label="test" shortcut="Ctrl+S" />
-							</MenuBarMenu>
-							<MenuBarMenu label="Help">
-								<MenuBarItem label="test" shortcut="Ctrl+S" />
-							</MenuBarMenu>
-						</MenuBarRoot>
+						<GlobalMenubar />
 					</div>
 					<Button label="Export" icon={IconFileExport} variant="primary" />
 				</div>

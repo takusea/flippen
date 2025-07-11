@@ -1,6 +1,6 @@
 import * as SliderPrimitive from "@radix-ui/react-slider";
 
-export type Props = React.ComponentProps<typeof SliderPrimitive.Root>;
+type Props = React.ComponentProps<typeof SliderPrimitive.Root>;
 
 const Slider: React.FC<Props> = (props) => {
 	return (

@@ -18,7 +18,6 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
 	const layerContext = useLayer();
 
 	const open = () => {
-		if (core == null) return;
 		const input = document.createElement("input");
 		input.type = "file";
 		input.accept = ".flip";
@@ -44,7 +43,6 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
 	};
 
 	const save = () => {
-		if (core == null) return;
 		const data = core.export();
 		const blob = new Blob([data], {
 			type: "application/msgpack",
