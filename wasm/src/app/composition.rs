@@ -75,7 +75,7 @@ impl Composition {
             .into_iter()
             .map(|clip| clip.render(frame_index as usize))
             .fold(Image::new(width, height), |mut acc, img| {
-                acc.composite(img, 0, 0);
+                acc.composite(&img, 0, 0);
                 acc
             })
     }

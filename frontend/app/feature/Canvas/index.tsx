@@ -33,6 +33,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 		render();
 	}, [
 		clipContext.clips,
+		clipContext.transform,
 		layerContext.hiddenLayers,
 		playbackContext.currentFrame,
 	]);

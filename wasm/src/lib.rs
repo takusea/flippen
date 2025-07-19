@@ -19,6 +19,7 @@ use crate::app::project::Project;
 use crate::app::project_settings::ProjectSettings;
 use crate::core::image::Image;
 use crate::core::tool::{Tool, ToolPropertyValue};
+use crate::core::transform::Transform;
 
 #[wasm_bindgen]
 pub struct FlippenCore {
@@ -262,6 +263,36 @@ impl FlippenCore {
                 )
                 .data[..],
         )
+    }
+
+    pub fn get_clip_transform(&mut self, clip_id_str: String) -> JsValue {
+        let clip_id = match Uuid::parse_str(&clip_id_str) {
+            Ok(id) => id,
+            Err(e) => {
+                eprintln!("Failed to parse clip_id: {:?}", e);
+                return JsValue::undefined();
+            }
+        };
+
+        if let Some(clip) = self.project.composition.find_clip(clip_id) {
+            return JsValue::from_serde(&clip.transform).unwrap();
+        }
+        JsValue::undefined()
+    }
+
+    pub fn set_clip_transform(&mut self, clip_id_str: String, json: JsValue) {
+        let clip_id = match Uuid::parse_str(&clip_id_str) {
+            Ok(id) => id,
+            Err(e) => {
+                eprintln!("Failed to parse clip_id: {:?}", e);
+                return;
+            }
+        };
+
+        if let Some(clip) = self.project.composition.find_clip(clip_id) {
+            let transform: Transform = json.into_serde().unwrap();
+            clip.transform = transform;
+        }
     }
 
     pub fn export(&self) -> Vec<u8> {

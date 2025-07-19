@@ -1,16 +1,20 @@
 import { createContext, useEffect, useState } from "react";
 import type { ClipMetadata } from "~/util/clip";
 import { useCore } from "../Core/useCore";
+import type { Transform } from "~/util/transform";
 
 type ClipContextType = {
 	clips: ClipMetadata[];
 	selectedClipId: string | undefined;
+	transform: any;
 	refreshClips: () => void;
 	selectClip: (id: string) => void;
 	addClip: (start: number, layer: number) => void;
 	deleteClip: (id: string) => void;
 	moveClip: (id: string, start: number, layer: number) => void;
 	changeClipDuration: (id: string, duration: number) => void;
+	changeTransform: (id: string, transform: Transform) => void;
+	syncTransform: () => void;
 };
 
 export const ClipContext = createContext<ClipContextType>({} as any);
@@ -22,6 +26,13 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 
 	const [clips, setClips] = useState<ClipMetadata[]>([]);
 	const [selectedClipId, setSelectedClipId] = useState<string>();
+
+	const [transform, setTransform] = useState<any>();
+
+	const syncTransform = () => {
+		if (selectedClipId == null) return;
+		setTransform(core.get_clip_transform(selectedClipId));
+	};
 
 	const refreshClips = () => {
 		if (core) setClips(core.get_clips());
@@ -51,21 +62,33 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 		refreshClips();
 	};
 
+	const changeTransform = (id: string, transform: Transform) => {
+		core.set_clip_transform(id, transform);
+		syncTransform();
+	};
+
 	useEffect(() => {
 		refreshClips();
 	}, [core]);
+
+	useEffect(() => {
+		syncTransform();
+	}, [selectedClipId]);
 
 	return (
 		<ClipContext.Provider
 			value={{
 				clips,
 				selectedClipId,
+				transform,
 				refreshClips,
 				selectClip,
 				addClip,
 				deleteClip,
 				moveClip,
 				changeClipDuration,
+				changeTransform,
+				syncTransform,
 			}}
 		>
 			{children}

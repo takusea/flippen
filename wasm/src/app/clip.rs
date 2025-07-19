@@ -1,4 +1,4 @@
-use crate::core::image::Image;
+use crate::core::{image::Image, transform::Transform};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -13,6 +13,7 @@ pub struct ClipMetadata {
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Clip {
     pub metadata: ClipMetadata,
+    pub transform: Transform,
     pub image: Image,
 }
 
@@ -23,8 +24,8 @@ impl Clip {
         is_after_start && is_before_end
     }
 
-    pub fn render(&self, frame_index: usize) -> &Image {
-        &self.image
+    pub fn render(&self, _frame_index: usize) -> Image {
+        self.image.transform(&self.transform)
     }
 
     pub fn get_image(&self) -> &Image {

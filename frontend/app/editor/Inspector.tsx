@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTool } from "~/feature/Tool/useTool";
 import Slider from "../base/Slider";
 import ColorPicker from "../feature/ColorPicker";
 import { hsvaToRgba } from "../util/color";
+import { useClip } from "~/feature/Clip/useClip";
+import ClipInspector from "./ClipInspector";
 
 const Inspector: React.FC = () => {
 	const toolContext = useTool();
+	const clipContext = useClip();
 
 	const [currentSize, setCurrentSize] = useState<number>(5);
 
@@ -19,6 +22,16 @@ const Inspector: React.FC = () => {
 
 	return (
 		<div className="flex flex-col gap-4">
+			{clipContext.selectedClipId && clipContext.transform && (
+				<ClipInspector
+					name={clipContext.selectedClipId}
+					transform={clipContext.transform}
+					onTransformChange={(transform) => {
+						if (!clipContext.selectedClipId) return;
+						clipContext.changeTransform(clipContext.selectedClipId, transform);
+					}}
+				/>
+			)}
 			<h2 className="font-bold">
 				Property of {toolContext.tool.toUpperCase()} Tool
 			</h2>

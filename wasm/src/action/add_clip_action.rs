@@ -6,6 +6,7 @@ use crate::app::clip::Clip;
 use crate::app::clip::ClipMetadata;
 use crate::app::project::Project;
 use crate::core::image::Image;
+use crate::core::transform::Transform;
 
 pub struct AddClipAction {
     start_frame: u32,
@@ -32,6 +33,7 @@ impl Action for AddClipAction {
                 layer_index: self.layer_index,
                 duration: 1,
             },
+            transform: Transform::default(),
             image: Image::new(1280, 720),
         };
         self.clip_id = Some(clip.metadata.id);
