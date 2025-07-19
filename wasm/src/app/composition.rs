@@ -23,7 +23,11 @@ impl Composition {
     }
 
     pub fn delete_clip(&mut self, clip_id: Uuid) -> Option<Clip> {
-        if let Some(pos) = self.clips.iter().position(|clip| clip.id == clip_id) {
+        if let Some(pos) = self
+            .clips
+            .iter()
+            .position(|clip| clip.metadata.id == clip_id)
+        {
             Some(self.clips.remove(pos))
         } else {
             None
@@ -31,9 +35,9 @@ impl Composition {
     }
 
     pub fn move_clip(&mut self, clip_id: Uuid, new_start: u32, new_layer_index: usize) {
-        if let Some(clip) = self.clips.iter_mut().find(|c| c.id == clip_id) {
-            clip.start = new_start;
-            clip.layer_index = new_layer_index;
+        if let Some(clip) = self.clips.iter_mut().find(|c| c.metadata.id == clip_id) {
+            clip.metadata.start = new_start;
+            clip.metadata.layer_index = new_layer_index;
         }
     }
 
@@ -42,7 +46,9 @@ impl Composition {
     }
 
     pub fn find_clip(&mut self, clip_id: Uuid) -> Option<&mut Clip> {
-        self.clips.iter_mut().find(|clip| clip.id == clip_id)
+        self.clips
+            .iter_mut()
+            .find(|clip| clip.metadata.id == clip_id)
     }
 
     pub fn show_layer(&mut self, layer_index: usize) {
@@ -60,10 +66,10 @@ impl Composition {
             .clips
             .iter()
             .filter(|clip| clip.contains_frame(frame_index))
-            .filter(|clip| !self.hidden_layers.contains(&clip.layer_index))
+            .filter(|clip| !self.hidden_layers.contains(&clip.metadata.layer_index))
             .collect();
 
-        clips.sort_by_key(|clip| clip.layer_index);
+        clips.sort_by_key(|clip| clip.metadata.layer_index);
 
         clips
             .into_iter()

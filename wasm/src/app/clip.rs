@@ -1,9 +1,8 @@
 use crate::core::image::Image;
-
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct ClipMetadata {
     pub id: Uuid,
     pub start: u32,
@@ -13,14 +12,17 @@ pub struct ClipMetadata {
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Clip {
-    pub id: Uuid,
-    pub start: u32,
-    pub layer_index: usize,
+    pub metadata: ClipMetadata,
     pub image: Image,
-    pub duration: u32,
 }
 
 impl Clip {
+    pub fn contains_frame(&self, frame_index: u32) -> bool {
+        let is_after_start = self.metadata.start <= frame_index;
+        let is_before_end = frame_index < self.metadata.start + self.metadata.duration;
+        is_after_start && is_before_end
+    }
+
     pub fn render(&self, frame_index: usize) -> &Image {
         &self.image
     }
@@ -35,18 +37,5 @@ impl Clip {
 
     pub fn set_image(&mut self, image: Image) {
         self.image = image;
-    }
-
-    pub fn contains_frame(&self, frame_index: u32) -> bool {
-        self.start <= frame_index && frame_index < self.start + self.duration
-    }
-
-    pub fn to_metadata(&self) -> ClipMetadata {
-        ClipMetadata {
-            id: self.id,
-            start: self.start,
-            layer_index: self.layer_index,
-            duration: self.duration,
-        }
     }
 }

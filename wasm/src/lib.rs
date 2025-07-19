@@ -109,7 +109,7 @@ impl FlippenCore {
             .composition
             .clips
             .iter_mut()
-            .find(|clip| clip.id == clip_id)
+            .find(|clip| clip.metadata.id == clip_id)
         {
             Some(c) => c,
             None => return,
@@ -187,7 +187,7 @@ impl FlippenCore {
             .composition
             .get_clips()
             .iter()
-            .map(|clip| clip.to_metadata())
+            .map(|clip| clip.metadata.clone())
             .collect();
         JsValue::from_serde(&clip_metadatas).unwrap()
     }
@@ -234,7 +234,7 @@ impl FlippenCore {
         };
 
         if let Some(clip) = self.project.composition.find_clip(clip_id) {
-            clip.duration = duration;
+            clip.metadata.duration = duration;
         }
     }
 

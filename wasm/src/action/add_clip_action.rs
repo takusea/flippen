@@ -3,6 +3,7 @@ use uuid::Uuid;
 use crate::app::action::Action;
 use crate::app::action::UndoableAction;
 use crate::app::clip::Clip;
+use crate::app::clip::ClipMetadata;
 use crate::app::project::Project;
 use crate::core::image::Image;
 
@@ -25,13 +26,15 @@ impl AddClipAction {
 impl Action for AddClipAction {
     fn apply(&mut self, project: &mut Project) {
         let clip = Clip {
-            id: Uuid::new_v4(),
-            start: self.start_frame,
-            layer_index: self.layer_index,
-            duration: 1,
+            metadata: ClipMetadata {
+                id: Uuid::new_v4(),
+                start: self.start_frame,
+                layer_index: self.layer_index,
+                duration: 1,
+            },
             image: Image::new(1280, 720),
         };
-        self.clip_id = Some(clip.id);
+        self.clip_id = Some(clip.metadata.id);
         project.composition.add_clip(clip);
     }
 }
