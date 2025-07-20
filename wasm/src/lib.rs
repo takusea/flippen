@@ -131,6 +131,20 @@ impl FlippenCore {
         tool.apply(image, x, y, color_array, Some(pressure));
     }
 
+    pub fn get_tool_properties(&self, current_tool: &str) -> JsValue {
+        let tool_index = match current_tool {
+            "pen" => 0,
+            "eraser" => 1,
+            "fill" => 2,
+            _ => {
+                eprintln!("Unknown or invalid property: {}.", current_tool);
+                return JsValue::undefined();
+            }
+        };
+
+        JsValue::from_serde(&self.tools[tool_index].get_properties()).unwrap()
+    }
+
     pub fn set_tool_property(&mut self, current_tool: &str, name: &str, value: JsValue) {
         let tool_index = match current_tool {
             "pen" => 0,
@@ -167,11 +181,11 @@ impl FlippenCore {
             } else if value.is_object() {
                 let uint8_array = js_sys::Uint8Array::new(&value);
                 let vec = uint8_array.to_vec();
-                Ok(ToolPropertyValue::Image(Image {
+                Ok(ToolPropertyValue::Image(Some(Image {
                     data: vec,
                     width: 512,
                     height: 512,
-                }))
+                })))
             } else {
                 Err(JsValue::from_str("Unsupported property value"))
             }

@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::core::{
     color::Color,
     image::Image,
@@ -73,13 +75,20 @@ impl Tool for ImageBrushTool {
         }
     }
 
+    fn get_properties(&self) -> HashMap<&str, ToolPropertyValue> {
+        HashMap::from([
+            ("size", ToolPropertyValue::Number(self.size as f64)),
+            ("image", ToolPropertyValue::Image((self.image).clone())),
+        ])
+    }
+
     fn set_property(&mut self, name: &str, value: ToolPropertyValue) {
         match (name, value) {
             ("size", ToolPropertyValue::Number(size)) => {
                 self.size = size.max(1.0) as u32; // sizeが0以下にならないように
             }
             ("image", ToolPropertyValue::Image(image)) => {
-                self.image = Some(image);
+                self.image = image;
             }
             _ => {
                 eprintln!("Brush: Unknown or invalid property: {}.", name);

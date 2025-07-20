@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::core::{
     color::{color_distance, Color},
     image::Image,
@@ -60,6 +62,13 @@ impl Tool for FillTool {
                 stack.push((cx, cy + 1));
             }
         }
+    }
+
+    fn get_properties(&self) -> HashMap<&str, ToolPropertyValue> {
+        HashMap::from([(
+            "tolerance",
+            ToolPropertyValue::Number((self.tolerance as f64)),
+        )])
     }
 
     fn set_property(&mut self, name: &str, value: ToolPropertyValue) {

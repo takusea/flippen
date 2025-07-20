@@ -3,15 +3,10 @@ import { useTool } from "~/feature/Tool/useTool";
 import ClipInspector from "./ClipInspector";
 import ColorInspector from "./ColorInspector";
 import ToolInspector from "./ToolInspector";
-import { useState } from "react";
 
 const Inspector: React.FC = () => {
 	const toolContext = useTool();
 	const clipContext = useClip();
-
-	const [properties, setProperties] = useState<{ [key: string]: unknown }>({
-		size: 5,
-	});
 
 	return (
 		<div className="p-2 flex flex-col gap-2">
@@ -26,15 +21,9 @@ const Inspector: React.FC = () => {
 				/>
 			)}
 			<ToolInspector
-				properties={properties}
+				properties={toolContext.properties}
 				onPropertyChange={(key, value) => {
 					toolContext.setProperty(key, value);
-					setProperties((prev) => {
-						return {
-							...prev,
-							[key]: value,
-						};
-					});
 				}}
 			/>
 			<ColorInspector

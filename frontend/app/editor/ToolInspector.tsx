@@ -24,10 +24,10 @@ const ToolInspector: React.FC<Props> = (props) => {
 						</div>
 						<Slider
 							min={1}
-							max={100}
+							max={1000}
 							value={[value]}
 							onValueChange={(value) => {
-								props.onPropertyChange("size", value[0]);
+								props.onPropertyChange(key, value[0]);
 							}}
 						/>
 					</div>
