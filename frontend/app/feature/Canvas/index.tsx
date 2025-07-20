@@ -3,10 +3,10 @@ import { useClip } from "../Clip/useClip";
 import { useCore } from "../Core/useCore";
 import { useLayer } from "../layer/useLayer";
 import { usePlayback } from "../Playback/usePlayback";
+import { useCanvasDraw } from "./useCanvasDraw";
 
 type Props = {
 	isOnionSkin?: boolean;
-	onDrawBrush: (x: number, y: number, pressure: number) => void;
 };
 
 const DrawCanvas: React.FC<Props> = (props) => {
@@ -14,13 +14,10 @@ const DrawCanvas: React.FC<Props> = (props) => {
 	const playbackContext = usePlayback();
 	const clipContext = useClip();
 	const layerContext = useLayer();
+	const canvasDraw = useCanvasDraw();
 
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-	const [drawState, setDrawState] = useState<
-		| { isDrawing: false }
-		| { isDrawing: true; x: number; y: number; pressure: number }
-	>({ isDrawing: false });
 	const [scale, setScale] = useState<number>(1);
 	const [position, setPosition] = useState<{ x: number; y: number }>({
 		x: 0,
@@ -99,24 +96,6 @@ const DrawCanvas: React.FC<Props> = (props) => {
 		}
 	};
 
-	const drawSmoothLine = (
-		prev: { x: number; y: number; pressure: number },
-		current: { x: number; y: number; pressure: number },
-	) => {
-		const dx = current.x - prev.x;
-		const dy = current.y - prev.y;
-		const dPressure = current.pressure - prev.pressure;
-		const distance = Math.hypot(dx, dy);
-		const steps = Math.ceil(distance);
-		for (let i = 0; i <= steps; i++) {
-			const t = i / steps;
-			const x = Math.floor(prev.x + dx * t);
-			const y = Math.floor(prev.y + dy * t);
-			const pressure = prev.pressure + dPressure * t;
-			props.onDrawBrush(x, y, pressure);
-		}
-	};
-
 	const getPointerPosition = (x: number, y: number) => {
 		const canvas = canvasRef.current;
 		if (canvas == null) {
@@ -158,8 +137,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 
 		const { x, y } = getPointerPosition(event.clientX, event.clientY);
 
-		setDrawState({
-			isDrawing: true,
+		canvasDraw.beginDraw({
 			x,
 			y,
 			pressure: event.pressure,
@@ -168,30 +146,22 @@ const DrawCanvas: React.FC<Props> = (props) => {
 	};
 
 	const handlePointerMove = (event: React.PointerEvent<HTMLCanvasElement>) => {
-		if (!drawState.isDrawing || !(event.buttons & 1) || event.shiftKey) return;
+		if (
+			!canvasDraw.drawState.isDrawing ||
+			!(event.buttons & 1) ||
+			event.shiftKey
+		)
+			return;
 
 		event.currentTarget.setPointerCapture(event.pointerId);
 
-		const nativeEvent = event.nativeEvent as PointerEvent;
-		const events = nativeEvent.getCoalescedEvents
-			? nativeEvent.getCoalescedEvents()
-			: [nativeEvent];
-
-		let coalescedDrawState = {
-			x: drawState.x,
-			y: drawState.y,
-			pressure: drawState.pressure,
-		};
-		for (const event of events) {
-			const { x, y } = getPointerPosition(event.clientX, event.clientY);
-
-			const currentDrawState = { x, y, pressure: event.pressure };
-
-			drawSmoothLine(coalescedDrawState, currentDrawState);
-			coalescedDrawState = currentDrawState;
-		}
-
-		setDrawState({ isDrawing: true, ...coalescedDrawState });
+		const drawStates = event.nativeEvent.getCoalescedEvents().map((event) => {
+			return {
+				...getPointerPosition(event.clientX, event.clientY),
+				pressure: event.pressure,
+			};
+		});
+		canvasDraw.drawMultiple(drawStates);
 		render();
 	};
 
@@ -245,7 +215,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 				}}
 				onPointerDown={handlePointerDown}
 				onPointerMove={handlePointerMove}
-				onPointerUp={() => setDrawState({ isDrawing: false })}
+				onPointerUp={canvasDraw.finishDraw}
 			/>
 		</div>
 	);
