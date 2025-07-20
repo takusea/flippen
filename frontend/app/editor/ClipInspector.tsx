@@ -1,3 +1,4 @@
+import Card from "~/base/Card";
 import NumberField from "~/base/NumberField";
 import type { Transform } from "~/util/transform";
 
@@ -9,9 +10,9 @@ type Props = {
 
 const ClipInspector: React.FC<Props> = (props) => {
 	return (
-		<>
-			<h2 className="font-bold">Property of {props.name}</h2>
+		<Card>
 			<div className="flex flex-col gap-2">
+				<h2 className="font-bold">Property of {props.name}</h2>
 				<span>Position</span>
 				<div className="grid grid-cols-2 gap-2">
 					<NumberField
@@ -77,7 +78,7 @@ const ClipInspector: React.FC<Props> = (props) => {
 					/>
 				</div>
 			</div>
-		</>
+		</Card>
 	);
 };
 

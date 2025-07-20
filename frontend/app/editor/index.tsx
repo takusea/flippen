@@ -38,7 +38,7 @@ export function Editor() {
 						onIsOnionSkinChange={() => setIsOnionSkin((prev) => !prev)}
 					/>
 				</div>
-				<div className="absolute p-4 h-full w-[240px] right-0 overflow-y-scroll border-l-2 border-zinc-500/25 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl">
+				<div className="absolute right-0 overflow-y-scroll h-full w-[240px] ">
 					<Inspector />
 				</div>
 			</div>
