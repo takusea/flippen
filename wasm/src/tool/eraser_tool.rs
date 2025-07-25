@@ -33,7 +33,7 @@ impl Tool for EraserTool {
     }
 
     fn get_properties(&self) -> HashMap<&str, ToolPropertyValue> {
-        HashMap::from([("size", ToolPropertyValue::Number((self.size as f64)))])
+        HashMap::from([("size", ToolPropertyValue::Number(self.size as f64))])
     }
 
     fn set_property(&mut self, name: &str, value: ToolPropertyValue) {

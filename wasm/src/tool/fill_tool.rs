@@ -67,7 +67,7 @@ impl Tool for FillTool {
     fn get_properties(&self) -> HashMap<&str, ToolPropertyValue> {
         HashMap::from([(
             "tolerance",
-            ToolPropertyValue::Number((self.tolerance as f64)),
+            ToolPropertyValue::Number(self.tolerance as f64),
         )])
     }
 
