@@ -1,6 +1,7 @@
+use cgmath::{Point2, Transform};
 use serde::{Deserialize, Serialize};
 
-use crate::core::{pixel::Pixel, transform::Transform};
+use crate::core::{pixel::Pixel, transform};
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Image {
@@ -80,16 +81,11 @@ impl Image {
         }
     }
 
-    pub fn transform(&self, transform: &Transform) -> Image {
-        let (tx, ty) = transform.position;
-        let angle = transform.rotation.to_radians();
-        let (sx, sy) = transform.scale;
+    pub fn transform(&self, transform: &transform::Transform) -> Image {
+        let cx = self.width as f32 / 2.0;
+        let cy = self.height as f32 / 2.0;
 
-        let cos_theta = angle.cos();
-        let sin_theta = angle.sin();
-
-        let inv_scale_x = 1.0 / sx;
-        let inv_scale_y = 1.0 / sy;
+        let inverse = transform.to_inverse_matrix3((cx, cy)).unwrap();
 
         let mut output = Image {
             width: self.width,
@@ -97,28 +93,22 @@ impl Image {
             data: vec![0; (self.width * self.height * 4) as usize],
         };
 
-        let cx = self.width as f32 / 2.0;
-        let cy = self.height as f32 / 2.0;
-
         for y_out in 0..self.height {
             for x_out in 0..self.width {
-                let x = x_out as f32 - cx - tx as f32;
-                let y = y_out as f32 - cy - ty as f32;
+                let dst = Point2::new(x_out as f32, y_out as f32);
+                let src = inverse.transform_point(dst);
 
-                let src_x = (x * cos_theta + y * sin_theta) * inv_scale_x + cx;
-                let src_y = (-x * sin_theta + y * cos_theta) * inv_scale_y + cy;
-
-                let rgba = if src_x >= 0.0
-                    && src_y >= 0.0
-                    && src_x < self.width as f32
-                    && src_y < self.height as f32
+                let rgba = if src.x >= 0.0
+                    && src.y >= 0.0
+                    && src.x < self.width as f32
+                    && src.y < self.height as f32
                 {
-                    self.sample_bilinear(src_x, src_y)
+                    self.sample_bilinear(src.x, src.y)
                 } else {
                     [0, 0, 0, 0]
                 };
 
-                let i = ((y_out * self.width + x_out) * 4) as usize;
+                let i = ((y_out * self.width + x_out) << 2) as usize;
                 output.data[i..i + 4].copy_from_slice(&rgba);
             }
         }
