@@ -3,6 +3,7 @@ mod app;
 mod core;
 mod tool;
 
+use gloo::console::debug;
 use gloo::utils::format::JsValueSerdeExt;
 use js_sys::Uint8ClampedArray;
 use uuid::Uuid;
@@ -16,14 +17,13 @@ use crate::app::action_manager::ActionManager;
 use crate::app::clip::ClipMetadata;
 use crate::app::composition::Composition;
 use crate::app::project::Project;
-use crate::app::project_settings::ProjectSettings;
 use crate::core::image::Image;
 use crate::core::tool::{Tool, ToolPropertyValue};
 use crate::core::transform::Transform;
 
 #[wasm_bindgen]
 pub struct FlippenCore {
-    project: Project,
+    project: Option<Project>,
     tools: Vec<Box<dyn Tool>>,
     action_manager: ActionManager,
 }
@@ -31,16 +31,10 @@ pub struct FlippenCore {
 #[wasm_bindgen]
 impl FlippenCore {
     #[wasm_bindgen(constructor)]
-    pub fn new(width: u32, height: u32) -> Self {
+    pub fn new() -> Self {
+        console_error_panic_hook::set_once();
         Self {
-            project: Project {
-                composition: Composition::new(),
-                settings: ProjectSettings {
-                    width,
-                    height,
-                    frame_rate: 8,
-                },
-            },
+            project: None,
             tools: vec![
                 Box::new(tool::circle_brush_tool::CircleBrushTool { size: 5 }),
                 Box::new(tool::eraser_tool::EraserTool { size: 5 }),
@@ -50,12 +44,28 @@ impl FlippenCore {
         }
     }
 
-    pub fn width(&self) -> u32 {
-        self.project.settings.width
+    pub fn create_project(&mut self, json: JsValue) {
+        let settings = json.into_serde().unwrap();
+        self.project = Some(Project {
+            composition: Composition::new(),
+            settings,
+        });
     }
 
-    pub fn height(&self) -> u32 {
-        self.project.settings.height
+    pub fn width(&self) -> Option<u32> {
+        if let Some(project) = self.project.as_ref() {
+            Some(project.settings.width)
+        } else {
+            None
+        }
+    }
+
+    pub fn height(&self) -> Option<u32> {
+        if let Some(project) = self.project.as_ref() {
+            Some(project.settings.height)
+        } else {
+            None
+        }
     }
 
     pub fn begin_draw(&mut self, clip_id_str: String) {
@@ -67,15 +77,21 @@ impl FlippenCore {
             }
         };
         let action = Box::new(BeginToolAction::new(clip_id));
-        self.action_manager.do_action(action, &mut self.project);
+        if let Some(project) = self.project.as_mut() {
+            self.action_manager.do_action(action, project);
+        }
     }
 
     pub fn undo(&mut self) {
-        self.action_manager.undo(&mut self.project);
+        if let Some(project) = self.project.as_mut() {
+            self.action_manager.undo(project);
+        }
     }
 
     pub fn redo(&mut self) {
-        self.action_manager.redo(&mut self.project);
+        if let Some(project) = self.project.as_mut() {
+            self.action_manager.redo(project);
+        }
     }
 
     pub fn apply_tool(
@@ -105,8 +121,12 @@ impl FlippenCore {
             }
         };
 
-        let clip = match self
-            .project
+        let project = match &mut self.project {
+            Some(p) => p,
+            None => return,
+        };
+
+        let clip = match project
             .composition
             .clips
             .iter_mut()
@@ -196,9 +216,15 @@ impl FlippenCore {
         }
     }
 
-    pub fn get_clips(&self) -> JsValue {
-        let clip_metadatas: Vec<ClipMetadata> = self
-            .project
+    pub fn get_clips(&mut self) -> JsValue {
+        let project = match &mut self.project {
+            Some(p) => p,
+            None => {
+                return JsValue::undefined();
+            }
+        };
+
+        let clip_metadatas: Vec<ClipMetadata> = project
             .composition
             .get_clips()
             .iter()
@@ -209,7 +235,10 @@ impl FlippenCore {
 
     pub fn add_clip(&mut self, start_frame: u32, layer_index: usize) {
         let action = Box::new(AddClipAction::new(start_frame, layer_index));
-        self.action_manager.do_action(action, &mut self.project);
+
+        if let Some(project) = self.project.as_mut() {
+            self.action_manager.do_action(action, project);
+        }
     }
 
     pub fn delete_clip(&mut self, clip_id_str: String) {
@@ -222,7 +251,10 @@ impl FlippenCore {
         };
 
         let action = Box::new(DeleteClipAction::new(clip_id));
-        self.action_manager.do_action(action, &mut self.project);
+
+        if let Some(project) = self.project.as_mut() {
+            self.action_manager.do_action(action, project);
+        }
     }
 
     pub fn move_clip(&mut self, clip_id_str: String, start_frame: u32, layer_index: usize) {
@@ -234,9 +266,11 @@ impl FlippenCore {
             }
         };
 
-        self.project
-            .composition
-            .move_clip(clip_id, start_frame, layer_index);
+        if let Some(project) = self.project.as_mut() {
+            project
+                .composition
+                .move_clip(clip_id, start_frame, layer_index);
+        }
     }
 
     pub fn change_clip_duration(&mut self, clip_id_str: String, duration: u32) {
@@ -248,35 +282,64 @@ impl FlippenCore {
             }
         };
 
-        if let Some(clip) = self.project.composition.find_clip(clip_id) {
+        let project = match &mut self.project {
+            Some(p) => p,
+            None => {
+                return;
+            }
+        };
+
+        if let Some(clip) = project.composition.find_clip(clip_id) {
             clip.metadata.duration = duration;
         }
     }
 
-    pub fn get_hidden_layers(&self) -> Vec<usize> {
-        self.project.composition.hidden_layers.clone()
+    pub fn get_hidden_layers(&mut self) -> Vec<usize> {
+        let project = match &mut self.project {
+            Some(p) => p,
+            None => {
+                return Vec::new();
+            }
+        };
+
+        project.composition.hidden_layers.clone()
     }
 
     pub fn show_layer(&mut self, layer_index: usize) {
-        self.project.composition.show_layer(layer_index);
+        let project = match &mut self.project {
+            Some(p) => p,
+            None => {
+                return;
+            }
+        };
+
+        project.composition.show_layer(layer_index);
     }
 
     pub fn hide_layer(&mut self, layer_index: usize) {
-        self.project.composition.hide_layer(layer_index);
+        let project = match &mut self.project {
+            Some(p) => p,
+            None => {
+                return;
+            }
+        };
+
+        project.composition.hide_layer(layer_index);
     }
 
-    pub fn render_frame(&self, frame_index: u32) -> Uint8ClampedArray {
-        Uint8ClampedArray::from(
-            &self
-                .project
+    pub fn render_frame(&self, frame_index: u32) -> Option<Uint8ClampedArray> {
+        let project = match &self.project {
+            Some(p) => p,
+            None => {
+                return None;
+            }
+        };
+        Some(Uint8ClampedArray::from(
+            &project
                 .composition
-                .render_frame(
-                    frame_index,
-                    self.project.settings.width,
-                    self.project.settings.height,
-                )
+                .render_frame(frame_index, project.settings.width, project.settings.height)
                 .data[..],
-        )
+        ))
     }
 
     pub fn get_clip_transform(&mut self, clip_id_str: String) -> JsValue {
@@ -288,7 +351,14 @@ impl FlippenCore {
             }
         };
 
-        if let Some(clip) = self.project.composition.find_clip(clip_id) {
+        let project = match &mut self.project {
+            Some(p) => p,
+            None => {
+                return JsValue::undefined();
+            }
+        };
+
+        if let Some(clip) = project.composition.find_clip(clip_id) {
             return JsValue::from_serde(&clip.transform).unwrap();
         }
         JsValue::undefined()
@@ -303,7 +373,14 @@ impl FlippenCore {
             }
         };
 
-        if let Some(clip) = self.project.composition.find_clip(clip_id) {
+        let project = match &mut self.project {
+            Some(p) => p,
+            None => {
+                return;
+            }
+        };
+
+        if let Some(clip) = project.composition.find_clip(clip_id) {
             let transform: Transform = json.into_serde().unwrap();
             clip.transform = transform;
         }
@@ -315,7 +392,7 @@ impl FlippenCore {
 
     pub fn import(&mut self, data: &[u8]) {
         match rmp_serde::from_slice::<Project>(data) {
-            Ok(project) => self.project = project,
+            Ok(project) => self.project = Some(project),
             Err(e) => {
                 eprintln!("Failed to import composition: {:?}", e);
             }

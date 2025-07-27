@@ -34,7 +34,7 @@ impl Action for AddClipAction {
                 duration: 1,
             },
             transform: Transform::default(),
-            image: Image::new(1280, 720),
+            image: Image::new(project.settings.width, project.settings.height),
         };
         self.clip_id = Some(clip.metadata.id);
         project.composition.add_clip(clip);

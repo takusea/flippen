@@ -1,11 +1,14 @@
-import { createContext } from "react";
+import { createContext, useState } from "react";
 import { useClip } from "../Clip/useClip";
 import { useCore } from "../Core/useCore";
 import { useLayer } from "../layer/useLayer";
+import type { ProjectSettings } from "./type";
 
 type ProjectContextType = {
+	settings: ProjectSettings | undefined;
 	open: () => void;
 	save: () => void;
+	createNew: (settings: ProjectSettings) => void;
 };
 
 export const ProjectContext = createContext<ProjectContextType | null>(null);
@@ -16,6 +19,13 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
 	const core = useCore();
 	const clipContext = useClip();
 	const layerContext = useLayer();
+
+	const [settings, setSettings] = useState<ProjectSettings>();
+
+	const createNew = (settings: ProjectSettings) => {
+		setSettings(settings);
+		core.create_project(settings);
+	};
 
 	const open = () => {
 		const input = document.createElement("input");
@@ -54,5 +64,9 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
 		link.remove();
 	};
 
-	return <ProjectContext value={{ open, save }}>{children}</ProjectContext>;
+	return (
+		<ProjectContext value={{ settings, open, save, createNew }}>
+			{children}
+		</ProjectContext>
+	);
 };

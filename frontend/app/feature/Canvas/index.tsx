@@ -6,6 +6,7 @@ import { usePlayback } from "../Playback/usePlayback";
 import { useCanvasDraw } from "./useCanvasDraw";
 import { useCanvasRender } from "./useCanvasRender";
 import { useCanvasView } from "./useCanvasView";
+import { useProject } from "../Project/useProject";
 
 type Props = {
 	isOnionSkin?: boolean;
@@ -13,6 +14,7 @@ type Props = {
 
 const DrawCanvas: React.FC<Props> = (props) => {
 	const core = useCore();
+	const projectContext = useProject();
 	const playbackContext = usePlayback();
 	const clipContext = useClip();
 	const layerContext = useLayer();
@@ -25,7 +27,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (canvasRef.current == null) {
-			throw new Error("canvasRef.current is null");
+			return;
 		}
 
 		canvasRender.render(canvasRef.current, props.isOnionSkin ?? false);
@@ -62,7 +64,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 
 	const handlePointerDown = (event: React.PointerEvent<HTMLCanvasElement>) => {
 		if (canvasRef.current == null) {
-			throw new Error("canvasRef.current is null");
+			return;
 		}
 
 		if (clipContext.selectedClipId == null) {
@@ -83,7 +85,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 
 	const handlePointerMove = (event: React.PointerEvent<HTMLCanvasElement>) => {
 		if (canvasRef.current == null) {
-			throw new Error("canvasRef.current is null");
+			return;
 		}
 
 		if (
@@ -120,6 +122,10 @@ const DrawCanvas: React.FC<Props> = (props) => {
 		canvasView.translate(event.movementX, event.movementY);
 	};
 
+	if (projectContext.settings == null) {
+		return;
+	}
+
 	return (
 		<div
 			className="absolute inset-0 bg-[url(/transparent.png)]"
@@ -129,8 +135,8 @@ const DrawCanvas: React.FC<Props> = (props) => {
 			<canvas
 				ref={canvasRef}
 				id="draw-canvas"
-				width="1280"
-				height="720"
+				width={projectContext.settings?.width}
+				height={projectContext.settings?.height}
 				className="absolute inset-0 border border-zinc-500 [image-rendering:pixelated]"
 				style={{
 					scale: canvasView.scale,

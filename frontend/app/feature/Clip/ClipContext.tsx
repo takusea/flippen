@@ -35,7 +35,10 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 	};
 
 	const refreshClips = () => {
-		if (core) setClips(core.get_clips());
+		if (core == null) return;
+		const clips = core.get_clips();
+		if (clips == null) return;
+		setClips(clips);
 	};
 
 	const selectClip = (id: string) => {

@@ -63,8 +63,10 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({
 		setCurrentFrame(0);
 	};
 
-	const renderFrame = (frame: number): Uint8ClampedArray | undefined => {
-		return core?.render_frame(frame);
+	const renderFrame = (frameIndex: number): Uint8ClampedArray | undefined => {
+		const frame = core?.render_frame(frameIndex);
+
+		return frame;
 	};
 
 	useEffect(() => () => pause(), []);
