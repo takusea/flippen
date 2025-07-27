@@ -18,7 +18,7 @@ const IconButton: React.FC<Props> = ({
 	variant,
 	size,
 	toolTipSide,
-	...buttonProps
+	...props
 }) => {
 	const padding = (size: Size | undefined) => {
 		if (size === "small") {
@@ -43,7 +43,7 @@ const IconButton: React.FC<Props> = ({
 				type="button"
 				className={`flex items-center justify-center rounded-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${padding(size)} ${color(variant)}`}
 				aria-label={label}
-				{...buttonProps}
+				{...props}
 			>
 				<Icon />
 			</button>

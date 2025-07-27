@@ -10,7 +10,7 @@ type Props = Omit<React.ComponentProps<"button">, "className" | "type"> & {
 	size?: Size;
 };
 
-const IconButton: React.FC<Props> = (props) => {
+const Button: React.FC<Props> = (props) => {
 	const padding = (size: Size | undefined) => {
 		if (size === "small") {
 			return "h-4 px-1";
@@ -40,4 +40,4 @@ const IconButton: React.FC<Props> = (props) => {
 	);
 };
 
-export default IconButton;
+export default Button;
