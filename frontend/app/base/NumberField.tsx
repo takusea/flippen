@@ -3,11 +3,12 @@ import { useEffect, useRef, useState } from "react";
 
 type Props = Omit<
 	React.ComponentProps<"input">,
-	"className" | "type" | "min" | "max" | "value"
+	"className" | "type" | "min" | "max" | "value" | "defaultValue"
 > & {
 	min?: number;
 	max?: number;
 	value?: number;
+	defaultValue?: number;
 	onValueChange?: (value: number) => void;
 };
 
@@ -15,13 +16,13 @@ const NumberField: React.FC<Props> = (props) => {
 	const input = useRef<HTMLInputElement>(null);
 
 	const [isMoved, setIsMoved] = useState<boolean>(false);
-	const [innerValue, setInnerValue] = useState<string>(
-		props.value?.toString() ?? "",
-	);
+	const [innerValue, setInnerValue] = useState<string>("");
 
 	useEffect(() => {
-		setInnerValue(props.value?.toString() ?? "");
-	}, [props.value]);
+		setInnerValue(
+			props.value?.toString() ?? props.defaultValue?.toString() ?? "",
+		);
+	}, [props.value, props.defaultValue]);
 
 	const cursor = isMoved ? "cursor-ew-resize" : "cursor-text";
 
