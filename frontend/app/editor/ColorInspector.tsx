@@ -1,9 +1,11 @@
 import Card from "~/base/Card";
+import ColorPalette from "~/feature/ColorPalette";
 import ColorPicker from "~/feature/ColorPicker";
 import { type HSVAColor, hsvaToRgba } from "~/util/color";
 
 type Props = {
 	currentColor: HSVAColor;
+	colorHistory: HSVAColor[];
 	onCurrentColorChange: (color: HSVAColor) => void;
 };
 
@@ -42,6 +44,11 @@ const ColorInspector: React.FC<Props> = (props) => {
 						</span>
 					</div>
 				</div>
+				<ColorPalette
+					currentColor={props.currentColor}
+					colorHistory={props.colorHistory}
+					onCurrentColorChange={props.onCurrentColorChange}
+				/>
 			</div>
 		</Card>
 	);

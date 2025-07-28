@@ -28,6 +28,7 @@ const Inspector: React.FC = () => {
 			/>
 			<ColorInspector
 				currentColor={toolContext.color}
+				colorHistory={toolContext.colorHistory}
 				onCurrentColorChange={toolContext.setColor}
 			/>
 		</div>

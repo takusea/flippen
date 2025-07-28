@@ -6,10 +6,12 @@ import type { ToolKind } from "./type";
 type ToolContextType = {
 	tool: ToolKind;
 	color: HSVAColor;
+	colorHistory: HSVAColor[];
 	properties: { [key: string]: unknown };
 	setTool: (tool: ToolKind) => void;
 	setColor: (color: HSVAColor) => void;
 	setProperty: (key: string, value: unknown) => void;
+	pushColorHistory: (color: HSVAColor) => void;
 };
 
 export const ToolContext = createContext<ToolContextType | null>(null);
@@ -27,6 +29,9 @@ export const ToolProvider: React.FC<{ children: React.ReactNode }> = ({
 		v: 0,
 		a: 255,
 	});
+	const [colorHistory, setColotHistory] = useState<HSVAColor[]>([color]);
+
+	const COLOR_HISTORY_LIMIT = 100;
 
 	const setProperty = (key: string, value: unknown) => {
 		core.set_tool_property(tool, key, value);
@@ -37,13 +42,27 @@ export const ToolProvider: React.FC<{ children: React.ReactNode }> = ({
 		setProperties(core.get_tool_properties(tool) ?? {});
 	};
 
+	const pushColorHistory = (color: HSVAColor) => {
+		console.log(colorHistory);
+		setColotHistory((prev) => [color, ...prev.slice(0, COLOR_HISTORY_LIMIT)]);
+	};
+
 	useEffect(() => {
 		syncProperties();
 	}, [tool]);
 
 	return (
 		<ToolContext
-			value={{ tool, color, setTool, setColor, properties, setProperty }}
+			value={{
+				tool,
+				color,
+				setTool,
+				setColor,
+				colorHistory,
+				pushColorHistory,
+				properties,
+				setProperty,
+			}}
 		>
 			{children}
 		</ToolContext>

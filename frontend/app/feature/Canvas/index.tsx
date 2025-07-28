@@ -7,6 +7,8 @@ import { useCanvasDraw } from "./useCanvasDraw";
 import { useCanvasRender } from "./useCanvasRender";
 import { useCanvasView } from "./useCanvasView";
 import { useProject } from "../Project/useProject";
+import { useTool } from "../Tool/useTool";
+import { rgbaToHsva } from "~/util/color";
 
 type Props = {
 	isOnionSkin?: boolean;
@@ -18,6 +20,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 	const playbackContext = usePlayback();
 	const clipContext = useClip();
 	const layerContext = useLayer();
+	const toolContext = useTool();
 	const canvasDraw = useCanvasDraw();
 	const canvasView = useCanvasView();
 	const canvasRender = useCanvasRender();
@@ -63,12 +66,12 @@ const DrawCanvas: React.FC<Props> = (props) => {
 	};
 
 	const handlePointerDown = (event: React.PointerEvent<HTMLCanvasElement>) => {
-		if (canvasRef.current == null) {
-			return;
-		}
+		if (canvasRef.current == null) return;
+		if (clipContext.selectedClipId == null) return;
+		if (!(event.buttons & 1) || event.shiftKey) return;
 
-		if (clipContext.selectedClipId == null) {
-			return;
+		if (toolContext.color !== toolContext.colorHistory[0]) {
+			toolContext.pushColorHistory(toolContext.color);
 		}
 
 		core.begin_draw(clipContext.selectedClipId);
@@ -86,6 +89,25 @@ const DrawCanvas: React.FC<Props> = (props) => {
 	const handlePointerMove = (event: React.PointerEvent<HTMLCanvasElement>) => {
 		if (canvasRef.current == null) {
 			return;
+		}
+
+		if (event.buttons & 2) {
+			const { x, y } = getPointerPosition(event.clientX, event.clientY);
+
+			const ctx = canvasRef.current.getContext("2d");
+			if (ctx == null) return;
+
+			const pixel = ctx.getImageData(x, y, 1, 1);
+			const data = pixel.data;
+
+			toolContext.setColor(
+				rgbaToHsva({
+					r: data[0],
+					g: data[1],
+					b: data[2],
+					a: data[3],
+				}),
+			);
 		}
 
 		if (
