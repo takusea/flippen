@@ -3,6 +3,7 @@ import MenubarMenu from "~/base/Menubar/MenubarMenu";
 import MenubarRoot from "~/base/Menubar/MenubarRoot";
 import { useProject } from "../Project/useProject";
 import { useUndoStack } from "../UndoStack/useUndoStack";
+import MenubarSeparator from "~/base/Menubar/MenubarSeparator";
 
 const GlobalMenubar: React.FC = () => {
 	const undoStack = useUndoStack();
@@ -23,6 +24,7 @@ const GlobalMenubar: React.FC = () => {
 					onSelect={() => project.save()}
 				/>
 				<MenubarItem label="Save with..." shortcut="Ctrl+Shift+S" />
+				<MenubarSeparator />
 				<MenubarItem label="Close" />
 			</MenubarMenu>
 			<MenubarMenu label="Edit">
@@ -36,6 +38,7 @@ const GlobalMenubar: React.FC = () => {
 					shortcut="Ctrl+Shift+Z"
 					onSelect={() => undoStack.redo()}
 				/>
+				<MenubarSeparator />
 				<MenubarItem label="Cut" shortcut="Ctrl+X" />
 				<MenubarItem label="Copy" shortcut="Ctrl+C" />
 				<MenubarItem label="Paste" shortcut="Ctrl+V" />

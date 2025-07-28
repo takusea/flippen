@@ -12,7 +12,7 @@ const MenubarRoot: React.FC<Props> = (props) => {
 			{...props}
 		>
 			{props.label}
-			<div className="ml-auto pl-5">{props.shortcut}</div>
+			<div className="ml-auto pl-5 opacity-50">{props.shortcut}</div>
 		</Menubar.Item>
 	);
 };
