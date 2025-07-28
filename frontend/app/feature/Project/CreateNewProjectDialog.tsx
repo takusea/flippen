@@ -21,9 +21,19 @@ const CreateNewProjectDialog = () => {
 		>
 			<div className="flex flex-col gap-2">
 				<label htmlFor="width">横幅</label>
-				<NumberField id="width" value={width} onValueChange={setWidth} />
+				<NumberField
+					id="width"
+					value={width}
+					max={10000}
+					onValueChange={setWidth}
+				/>
 				<label htmlFor="height">高さ</label>
-				<NumberField id="height" value={height} onValueChange={setHeight} />
+				<NumberField
+					id="height"
+					value={height}
+					max={10000}
+					onValueChange={setHeight}
+				/>
 				<label htmlFor="frameRate">フレームレート</label>
 				<NumberField
 					id="frameRate"
