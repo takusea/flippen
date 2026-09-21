@@ -1,9 +1,9 @@
 mod action;
 mod app;
 mod core;
+mod gpu;
 mod tool;
 
-use gloo::console::debug;
 use gloo::utils::format::JsValueSerdeExt;
 use js_sys::Uint8ClampedArray;
 use uuid::Uuid;
@@ -20,12 +20,14 @@ use crate::app::project::Project;
 use crate::core::image::Image;
 use crate::core::tool::{Tool, ToolPropertyValue};
 use crate::core::transform::Transform;
+use crate::gpu::GpuRenderer;
 
 #[wasm_bindgen]
 pub struct FlippenCore {
     project: Option<Project>,
     tools: Vec<Box<dyn Tool>>,
     action_manager: ActionManager,
+    gpu_renderer: Option<GpuRenderer>,
 }
 
 #[wasm_bindgen]
@@ -41,6 +43,7 @@ impl FlippenCore {
                 Box::new(tool::fill_tool::FillTool { tolerance: 500 }),
             ],
             action_manager: ActionManager::new(),
+            gpu_renderer: None,
         }
     }
 
@@ -327,19 +330,22 @@ impl FlippenCore {
         project.composition.hide_layer(layer_index);
     }
 
-    pub fn render_frame(&self, frame_index: u32) -> Option<Uint8ClampedArray> {
-        let project = match &self.project {
-            Some(p) => p,
-            None => {
-                return None;
-            }
+    pub async fn render_frame(&mut self, frame_index: u32) -> Option<Uint8ClampedArray> {
+        let (width, height) = match self.project.as_ref() {
+            Some(project) => (project.settings.width, project.settings.height),
+            None => return None,
         };
-        Some(Uint8ClampedArray::from(
-            &project
-                .composition
-                .render_frame(frame_index, project.settings.width, project.settings.height)
-                .data[..],
-        ))
+        if self.gpu_renderer.is_none() {
+            self.gpu_renderer = GpuRenderer::new().await.ok();
+        }
+        let renderer = self.gpu_renderer.as_ref()?;
+        let project = self.project.as_ref()?;
+        let image = project
+            .composition
+            .render_frame_gpu(renderer, frame_index, width, height)
+            .await
+            .ok()?;
+        Some(Uint8ClampedArray::from(&image.data[..]))
     }
 
     pub fn get_clip_transform(&mut self, clip_id_str: String) -> JsValue {

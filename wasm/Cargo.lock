@@ -222,6 +222,7 @@ dependencies = [
  "bytemuck",
  "cgmath",
  "console_error_panic_hook",
+ "futures-channel",
  "gloo",
  "js-sys",
  "rmp-serde",

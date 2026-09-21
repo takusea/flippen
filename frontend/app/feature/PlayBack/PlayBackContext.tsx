@@ -16,7 +16,7 @@ type PlaybackContextType = {
 	pause: () => void;
 	stop: () => void;
 
-	renderFrame: (frame: number) => Uint8ClampedArray | undefined;
+	renderFrame: (frame: number) => Promise<Uint8ClampedArray | undefined>;
 };
 
 export const PlaybackContext = createContext<PlaybackContextType | null>(null);
@@ -63,10 +63,10 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({
 		setCurrentFrame(0);
 	};
 
-	const renderFrame = (frameIndex: number): Uint8ClampedArray | undefined => {
-		const frame = core?.render_frame(frameIndex);
-
-		return frame;
+	const renderFrame = async (
+		frameIndex: number,
+	): Promise<Uint8ClampedArray | undefined> => {
+		return core?.render_frame(frameIndex);
 	};
 
 	useEffect(() => () => pause(), []);

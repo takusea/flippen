@@ -33,7 +33,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 			return;
 		}
 
-		canvasRender.render(canvasRef.current, props.isOnionSkin ?? false);
+		void canvasRender.render(canvasRef.current, props.isOnionSkin ?? false);
 	}, [
 		clipContext.clips,
 		clipContext.transform,
@@ -83,7 +83,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 			y,
 			pressure: event.pressure,
 		});
-		canvasRender.render(canvasRef.current, props.isOnionSkin ?? false);
+		void canvasRender.render(canvasRef.current, props.isOnionSkin ?? false);
 	};
 
 	const handlePointerMove = (event: React.PointerEvent<HTMLCanvasElement>) => {
@@ -126,7 +126,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 			};
 		});
 		canvasDraw.drawMultiple(drawStates);
-		canvasRender.render(canvasRef.current, props.isOnionSkin ?? false);
+		void canvasRender.render(canvasRef.current, props.isOnionSkin ?? false);
 	};
 
 	const handleWheel = (event: React.WheelEvent) => {
@@ -161,6 +161,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 				height={projectContext.settings?.height}
 				className="absolute inset-0 border border-zinc-500 [image-rendering:pixelated]"
 				style={{
+					imageRendering: "pixelated",
 					scale: canvasView.scale,
 					translate: `${canvasView.position.x}px ${canvasView.position.y}px`,
 					rotate: `${canvasView.rotation}deg`,

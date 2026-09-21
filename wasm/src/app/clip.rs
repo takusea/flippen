@@ -24,10 +24,6 @@ impl Clip {
         is_after_start && is_before_end
     }
 
-    pub fn render(&self, _frame_index: usize) -> Image {
-        self.image.transform(&self.transform)
-    }
-
     pub fn get_image(&self) -> &Image {
         &self.image
     }

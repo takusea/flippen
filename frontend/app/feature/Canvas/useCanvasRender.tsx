@@ -1,66 +1,74 @@
+import { useRef } from "react";
 import { usePlayback } from "../Playback/usePlayback";
 
 export const useCanvasRender = () => {
 	const playbackContext = usePlayback();
+	const renderRequestRef = useRef(0);
 
-	const putImageData = (
+	const render = async (
 		canvas: HTMLCanvasElement,
-		frame: Uint8ClampedArray,
-		alpha: number,
+		isOnionSkinEnabled: boolean,
 	) => {
-		const ctx = canvas?.getContext("2d");
-		if (ctx == null) return;
-
-		const imageData = new ImageData(frame, canvas.width, canvas.height);
-		const tempCanvas = document.createElement("canvas");
-		tempCanvas.width = imageData.width;
-		tempCanvas.height = imageData.height;
-
-		const tempCtx = tempCanvas.getContext("2d");
-		if (tempCtx == null) return;
-
-		tempCtx.putImageData(imageData, 0, 0);
-
-		ctx.globalAlpha = alpha;
-		ctx.drawImage(tempCanvas, 0, 0);
-		ctx.globalAlpha = 1.0;
-	};
-
-	const render = (canvas: HTMLCanvasElement, isOnionSkinEnabled: boolean) => {
 		const ctx = canvas.getContext("2d");
 		if (ctx == null) return;
 
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		const requestId = ++renderRequestRef.current;
+		const frame = playbackContext.currentFrame;
+		const renderCanvas = document.createElement("canvas");
+		renderCanvas.width = canvas.width;
+		renderCanvas.height = canvas.height;
+		const renderContext = renderCanvas.getContext("2d");
+		if (renderContext == null) return;
+
+		const putFrame = (image: Uint8ClampedArray, alpha: number) => {
+			const imageData = new ImageData(
+				image as unknown as Uint8ClampedArray<ArrayBuffer>,
+				canvas.width,
+				canvas.height,
+			);
+			const frameCanvas = document.createElement("canvas");
+			frameCanvas.width = canvas.width;
+			frameCanvas.height = canvas.height;
+			const frameContext = frameCanvas.getContext("2d");
+			if (frameContext == null) return;
+			frameContext.putImageData(imageData, 0, 0);
+			renderContext.globalAlpha = alpha;
+			renderContext.drawImage(frameCanvas, 0, 0);
+			renderContext.globalAlpha = 1.0;
+		};
 
 		if (isOnionSkinEnabled && !playbackContext.isPlaying) {
-			const isFirstFrame = playbackContext.currentFrame === 0;
+			const isFirstFrame = frame === 0;
 			if (!isFirstFrame) {
-				const prevFrame = playbackContext.renderFrame(
-					playbackContext.currentFrame - 1,
+				const prevFrame = await playbackContext.renderFrame(
+					frame - 1,
 				);
+				if (requestId !== renderRequestRef.current) return;
 				if (prevFrame != null) {
-					putImageData(canvas, prevFrame, 0.25);
+					putFrame(prevFrame, 0.25);
 				}
 			}
 
-			const isLastFrame =
-				playbackContext.currentFrame === playbackContext.maxFrameCount - 1;
+			const isLastFrame = frame === playbackContext.maxFrameCount - 1;
 			if (!isLastFrame) {
-				const nextFrame = playbackContext.renderFrame(
-					playbackContext.currentFrame + 1,
+				const nextFrame = await playbackContext.renderFrame(
+					frame + 1,
 				);
+				if (requestId !== renderRequestRef.current) return;
 				if (nextFrame != null) {
-					putImageData(canvas, nextFrame, 0.25);
+					putFrame(nextFrame, 0.25);
 				}
 			}
 		}
 
-		const currentFrame = playbackContext.renderFrame(
-			playbackContext.currentFrame,
-		);
+		const currentFrame = await playbackContext.renderFrame(frame);
+		if (requestId !== renderRequestRef.current) return;
 		if (currentFrame != null) {
-			putImageData(canvas, currentFrame, 1.0);
+			putFrame(currentFrame, 1.0);
 		}
+
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ctx.drawImage(renderCanvas, 0, 0);
 	};
 
 	return { render };

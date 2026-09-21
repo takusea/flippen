@@ -3,6 +3,7 @@ use uuid::Uuid;
 
 use crate::app::clip::Clip;
 use crate::core::image::Image;
+use crate::gpu::GpuRenderer;
 
 #[derive(Serialize, Deserialize)]
 pub struct Composition {
@@ -61,22 +62,20 @@ impl Composition {
         }
     }
 
-    pub fn render_frame(&self, frame_index: u32, width: u32, height: u32) -> Image {
+    pub async fn render_frame_gpu(
+        &self,
+        renderer: &GpuRenderer,
+        frame_index: u32,
+        width: u32,
+        height: u32,
+    ) -> Result<Image, String> {
         let mut clips: Vec<&Clip> = self
             .clips
             .iter()
             .filter(|clip| clip.contains_frame(frame_index))
             .filter(|clip| !self.hidden_layers.contains(&clip.metadata.layer_index))
             .collect();
-
         clips.sort_by_key(|clip| clip.metadata.layer_index);
-
-        clips
-            .into_iter()
-            .map(|clip| clip.render(frame_index as usize))
-            .fold(Image::new(width, height), |mut acc, img| {
-                acc.composite(&img, 0, 0);
-                acc
-            })
+        renderer.render_frame(&clips, width, height).await
     }
 }
