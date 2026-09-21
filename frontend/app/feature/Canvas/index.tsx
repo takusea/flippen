@@ -65,6 +65,9 @@ const DrawCanvas: React.FC<Props> = (props) => {
 		};
 	};
 
+	const getPointerPressure = (event: Pick<PointerEvent, "pointerType" | "pressure">) =>
+		event.pointerType === "mouse" || event.pressure <= 0 ? 1 : event.pressure;
+
 	const handlePointerDown = (event: React.PointerEvent<HTMLCanvasElement>) => {
 		if (canvasRef.current == null) return;
 		if (clipContext.selectedClipId == null) return;
@@ -81,7 +84,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 		canvasDraw.beginDraw({
 			x,
 			y,
-			pressure: event.pressure,
+			pressure: getPointerPressure(event.nativeEvent),
 		});
 		void canvasRender.render(canvasRef.current, props.isOnionSkin ?? false);
 	};
@@ -122,7 +125,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 		const drawStates = event.nativeEvent.getCoalescedEvents().map((event) => {
 			return {
 				...getPointerPosition(event.clientX, event.clientY),
-				pressure: event.pressure,
+				pressure: getPointerPressure(event),
 			};
 		});
 		canvasDraw.drawMultiple(drawStates);
