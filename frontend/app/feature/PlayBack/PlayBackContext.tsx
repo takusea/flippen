@@ -1,5 +1,8 @@
 import { createContext, useEffect, useRef, useState } from "react";
+import type { FlippenCore } from "~/pkg/flippen_wasm";
 import { useCore } from "../Core/useCore";
+
+type CoreOperation<T> = (core: FlippenCore) => T | PromiseLike<T>;
 
 type PlaybackContextType = {
 	currentFrame: number;
@@ -17,6 +20,7 @@ type PlaybackContextType = {
 	stop: () => void;
 
 	renderFrame: (frame: number) => Promise<Uint8ClampedArray | undefined>;
+	runCoreOperation: <T>(operation: CoreOperation<T>) => Promise<T | undefined>;
 };
 
 export const PlaybackContext = createContext<PlaybackContextType | null>(null);
@@ -33,6 +37,16 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({
 	const maxFrameCount = 256;
 
 	const intervalRef = useRef<NodeJS.Timeout | null>(null);
+	const coreQueueRef = useRef(Promise.resolve());
+
+	const runCoreOperation = <T,>(operation: CoreOperation<T>) => {
+		const result = coreQueueRef.current.then(() => operation(core));
+		coreQueueRef.current = result.then(
+			() => undefined,
+			() => undefined,
+		);
+		return result;
+	};
 
 	const advanceFrame = () => {
 		setCurrentFrame((prev) => {
@@ -66,7 +80,9 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({
 	const renderFrame = async (
 		frameIndex: number,
 	): Promise<Uint8ClampedArray | undefined> => {
-		return core?.render_frame(frameIndex);
+		return runCoreOperation((currentCore) =>
+			currentCore.render_frame(frameIndex),
+		);
 	};
 
 	useEffect(() => () => pause(), []);
@@ -86,6 +102,7 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({
 				pause,
 				stop,
 				renderFrame,
+				runCoreOperation,
 			}}
 		>
 			{children}

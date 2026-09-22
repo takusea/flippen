@@ -19,9 +19,9 @@ export function meta(_: Route.MetaArgs) {
 export default function Home() {
 	return (
 		<CoreProvider>
-			<ClipProvider>
+			<PlaybackProvider>
 				<LayerProvider>
-					<PlaybackProvider>
+					<ClipProvider>
 						<ProjectProvider>
 							<UndoStackProvider>
 								<ToolProvider>
@@ -31,9 +31,9 @@ export default function Home() {
 								</ToolProvider>
 							</UndoStackProvider>
 						</ProjectProvider>
-					</PlaybackProvider>
+					</ClipProvider>
 				</LayerProvider>
-			</ClipProvider>
+			</PlaybackProvider>
 		</CoreProvider>
 	);
 }

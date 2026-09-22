@@ -3,7 +3,9 @@ import { useCore } from "../Core/useCore";
 
 type LayerContextType = {
 	hiddenLayers: number[];
+	selectedLayer: number;
 	refreshHiddenLayers: () => void;
+	selectLayer: (layer: number) => void;
 	showLayer: (layer: number) => void;
 	hideLayer: (layer: number) => void;
 };
@@ -16,6 +18,7 @@ export const LayerProvider: React.FC<{ children: React.ReactNode }> = ({
 	const core = useCore();
 
 	const [hiddenLayers, setHiddenLayers] = useState<number[]>([]);
+	const [selectedLayer, setSelectedLayer] = useState(0);
 
 	const refreshHiddenLayers = () => {
 		if (core) {
@@ -26,6 +29,10 @@ export const LayerProvider: React.FC<{ children: React.ReactNode }> = ({
 	const showLayer = (layer: number) => {
 		core.show_layer(layer);
 		refreshHiddenLayers();
+	};
+
+	const selectLayer = (layer: number) => {
+		setSelectedLayer(layer);
 	};
 
 	const hideLayer = (layer: number) => {
@@ -40,7 +47,14 @@ export const LayerProvider: React.FC<{ children: React.ReactNode }> = ({
 
 	return (
 		<LayerContext
-			value={{ hiddenLayers, refreshHiddenLayers, showLayer, hideLayer }}
+			value={{
+				hiddenLayers,
+				selectedLayer,
+				refreshHiddenLayers,
+				selectLayer,
+				showLayer,
+				hideLayer,
+			}}
 		>
 			{children}
 		</LayerContext>

@@ -6,6 +6,8 @@ type Props = {
 	layerHeight: number;
 	scrollY: number;
 	hiddenLayers: number[];
+	selectedLayer: number;
+	onLayerSelect: (id: number) => void;
 	onLayerShow: (id: number) => void;
 	onLayerHide: (id: number) => void;
 };
@@ -19,11 +21,17 @@ const TrackSide: React.FC<Props> = (props) => {
 			{[...Array(props.numTracks)].map((_, i) => {
 				const isHidden = props.hiddenLayers.includes(i);
 				return (
-					<div
+					<button
 						// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
 						key={i}
-						className={`w-full flex items-center justify-between gap-1 pl-2 border-b border-zinc-500/25 bg-zinc-500/25 ${isHidden ? "opacity-50" : ""}`}
+						className={`w-full flex items-center justify-between gap-1 pl-2 border-b border-zinc-500/25 bg-zinc-500/25 ${props.selectedLayer === i ? "border-l-2 border-l-teal-400" : ""} ${isHidden ? "opacity-50" : ""}`}
 						style={{ height: `${props.layerHeight}px` }}
+						onClick={() => props.onLayerSelect(i)}
+						onKeyDown={(event) => {
+							if (event.key === "Enter" || event.key === " ") {
+								props.onLayerSelect(i);
+							}
+						}}
 					>
 						Layer {i}
 						<IconButton
@@ -35,7 +43,7 @@ const TrackSide: React.FC<Props> = (props) => {
 								isHidden ? props.onLayerHide(i) : props.onLayerShow(i)
 							}
 						/>
-					</div>
+					</button>
 				);
 			})}
 		</div>

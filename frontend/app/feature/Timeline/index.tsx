@@ -67,6 +67,8 @@ const Timeline: React.FC = () => {
 					layerHeight={layerHeight}
 					scrollY={scrollPosition.y}
 					hiddenLayers={layerContext.hiddenLayers}
+					selectedLayer={layerContext.selectedLayer}
+					onLayerSelect={layerContext.selectLayer}
 					onLayerShow={layerContext.showLayer}
 					onLayerHide={layerContext.hideLayer}
 				/>

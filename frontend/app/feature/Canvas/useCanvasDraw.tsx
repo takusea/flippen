@@ -1,19 +1,18 @@
 import { useRef, useState } from "react";
 import { hsvaToRgba } from "~/util/color";
-import { useClip } from "../Clip/useClip";
 import { useCore } from "../Core/useCore";
 import { useTool } from "../Tool/useTool";
 import type { DrawState } from "./type";
 
 export const useCanvasDraw = () => {
 	const core = useCore();
-	const clipContext = useClip();
 	const toolContext = useTool();
 
 	const [drawState, setDrawState] = useState<
 		{ isDrawing: false } | { isDrawing: true; state: DrawState }
 	>({ isDrawing: false });
 	const drawStateRef = useRef<typeof drawState>(drawState);
+	const drawingClipIdRef = useRef<string | undefined>(undefined);
 
 	const rgbaColor = hsvaToRgba(toolContext.color);
 
@@ -22,19 +21,21 @@ export const useCanvasDraw = () => {
 		setDrawState(newState);
 	};
 
-	const beginDraw = (state: DrawState) => {
+	const beginDraw = (state: DrawState, clipId: string) => {
+		drawingClipIdRef.current = clipId;
 		updateDrawState({ isDrawing: true, state });
 	};
 
 	const finishDraw = () => {
+		drawingClipIdRef.current = undefined;
 		updateDrawState({ isDrawing: false });
 	};
 
 	const draw = (state: DrawState) => {
-		if (clipContext.selectedClipId == null) return;
+		if (drawingClipIdRef.current == null) return;
 
 		core.apply_tool(
-			clipContext.selectedClipId,
+			drawingClipIdRef.current,
 			toolContext.tool,
 			state.x,
 			state.y,

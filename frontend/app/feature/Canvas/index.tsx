@@ -70,14 +70,18 @@ const DrawCanvas: React.FC<Props> = (props) => {
 
 	const handlePointerDown = (event: React.PointerEvent<HTMLCanvasElement>) => {
 		if (canvasRef.current == null) return;
-		if (clipContext.selectedClipId == null) return;
 		if (!(event.buttons & 1) || event.shiftKey) return;
 
 		if (toolContext.color !== toolContext.colorHistory[0]) {
 			toolContext.pushColorHistory(toolContext.color);
 		}
 
-		core.begin_draw(clipContext.selectedClipId);
+		const clipId = clipContext.ensureClipAt(
+			playbackContext.currentFrame,
+			layerContext.selectedLayer,
+		);
+		if (clipId == null) return;
+		core.begin_draw(clipId);
 
 		const { x, y } = getPointerPosition(event.clientX, event.clientY);
 
@@ -85,7 +89,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 			x,
 			y,
 			pressure: getPointerPressure(event.nativeEvent),
-		});
+		}, clipId);
 		void canvasRender.render(canvasRef.current, props.isOnionSkin ?? false);
 	};
 
