@@ -15,6 +15,8 @@ pub struct Clip {
     pub metadata: ClipMetadata,
     pub transform: Transform,
     pub image: Image,
+    #[serde(skip)]
+    pub image_revision: u64,
 }
 
 impl Clip {
@@ -34,5 +36,10 @@ impl Clip {
 
     pub fn set_image(&mut self, image: Image) {
         self.image = image;
+        self.image_revision = self.image_revision.wrapping_add(1);
+    }
+
+    pub fn mark_image_changed(&mut self) {
+        self.image_revision = self.image_revision.wrapping_add(1);
     }
 }

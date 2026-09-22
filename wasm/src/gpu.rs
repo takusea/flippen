@@ -1,6 +1,7 @@
 use crate::app::clip::Clip;
 use crate::core::image::Image;
 use bytemuck::{Pod, Zeroable};
+use std::collections::{HashMap, HashSet};
 use wgpu::util::DeviceExt;
 
 #[repr(C)]
@@ -11,12 +12,20 @@ struct ClipUniforms {
     output_size: [f32; 2],
 }
 
+struct CachedClipTexture {
+    texture: wgpu::Texture,
+    width: u32,
+    height: u32,
+    revision: u64,
+}
+
 pub struct GpuRenderer {
     device: wgpu::Device,
     queue: wgpu::Queue,
     pipeline: wgpu::RenderPipeline,
     bind_group_layout: wgpu::BindGroupLayout,
     sampler: wgpu::Sampler,
+    clip_textures: HashMap<uuid::Uuid, CachedClipTexture>,
 }
 
 impl GpuRenderer {
@@ -121,11 +130,12 @@ impl GpuRenderer {
             pipeline,
             bind_group_layout,
             sampler,
+            clip_textures: HashMap::new(),
         })
     }
 
     pub async fn render_frame(
-        &self,
+        &mut self,
         clips: &[&Clip],
         width: u32,
         height: u32,
@@ -155,6 +165,92 @@ impl GpuRenderer {
             mapped_at_creation: false,
         });
 
+        let active_clip_ids: HashSet<_> = clips.iter().map(|clip| clip.metadata.id).collect();
+        self.clip_textures
+            .retain(|clip_id, _| active_clip_ids.contains(clip_id));
+
+        for clip in clips {
+            let image = &clip.image;
+            let cached = self
+                .clip_textures
+                .entry(clip.metadata.id)
+                .or_insert_with(|| {
+                    let texture = self.device.create_texture(&wgpu::TextureDescriptor {
+                        label: Some("flippen-clip-texture"),
+                        size: wgpu::Extent3d {
+                            width: image.width,
+                            height: image.height,
+                            depth_or_array_layers: 1,
+                        },
+                        mip_level_count: 1,
+                        sample_count: 1,
+                        dimension: wgpu::TextureDimension::D2,
+                        format: wgpu::TextureFormat::Rgba8Unorm,
+                        usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
+                        view_formats: &[],
+                    });
+                    CachedClipTexture {
+                        texture,
+                        width: image.width,
+                        height: image.height,
+                        revision: u64::MAX,
+                    }
+                });
+
+            if cached.width != image.width || cached.height != image.height {
+                *cached = CachedClipTexture {
+                    texture: self.device.create_texture(&wgpu::TextureDescriptor {
+                        label: Some("flippen-clip-texture"),
+                        size: wgpu::Extent3d {
+                            width: image.width,
+                            height: image.height,
+                            depth_or_array_layers: 1,
+                        },
+                        mip_level_count: 1,
+                        sample_count: 1,
+                        dimension: wgpu::TextureDimension::D2,
+                        format: wgpu::TextureFormat::Rgba8Unorm,
+                        usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
+                        view_formats: &[],
+                    }),
+                    width: image.width,
+                    height: image.height,
+                    revision: u64::MAX,
+                };
+            }
+
+            if cached.revision != clip.image_revision {
+                let clip_bytes_per_row = image.width * 4;
+                let padded_clip_bytes_per_row = clip_bytes_per_row
+                    .div_ceil(wgpu::COPY_BYTES_PER_ROW_ALIGNMENT)
+                    * wgpu::COPY_BYTES_PER_ROW_ALIGNMENT;
+                let mut upload_data = vec![0; (padded_clip_bytes_per_row * image.height) as usize];
+                for row in 0..image.height as usize {
+                    let source_start = row * clip_bytes_per_row as usize;
+                    let target_start = row * padded_clip_bytes_per_row as usize;
+                    upload_data[target_start..target_start + clip_bytes_per_row as usize]
+                        .copy_from_slice(
+                            &image.data[source_start..source_start + clip_bytes_per_row as usize],
+                        );
+                }
+                self.queue.write_texture(
+                    cached.texture.as_image_copy(),
+                    &upload_data,
+                    wgpu::TexelCopyBufferLayout {
+                        offset: 0,
+                        bytes_per_row: Some(padded_clip_bytes_per_row),
+                        rows_per_image: Some(image.height),
+                    },
+                    wgpu::Extent3d {
+                        width: image.width,
+                        height: image.height,
+                        depth_or_array_layers: 1,
+                    },
+                );
+                cached.revision = clip.image_revision;
+            }
+        }
+
         let mut encoder = self
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor {
@@ -179,47 +275,7 @@ impl GpuRenderer {
 
             for clip in clips {
                 let image = &clip.image;
-                let texture = self.device.create_texture(&wgpu::TextureDescriptor {
-                    label: Some("flippen-clip-texture"),
-                    size: wgpu::Extent3d {
-                        width: image.width,
-                        height: image.height,
-                        depth_or_array_layers: 1,
-                    },
-                    mip_level_count: 1,
-                    sample_count: 1,
-                    dimension: wgpu::TextureDimension::D2,
-                    format: wgpu::TextureFormat::Rgba8Unorm,
-                    usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
-                    view_formats: &[],
-                });
-                let clip_bytes_per_row = image.width * 4;
-                let padded_clip_bytes_per_row = clip_bytes_per_row
-                    .div_ceil(wgpu::COPY_BYTES_PER_ROW_ALIGNMENT)
-                    * wgpu::COPY_BYTES_PER_ROW_ALIGNMENT;
-                let mut upload_data = vec![0; (padded_clip_bytes_per_row * image.height) as usize];
-                for row in 0..image.height as usize {
-                    let source_start = row * clip_bytes_per_row as usize;
-                    let target_start = row * padded_clip_bytes_per_row as usize;
-                    upload_data[target_start..target_start + clip_bytes_per_row as usize]
-                        .copy_from_slice(
-                            &image.data[source_start..source_start + clip_bytes_per_row as usize],
-                        );
-                }
-                self.queue.write_texture(
-                    texture.as_image_copy(),
-                    &upload_data,
-                    wgpu::TexelCopyBufferLayout {
-                        offset: 0,
-                        bytes_per_row: Some(padded_clip_bytes_per_row),
-                        rows_per_image: Some(image.height),
-                    },
-                    wgpu::Extent3d {
-                        width: image.width,
-                        height: image.height,
-                        depth_or_array_layers: 1,
-                    },
-                );
+                let cached = self.clip_textures.get(&clip.metadata.id).unwrap();
 
                 let inverse = clip
                     .transform
@@ -248,7 +304,9 @@ impl GpuRenderer {
                         wgpu::BindGroupEntry {
                             binding: 0,
                             resource: wgpu::BindingResource::TextureView(
-                                &texture.create_view(&wgpu::TextureViewDescriptor::default()),
+                                &cached
+                                    .texture
+                                    .create_view(&wgpu::TextureViewDescriptor::default()),
                             ),
                         },
                         wgpu::BindGroupEntry {

@@ -4,8 +4,9 @@ import { usePlayback } from "../Playback/usePlayback";
 export const useCanvasRender = () => {
 	const playbackContext = usePlayback();
 	const renderRequestRef = useRef(0);
+	const frameRequestRef = useRef<number | null>(null);
 
-	const render = async (
+	const renderNow = async (
 		canvas: HTMLCanvasElement,
 		isOnionSkinEnabled: boolean,
 	) => {
@@ -69,6 +70,19 @@ export const useCanvasRender = () => {
 
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		ctx.drawImage(renderCanvas, 0, 0);
+	};
+
+	const render = (
+		canvas: HTMLCanvasElement,
+		isOnionSkinEnabled: boolean,
+	) => {
+		if (frameRequestRef.current != null) {
+			cancelAnimationFrame(frameRequestRef.current);
+		}
+		frameRequestRef.current = requestAnimationFrame(() => {
+			frameRequestRef.current = null;
+			void renderNow(canvas, isOnionSkinEnabled);
+		});
 	};
 
 	return { render };

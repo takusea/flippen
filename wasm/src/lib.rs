@@ -152,6 +152,7 @@ impl FlippenCore {
         let image = clip.get_image_mut();
         let color_array = [color[0], color[1], color[2], color[3]];
         tool.apply(image, x, y, color_array, Some(pressure));
+        clip.mark_image_changed();
     }
 
     pub fn get_tool_properties(&self, current_tool: &str) -> JsValue {
@@ -338,7 +339,7 @@ impl FlippenCore {
         if self.gpu_renderer.is_none() {
             self.gpu_renderer = GpuRenderer::new().await.ok();
         }
-        let renderer = self.gpu_renderer.as_ref()?;
+        let renderer = self.gpu_renderer.as_mut()?;
         let project = self.project.as_ref()?;
         let image = project
             .composition

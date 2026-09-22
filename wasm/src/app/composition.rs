@@ -64,7 +64,7 @@ impl Composition {
 
     pub async fn render_frame_gpu(
         &self,
-        renderer: &GpuRenderer,
+        renderer: &mut GpuRenderer,
         frame_index: u32,
         width: u32,
         height: u32,
