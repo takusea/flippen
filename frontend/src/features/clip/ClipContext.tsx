@@ -1,4 +1,9 @@
-import { createContext, useEffect, useState } from "react";
+import {
+	createContext,
+	useEffect,
+	useState,
+	useSyncExternalStore,
+} from "react";
 import { useLayer } from "~/features/layer/useLayer";
 import { usePlayback } from "~/features/playback/usePlayback";
 import { useCore } from "~/infrastructure/core/useCore";
@@ -9,7 +14,6 @@ type ClipContextType = {
 	clips: ClipMetadata[];
 	selectedClipId: string | undefined;
 	transform: any;
-	refreshClips: () => void;
 	selectClip: (id: string) => void;
 	addClip: (start: number, layer: number) => void;
 	deleteClip: (id: string) => void;
@@ -29,7 +33,11 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 	const layerContext = useLayer();
 	const playbackContext = usePlayback();
 
-	const [clips, setClips] = useState<ClipMetadata[]>([]);
+	const { clips } = useSyncExternalStore(
+		core.subscribe,
+		() => core.getSnapshot(),
+		() => core.getSnapshot(),
+	);
 	const [selectedClipId, setSelectedClipId] = useState<string>();
 
 	const [transform, setTransform] = useState<any>();
@@ -40,18 +48,11 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 			return Promise.resolve();
 		}
 
-		return playbackContext
-			.runCoreOperation((currentCore) =>
-				currentCore.get_clip_transform(selectedClipId),
+		return core
+			.runOperation((currentCore) =>
+				currentCore.getClipTransform(selectedClipId),
 			)
 			.then((nextTransform) => setTransform(nextTransform));
-	};
-
-	const refreshClips = () => {
-		if (core == null) return;
-		const clips = core.get_clips();
-		if (clips == null) return;
-		setClips(clips);
 	};
 
 	const selectClip = (id: string) => {
@@ -61,10 +62,9 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 	};
 
 	const addClip = (start: number, layer: number) => {
-		core?.add_clip(start, layer);
-		const nextClips = core?.get_clips() as ClipMetadata[] | undefined;
+		core.addClip(start, layer);
+		const nextClips = core.getClips();
 		if (nextClips == null) return;
-		setClips(nextClips);
 		const clip = nextClips.find(
 			(candidate) =>
 				candidate.start === start && candidate.layer_index === layer,
@@ -87,10 +87,9 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 			return existingClip.id;
 		}
 
-		core.add_clip(frame, layer);
-		const nextClips = core.get_clips() as ClipMetadata[] | undefined;
+		core.addClip(frame, layer);
+		const nextClips = core.getClips();
 		if (nextClips == null) return undefined;
-		setClips(nextClips);
 		const newClip = nextClips.find(
 			(clip) =>
 				clip.start === frame &&
@@ -103,32 +102,25 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 	};
 
 	const deleteClip = (id: string) => {
-		core?.delete_clip(id);
-		refreshClips();
+		core.deleteClip(id);
 	};
 
 	const moveClip = (id: string, start: number, layer: number) => {
-		core?.move_clip(id, start, layer);
-		refreshClips();
+		core.moveClip(id, start, layer);
 	};
 
 	const changeClipDuration = (id: string, duration: number) => {
-		core?.change_clip_duration(id, duration);
-		refreshClips();
+		core.changeClipDuration(id, duration);
 	};
 
 	const changeTransform = (id: string, transform: Transform) => {
-		void playbackContext
-			.runCoreOperation((currentCore) => {
-				currentCore.set_clip_transform(id, transform);
-				return currentCore.get_clip_transform(id);
+		void core
+			.runOperation((currentCore) => {
+				currentCore.setClipTransform(id, transform);
+				return currentCore.getClipTransform(id);
 			})
 			.then((nextTransform) => setTransform(nextTransform));
 	};
-
-	useEffect(() => {
-		refreshClips();
-	}, [core]);
 
 	useEffect(() => {
 		const clip = clips.find(
@@ -150,7 +142,6 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 				clips,
 				selectedClipId,
 				transform,
-				refreshClips,
 				selectClip,
 				addClip,
 				deleteClip,

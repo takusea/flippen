@@ -1,6 +1,4 @@
 import { createContext, useState } from "react";
-import { useClip } from "~/features/clip/useClip";
-import { useLayer } from "~/features/layer/useLayer";
 import { useCore } from "~/infrastructure/core/useCore";
 import type { ProjectSettings } from "./type";
 
@@ -17,14 +15,12 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
 	children,
 }) => {
 	const core = useCore();
-	const clipContext = useClip();
-	const layerContext = useLayer();
 
 	const [settings, setSettings] = useState<ProjectSettings>();
 
 	const createNew = (settings: ProjectSettings) => {
 		setSettings(settings);
-		core.create_project(settings);
+		core.createProject(settings);
 	};
 
 	const open = () => {
@@ -42,9 +38,7 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
 				if (!(result instanceof ArrayBuffer)) {
 					throw new Error("FileReader result is not an ArrayBuffer");
 				}
-				core.import(new Uint8Array(result));
-				clipContext.refreshClips();
-				layerContext.refreshHiddenLayers();
+				core.importProject(new Uint8Array(result));
 			});
 			reader.readAsArrayBuffer(file);
 		});
@@ -53,8 +47,8 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
 	};
 
 	const save = () => {
-		const data = core.export();
-		const blob = new Blob([data], {
+		const data = core.exportProject();
+		const blob = new Blob([data.buffer as ArrayBuffer], {
 			type: "application/msgpack",
 		});
 		const link = document.createElement("a");

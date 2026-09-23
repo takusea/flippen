@@ -1,6 +1,4 @@
 import { createContext } from "react";
-import { useClip } from "~/features/clip/useClip";
-import { useLayer } from "~/features/layer/useLayer";
 import { useCore } from "~/infrastructure/core/useCore";
 
 type UndoStackContextType = {
@@ -16,19 +14,13 @@ export const UndoStackProvider: React.FC<{ children: React.ReactNode }> = ({
 	children,
 }) => {
 	const core = useCore();
-	const clipContext = useClip();
-	const layerContext = useLayer();
 
 	const undo = () => {
 		core.undo();
-		clipContext.refreshClips();
-		layerContext.refreshHiddenLayers();
 	};
 
 	const redo = () => {
 		core.redo();
-		clipContext.refreshClips();
-		layerContext.refreshHiddenLayers();
 	};
 
 	return <UndoStackContext value={{ undo, redo }}>{children}</UndoStackContext>;

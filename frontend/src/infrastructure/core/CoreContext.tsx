@@ -1,17 +1,21 @@
 import { createContext, useEffect, useState } from "react";
-import init, { FlippenCore } from "~/infrastructure/wasm/flippen_wasm";
+import { CoreService } from "./CoreService";
 
-export const CoreContext = createContext<FlippenCore | null>(null);
+export const CoreContext = createContext<CoreService | null>(null);
 
 export const CoreProvider: React.FC<{ children: React.ReactNode }> = ({
 	children,
 }) => {
-	const [core, setCore] = useState<FlippenCore | null>(null);
+	const [core, setCore] = useState<CoreService | null>(null);
 
 	useEffect(() => {
-		init().then(() => {
-			setCore(new FlippenCore());
+		let disposed = false;
+		void CoreService.create().then((service) => {
+			if (!disposed) setCore(service);
 		});
+		return () => {
+			disposed = true;
+		};
 	}, []);
 
 	if (core == null) return;

@@ -1,4 +1,4 @@
-import type { HSVAColor } from "~/lib/color";
+import type { HSVAColor } from "~/shared/lib/color";
 import Slider from "./Slider";
 
 type Props = {

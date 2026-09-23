@@ -12,7 +12,11 @@ use wasm_bindgen::JsValue;
 
 use crate::action::add_clip_action::AddClipAction;
 use crate::action::begin_tool_action::BeginToolAction;
+use crate::action::change_clip_duration_action::ChangeClipDurationAction;
 use crate::action::delete_clip_action::DeleteClipAction;
+use crate::action::move_clip_action::MoveClipAction;
+use crate::action::set_clip_transform_action::SetClipTransformAction;
+use crate::action::set_layer_visibility_action::SetLayerVisibilityAction;
 use crate::app::action_manager::ActionManager;
 use crate::app::clip::ClipMetadata;
 use crate::app::composition::Composition;
@@ -97,12 +101,12 @@ impl FlippenCore {
         }
     }
 
-    pub fn can_undo(&mut self) {
-        self.action_manager.can_undo();
+    pub fn can_undo(&self) -> bool {
+        self.action_manager.can_undo()
     }
 
-    pub fn can_redo(&mut self) {
-        self.action_manager.can_redo();
+    pub fn can_redo(&self) -> bool {
+        self.action_manager.can_redo()
     }
 
     pub fn apply_tool(
@@ -278,10 +282,10 @@ impl FlippenCore {
             }
         };
 
+        let action = Box::new(MoveClipAction::new(clip_id, start_frame, layer_index));
+
         if let Some(project) = self.project.as_mut() {
-            project
-                .composition
-                .move_clip(clip_id, start_frame, layer_index);
+            self.action_manager.do_action(action, project);
         }
     }
 
@@ -294,15 +298,10 @@ impl FlippenCore {
             }
         };
 
-        let project = match &mut self.project {
-            Some(p) => p,
-            None => {
-                return;
-            }
-        };
+        let action = Box::new(ChangeClipDurationAction::new(clip_id, duration));
 
-        if let Some(clip) = project.composition.find_clip(clip_id) {
-            clip.metadata.duration = duration;
+        if let Some(project) = self.project.as_mut() {
+            self.action_manager.do_action(action, project);
         }
     }
 
@@ -318,25 +317,19 @@ impl FlippenCore {
     }
 
     pub fn show_layer(&mut self, layer_index: usize) {
-        let project = match &mut self.project {
-            Some(p) => p,
-            None => {
-                return;
-            }
-        };
+        let action = Box::new(SetLayerVisibilityAction::new(layer_index, false));
 
-        project.composition.show_layer(layer_index);
+        if let Some(project) = self.project.as_mut() {
+            self.action_manager.do_action(action, project);
+        }
     }
 
     pub fn hide_layer(&mut self, layer_index: usize) {
-        let project = match &mut self.project {
-            Some(p) => p,
-            None => {
-                return;
-            }
-        };
+        let action = Box::new(SetLayerVisibilityAction::new(layer_index, true));
 
-        project.composition.hide_layer(layer_index);
+        if let Some(project) = self.project.as_mut() {
+            self.action_manager.do_action(action, project);
+        }
     }
 
     pub async fn render_frame(&mut self, frame_index: u32) -> Option<Uint8ClampedArray> {
@@ -388,16 +381,17 @@ impl FlippenCore {
             }
         };
 
-        let project = match &mut self.project {
-            Some(p) => p,
-            None => {
+        let transform: Transform = match json.into_serde() {
+            Ok(transform) => transform,
+            Err(e) => {
+                eprintln!("Failed to parse transform: {:?}", e);
                 return;
             }
         };
+        let action = Box::new(SetClipTransformAction::new(clip_id, transform));
 
-        if let Some(clip) = project.composition.find_clip(clip_id) {
-            let transform: Transform = json.into_serde().unwrap();
-            clip.transform = transform;
+        if let Some(project) = self.project.as_mut() {
+            self.action_manager.do_action(action, project);
         }
     }
 

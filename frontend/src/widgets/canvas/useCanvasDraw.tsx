@@ -1,11 +1,11 @@
 import { useRef, useState } from "react";
-import { usePlayback } from "~/features/playback/usePlayback";
 import { useTool } from "~/features/tool/useTool";
+import { useCore } from "~/infrastructure/core/useCore";
 import { hsvaToRgba } from "~/shared/lib/color";
 import type { DrawState } from "./type";
 
 export const useCanvasDraw = () => {
-	const playbackContext = usePlayback();
+	const core = useCore();
 	const toolContext = useTool();
 
 	const [drawState, setDrawState] = useState<
@@ -43,8 +43,8 @@ export const useCanvasDraw = () => {
 			rgbaColor.a,
 		]);
 
-		void playbackContext.runCoreOperation((currentCore) => {
-			currentCore.apply_tool(
+		void core.runOperation((currentCore) => {
+			currentCore.applyTool(
 				clipId,
 				tool,
 				state.x,

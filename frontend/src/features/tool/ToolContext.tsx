@@ -34,12 +34,12 @@ export const ToolProvider: React.FC<{ children: React.ReactNode }> = ({
 	const COLOR_HISTORY_LIMIT = 100;
 
 	const setProperty = (key: string, value: unknown) => {
-		core.set_tool_property(tool, key, value);
+		core.setToolProperty(tool, key, value);
 		syncProperties();
 	};
 
 	const syncProperties = () => {
-		setProperties(core.get_tool_properties(tool) ?? {});
+		setProperties(core.getToolProperties(tool) ?? {});
 	};
 
 	const pushColorHistory = (color: HSVAColor) => {

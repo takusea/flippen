@@ -53,12 +53,12 @@ impl Composition {
     }
 
     pub fn show_layer(&mut self, layer_index: usize) {
-        self.hidden_layers.push(layer_index);
+        self.hidden_layers.retain(|index| index != &layer_index);
     }
 
     pub fn hide_layer(&mut self, layer_index: usize) {
-        if let Some(index) = self.hidden_layers.iter().position(|i| i == &layer_index) {
-            self.hidden_layers.remove(index);
+        if !self.hidden_layers.contains(&layer_index) {
+            self.hidden_layers.push(layer_index);
         }
     }
 

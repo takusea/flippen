@@ -82,7 +82,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 			layerContext.selectedLayer,
 		);
 		if (clipId == null) return;
-		core.begin_draw(clipId);
+		core.beginDraw(clipId);
 
 		const { x, y } = getPointerPosition(event.clientX, event.clientY);
 
