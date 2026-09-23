@@ -10,11 +10,11 @@ export const CoreProvider: React.FC<{ children: React.ReactNode }> = ({
 
 	useEffect(() => {
 		init().then(() => {
-			setCore(new FlippenCore(1280, 720));
+			setCore(new FlippenCore());
 		});
 	}, []);
 
-	if (core == null) return <div>Loading...</div>;
+	if (core == null) return;
 
 	return <CoreContext value={core}>{children}</CoreContext>;
 };
