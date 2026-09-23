@@ -1,11 +1,11 @@
 import { useRef, useState } from "react";
 import { hsvaToRgba } from "~/util/color";
-import { useCore } from "../Core/useCore";
+import { usePlayback } from "../Playback/usePlayback";
 import { useTool } from "../Tool/useTool";
 import type { DrawState } from "./type";
 
 export const useCanvasDraw = () => {
-	const core = useCore();
+	const playbackContext = usePlayback();
 	const toolContext = useTool();
 
 	const [drawState, setDrawState] = useState<
@@ -34,14 +34,25 @@ export const useCanvasDraw = () => {
 	const draw = (state: DrawState) => {
 		if (drawingClipIdRef.current == null) return;
 
-		core.apply_tool(
-			drawingClipIdRef.current,
-			toolContext.tool,
-			state.x,
-			state.y,
-			new Uint8Array([rgbaColor.r, rgbaColor.g, rgbaColor.b, rgbaColor.a]),
-			state.pressure,
-		);
+		const clipId = drawingClipIdRef.current;
+		const tool = toolContext.tool;
+		const color = new Uint8Array([
+			rgbaColor.r,
+			rgbaColor.g,
+			rgbaColor.b,
+			rgbaColor.a,
+		]);
+
+		void playbackContext.runCoreOperation((currentCore) => {
+			currentCore.apply_tool(
+				clipId,
+				tool,
+				state.x,
+				state.y,
+				color,
+				state.pressure,
+			);
+		});
 	};
 
 	const interpolateDrawState = (prev: DrawState, current: DrawState) => {
