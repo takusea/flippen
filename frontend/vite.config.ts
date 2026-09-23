@@ -2,11 +2,13 @@ import { reactRouter } from "@react-router/dev/vite";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import babel from "vite-plugin-babel";
-import tsconfigPaths from "vite-tsconfig-paths";
 
 const ReactCompilerConfig = {};
 
 export default defineConfig({
+  resolve: {
+    tsconfigPaths: true
+  },
 	plugins: [
 		babel({
 			filter: /\.tsx?$/,
@@ -16,7 +18,6 @@ export default defineConfig({
 			},
 		}),
 		reactRouter(),
-		tsconfigPaths(),
 		tailwindcss(),
 	],
 });
