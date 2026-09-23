@@ -1,15 +1,7 @@
-import { createContext, useState } from "react";
+import { useState } from "react";
 import { useCore } from "~/infrastructure/core/useCore";
+import { ProjectContext } from "./ProjectContextValue";
 import type { ProjectSettings } from "./type";
-
-type ProjectContextType = {
-	settings: ProjectSettings | undefined;
-	open: () => void;
-	save: () => void;
-	createNew: (settings: ProjectSettings) => void;
-};
-
-export const ProjectContext = createContext<ProjectContextType | null>(null);
 
 export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
 	children,

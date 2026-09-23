@@ -1,15 +1,6 @@
-import { createContext, useState, useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { useCore } from "~/infrastructure/core/useCore";
-
-type LayerContextType = {
-	hiddenLayers: number[];
-	selectedLayer: number;
-	selectLayer: (layer: number) => void;
-	showLayer: (layer: number) => void;
-	hideLayer: (layer: number) => void;
-};
-
-export const LayerContext = createContext<LayerContextType | null>(null);
+import { LayerContext } from "./LayerContextValue";
 
 export const LayerProvider: React.FC<{ children: React.ReactNode }> = ({
 	children,

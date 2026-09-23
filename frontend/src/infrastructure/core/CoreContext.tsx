@@ -1,7 +1,6 @@
-import { createContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { CoreContext } from "./CoreContextValue";
 import { CoreService } from "./CoreService";
-
-export const CoreContext = createContext<CoreService | null>(null);
 
 export const CoreProvider: React.FC<{ children: React.ReactNode }> = ({
 	children,

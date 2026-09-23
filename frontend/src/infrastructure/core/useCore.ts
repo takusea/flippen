@@ -1,5 +1,5 @@
 import { use } from "react";
-import { CoreContext } from "./CoreContext";
+import { CoreContext } from "./CoreContextValue";
 
 export const useCore = () => {
 	const core = use(CoreContext);

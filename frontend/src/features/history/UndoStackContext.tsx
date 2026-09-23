@@ -1,14 +1,5 @@
-import { createContext } from "react";
 import { useCore } from "~/infrastructure/core/useCore";
-
-type UndoStackContextType = {
-	undo: () => void;
-	redo: () => void;
-};
-
-export const UndoStackContext = createContext<UndoStackContextType | null>(
-	null,
-);
+import { UndoStackContext } from "./UndoStackContextValue";
 
 export const UndoStackProvider: React.FC<{ children: React.ReactNode }> = ({
 	children,
