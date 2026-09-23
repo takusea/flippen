@@ -97,6 +97,14 @@ impl FlippenCore {
         }
     }
 
+    pub fn can_undo(&mut self) {
+        self.action_manager.can_undo();
+    }
+
+    pub fn can_redo(&mut self) {
+        self.action_manager.can_redo();
+    }
+
     pub fn apply_tool(
         &mut self,
         clip_id_str: String,
