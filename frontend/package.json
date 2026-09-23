@@ -9,7 +9,7 @@
 		"lint:check": "biome check",
 		"lint:fix": "biome check --write",
 		"lint:ci": "biome ci",
-		"wasm": "wasm-pack build ../wasm --target web --out-dir ../frontend/app/pkg"
+		"wasm": "wasm-pack build ../wasm --target web --out-dir ../frontend/src/infrastructure/wasm"
 	},
 	"dependencies": {
 		"@tabler/icons-react": "^3.48.0",
