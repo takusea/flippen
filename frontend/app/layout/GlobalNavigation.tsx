@@ -8,7 +8,7 @@ import {
 import type { ReactNode } from "react";
 import Button from "~/base/Button";
 import IconButton from "~/base/IconButton";
-import GlobalMenubar from "~/feature/GlobalMenuBar";
+import GlobalMenubar from "~/feature/GlobalMenubar";
 
 type Props = {
 	children: ReactNode;
