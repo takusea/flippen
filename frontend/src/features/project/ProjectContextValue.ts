@@ -1,11 +1,11 @@
 import { createContext } from "react";
 import type { ProjectSettings } from "./type";
 
-type ProjectContextType = {
-	settings: ProjectSettings | undefined;
+export type ProjectContextValue = {
+	settings: ProjectSettings | null;
 	open: () => void;
 	save: () => void;
 	createNew: (settings: ProjectSettings) => void;
 };
 
-export const ProjectContext = createContext<ProjectContextType | null>(null);
+export const ProjectContext = createContext<ProjectContextValue | null>(null);

@@ -1,10 +1,10 @@
 import { createContext } from "react";
 
-type UndoStackContextType = {
+export type UndoStackContextValue = {
 	undo: () => void;
 	redo: () => void;
 };
 
-export const UndoStackContext = createContext<UndoStackContextType | null>(
+export const UndoStackContext = createContext<UndoStackContextValue | null>(
 	null,
 );

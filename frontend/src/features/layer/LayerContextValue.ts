@@ -1,6 +1,6 @@
 import { createContext } from "react";
 
-type LayerContextType = {
+export type LayerContextValue = {
 	hiddenLayers: number[];
 	selectedLayer: number;
 	selectLayer: (layer: number) => void;
@@ -8,4 +8,4 @@ type LayerContextType = {
 	hideLayer: (layer: number) => void;
 };
 
-export const LayerContext = createContext<LayerContextType | null>(null);
+export const LayerContext = createContext<LayerContextValue | null>(null);

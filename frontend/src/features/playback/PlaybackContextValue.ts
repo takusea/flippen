@@ -1,6 +1,6 @@
 import { createContext } from "react";
 
-type PlaybackContextType = {
+export type PlaybackContextValue = {
 	currentFrame: number;
 	isPlaying: boolean;
 	isLoop: boolean;
@@ -16,4 +16,4 @@ type PlaybackContextType = {
 	renderFrame: (frame: number) => Promise<Uint8ClampedArray | undefined>;
 };
 
-export const PlaybackContext = createContext<PlaybackContextType | null>(null);
+export const PlaybackContext = createContext<PlaybackContextValue | null>(null);

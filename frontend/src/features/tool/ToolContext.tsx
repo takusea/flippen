@@ -17,7 +17,7 @@ export const ToolProvider: React.FC<{ children: React.ReactNode }> = ({
 		v: 0,
 		a: 255,
 	});
-	const [colorHistory, setColotHistory] = useState<HSVAColor[]>([color]);
+	const [colorHistory, setColorHistory] = useState<HSVAColor[]>([color]);
 
 	const COLOR_HISTORY_LIMIT = 100;
 
@@ -31,8 +31,7 @@ export const ToolProvider: React.FC<{ children: React.ReactNode }> = ({
 	};
 
 	const pushColorHistory = (color: HSVAColor) => {
-		console.log(colorHistory);
-		setColotHistory((prev) => [color, ...prev.slice(0, COLOR_HISTORY_LIMIT)]);
+		setColorHistory((prev) => [color, ...prev.slice(0, COLOR_HISTORY_LIMIT)]);
 	};
 
 	useEffect(() => {

@@ -4,7 +4,7 @@ import { ToolContext } from "./ToolContextValue";
 export const useTool = () => {
 	const tool = use(ToolContext);
 
-	if (tool == null) throw new Error("Tool is null");
+	if (tool == null) throw new Error("ToolContext is not provided");
 
 	return tool;
 };

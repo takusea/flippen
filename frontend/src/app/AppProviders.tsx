@@ -14,17 +14,17 @@ type Props = {
 function AppProviders({ children }: Props) {
 	return (
 		<CoreProvider>
-			<LayerProvider>
-				<ProjectProvider>
-					<PlaybackProvider>
-						<ClipProvider>
-							<UndoStackProvider>
-								<ToolProvider>{children}</ToolProvider>
-							</UndoStackProvider>
-						</ClipProvider>
-					</PlaybackProvider>
-				</ProjectProvider>
-			</LayerProvider>
+			<ProjectProvider>
+				<PlaybackProvider>
+					<LayerProvider>
+						<ToolProvider>
+							<ClipProvider>
+								<UndoStackProvider>{children}</UndoStackProvider>
+							</ClipProvider>
+						</ToolProvider>
+					</LayerProvider>
+				</PlaybackProvider>
+			</ProjectProvider>
 		</CoreProvider>
 	);
 }

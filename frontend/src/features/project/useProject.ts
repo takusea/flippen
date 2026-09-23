@@ -4,7 +4,7 @@ import { ProjectContext } from "./ProjectContextValue";
 export const useProject = () => {
 	const project = use(ProjectContext);
 
-	if (project == null) throw new Error("Project is null");
+	if (project == null) throw new Error("ProjectContext is not provided");
 
 	return project;
 };

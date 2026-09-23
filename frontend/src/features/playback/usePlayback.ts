@@ -4,7 +4,7 @@ import { PlaybackContext } from "./PlaybackContextValue";
 export const usePlayback = () => {
 	const playback = use(PlaybackContext);
 
-	if (playback == null) throw new Error("Playback is null");
+	if (playback == null) throw new Error("PlaybackContext is not provided");
 
 	return playback;
 };

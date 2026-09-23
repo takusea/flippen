@@ -4,7 +4,7 @@ import { UndoStackContext } from "./UndoStackContextValue";
 export const useUndoStack = () => {
 	const undoStack = use(UndoStackContext);
 
-	if (undoStack == null) throw new Error("UndoStackContext is null");
+	if (undoStack == null) throw new Error("UndoStackContext is not provided");
 
 	return undoStack;
 };

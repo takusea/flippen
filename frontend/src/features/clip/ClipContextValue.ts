@@ -2,10 +2,10 @@ import { createContext } from "react";
 import type { ClipMetadata } from "~/shared/lib/clip";
 import type { Transform } from "~/shared/lib/transform";
 
-type ClipContextType = {
+export type ClipContextValue = {
 	clips: ClipMetadata[];
 	selectedClipId: string | undefined;
-	transform: any;
+	transform: Transform | undefined;
 	selectClip: (id: string) => void;
 	addClip: (start: number, layer: number) => void;
 	deleteClip: (id: string) => void;
@@ -16,6 +16,4 @@ type ClipContextType = {
 	ensureClipAt: (frame: number, layer: number) => string | undefined;
 };
 
-export const ClipContext = createContext<ClipContextType>(
-	{} as ClipContextType,
-);
+export const ClipContext = createContext<ClipContextValue | null>(null);

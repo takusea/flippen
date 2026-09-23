@@ -30,7 +30,7 @@ type Props = {
 };
 
 const Toolbar: React.FC<Props> = (props) => {
-	const playBackContext = usePlayback();
+	const playbackContext = usePlayback();
 	const toolContext = useTool();
 	const { undo, redo } = useUndoStack();
 
@@ -39,23 +39,23 @@ const Toolbar: React.FC<Props> = (props) => {
 	useHotkeys("ctrl+c", () => {});
 	useHotkeys("ctrl+v", () => {});
 	useHotkeys("space", () =>
-		playBackContext.isPlaying
-			? playBackContext.pause()
-			: playBackContext.play(),
+		playbackContext.isPlaying
+			? playbackContext.pause()
+			: playbackContext.play(),
 	);
 	useHotkeys("ctrl+o", props.onIsOnionSkinChange);
 	useHotkeys("ctrl+l", () =>
-		playBackContext.setIsLoop(!playBackContext.isLoop),
+		playbackContext.setIsLoop(!playbackContext.isLoop),
 	);
-	useHotkeys("ctrl+shift+ArrowLeft", () => playBackContext.setCurrentFrame(0));
+	useHotkeys("ctrl+shift+ArrowLeft", () => playbackContext.setCurrentFrame(0));
 	useHotkeys("ctrl+ArrowLeft", () =>
-		playBackContext.setCurrentFrame(playBackContext.currentFrame - 1),
+		playbackContext.setCurrentFrame(playbackContext.currentFrame - 1),
 	);
 	useHotkeys("ctrl+ArrowRight", () =>
-		playBackContext.setCurrentFrame(playBackContext.currentFrame + 1),
+		playbackContext.setCurrentFrame(playbackContext.currentFrame + 1),
 	);
 	useHotkeys("ctrl+shift+ArrowRight", () =>
-		playBackContext.setCurrentFrame(playBackContext.maxFrameCount),
+		playbackContext.setCurrentFrame(playbackContext.maxFrameCount),
 	);
 	useHotkeys("1", () => toolContext.setTool("move"));
 	useHotkeys("2", () => toolContext.setTool("pen"));
@@ -94,27 +94,27 @@ const Toolbar: React.FC<Props> = (props) => {
 			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/25 rounded-lg shadow-sm backdrop-blur-xl">
 				<IconButton
 					label="Play"
-					icon={playBackContext.isPlaying ? IconPlayerPause : IconPlayerPlay}
-					variant={playBackContext.isPlaying ? "primary" : "default"}
+					icon={playbackContext.isPlaying ? IconPlayerPause : IconPlayerPlay}
+					variant={playbackContext.isPlaying ? "primary" : "default"}
 					size="small"
 					onClick={() =>
-						playBackContext.isPlaying
-							? playBackContext.pause()
-							: playBackContext.play()
+						playbackContext.isPlaying
+							? playbackContext.pause()
+							: playbackContext.play()
 					}
 				/>
 				<IconButton
 					label="Stop"
 					icon={IconPlayerStop}
 					size="small"
-					onClick={playBackContext.stop}
+					onClick={playbackContext.stop}
 				/>
 				<IconButton
 					label="Loop"
 					icon={IconRefresh}
-					variant={playBackContext.isLoop ? "primary" : "default"}
+					variant={playbackContext.isLoop ? "primary" : "default"}
 					size="small"
-					onClick={() => playBackContext.setIsLoop(!playBackContext.isLoop)}
+					onClick={() => playbackContext.setIsLoop(!playbackContext.isLoop)}
 				/>
 				<IconButton
 					label="OnionSkin"
@@ -129,14 +129,14 @@ const Toolbar: React.FC<Props> = (props) => {
 					label="Rewind"
 					icon={IconPlayerSkipBack}
 					size="small"
-					onClick={() => playBackContext.setCurrentFrame(0)}
+					onClick={() => playbackContext.setCurrentFrame(0)}
 				/>
 				<IconButton
 					label="Prev"
 					icon={IconPlayerTrackPrev}
 					size="small"
 					onClick={() =>
-						playBackContext.setCurrentFrame(playBackContext.currentFrame - 1)
+						playbackContext.setCurrentFrame(playbackContext.currentFrame - 1)
 					}
 				/>
 				<IconButton
@@ -144,7 +144,7 @@ const Toolbar: React.FC<Props> = (props) => {
 					icon={IconPlayerTrackNext}
 					size="small"
 					onClick={() =>
-						playBackContext.setCurrentFrame(playBackContext.currentFrame + 1)
+						playbackContext.setCurrentFrame(playbackContext.currentFrame + 1)
 					}
 				/>
 				<IconButton
@@ -152,7 +152,7 @@ const Toolbar: React.FC<Props> = (props) => {
 					icon={IconPlayerSkipForward}
 					size="small"
 					onClick={() =>
-						playBackContext.setCurrentFrame(playBackContext.maxFrameCount)
+						playbackContext.setCurrentFrame(playbackContext.maxFrameCount)
 					}
 				/>
 			</div>

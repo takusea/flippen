@@ -8,7 +8,7 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
 	const core = useCore();
 
-	const [settings, setSettings] = useState<ProjectSettings>();
+	const [settings, setSettings] = useState<ProjectSettings | null>(null);
 
 	const createNew = (settings: ProjectSettings) => {
 		setSettings(settings);
