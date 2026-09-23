@@ -12,10 +12,10 @@ import GlobalNavigation from "~/layout/GlobalNavigation";
 function App() {
 	return (
 		<CoreProvider>
-			<PlaybackProvider>
-				<LayerProvider>
-					<ClipProvider>
-						<ProjectProvider>
+			<LayerProvider>
+				<ProjectProvider>
+					<PlaybackProvider>
+						<ClipProvider>
 							<UndoStackProvider>
 								<ToolProvider>
 									<GlobalNavigation>
@@ -23,10 +23,10 @@ function App() {
 									</GlobalNavigation>
 								</ToolProvider>
 							</UndoStackProvider>
-						</ProjectProvider>
-					</ClipProvider>
-				</LayerProvider>
-			</PlaybackProvider>
+						</ClipProvider>
+					</PlaybackProvider>
+				</ProjectProvider>
+			</LayerProvider>
 		</CoreProvider>
 	);
 }

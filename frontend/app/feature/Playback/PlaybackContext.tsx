@@ -1,6 +1,7 @@
 import { createContext, useEffect, useRef, useState } from "react";
 import type { FlippenCore } from "~/pkg/flippen_wasm";
 import { useCore } from "../Core/useCore";
+import { useProject } from "../Project/useProject";
 
 type CoreOperation<T> = (core: FlippenCore) => T | PromiseLike<T>;
 
@@ -8,11 +9,9 @@ type PlaybackContextType = {
 	currentFrame: number;
 	isPlaying: boolean;
 	isLoop: boolean;
-	fps: number;
 	maxFrameCount: number;
 
 	setCurrentFrame: (frame: number) => void;
-	setFps: (fps: number) => void;
 	setIsLoop: (loop: boolean) => void;
 
 	play: () => void;
@@ -29,9 +28,9 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({
 	children,
 }) => {
 	const core = useCore();
+	const project = useProject();
 
 	const [currentFrame, setCurrentFrame] = useState(0);
-	const [fps, setFps] = useState(8);
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [isLoop, setIsLoop] = useState(false);
 	const maxFrameCount = 256;
@@ -58,9 +57,13 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({
 	};
 
 	const play = () => {
+		if (!project.settings) return;
 		if (!isPlaying) {
 			setIsPlaying(true);
-			intervalRef.current = setInterval(advanceFrame, 1000 / fps);
+			intervalRef.current = setInterval(
+				advanceFrame,
+				1000 / project.settings?.frame_rate,
+			);
 		}
 	};
 
@@ -93,10 +96,8 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({
 				currentFrame,
 				isPlaying,
 				isLoop,
-				fps,
 				maxFrameCount,
 				setCurrentFrame,
-				setFps,
 				setIsLoop,
 				play,
 				pause,
