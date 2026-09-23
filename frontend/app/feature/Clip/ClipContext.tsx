@@ -118,10 +118,12 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 	};
 
 	const changeTransform = (id: string, transform: Transform) => {
-		void playbackContext.runCoreOperation((currentCore) => {
-			currentCore.set_clip_transform(id, transform);
-			return currentCore.get_clip_transform(id);
-		}).then((nextTransform) => setTransform(nextTransform));
+		void playbackContext
+			.runCoreOperation((currentCore) => {
+				currentCore.set_clip_transform(id, transform);
+				return currentCore.get_clip_transform(id);
+			})
+			.then((nextTransform) => setTransform(nextTransform));
 	};
 
 	useEffect(() => {
@@ -133,15 +135,10 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 			(candidate) =>
 				candidate.layer_index === layerContext.selectedLayer &&
 				candidate.start <= playbackContext.currentFrame &&
-				playbackContext.currentFrame <
-					candidate.start + candidate.duration,
+				playbackContext.currentFrame < candidate.start + candidate.duration,
 		);
 		setSelectedClipId(clip?.id);
-	}, [
-		clips,
-		layerContext.selectedLayer,
-		playbackContext.currentFrame,
-	]);
+	}, [clips, layerContext.selectedLayer, playbackContext.currentFrame]);
 
 	useEffect(() => {
 		syncTransform();

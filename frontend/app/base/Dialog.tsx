@@ -1,7 +1,7 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { IconX } from "@tabler/icons-react";
-import IconButton from "./IconButton";
 import Button from "./Button";
+import IconButton from "./IconButton";
 
 type Props = React.ComponentProps<typeof DialogPrimitive.Root> & {
 	title: string;

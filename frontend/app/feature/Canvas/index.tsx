@@ -1,14 +1,14 @@
 import { useEffect, useRef } from "react";
+import { rgbaToHsva } from "~/util/color";
 import { useClip } from "../Clip/useClip";
 import { useCore } from "../Core/useCore";
 import { useLayer } from "../layer/useLayer";
 import { usePlayback } from "../Playback/usePlayback";
+import { useProject } from "../Project/useProject";
+import { useTool } from "../Tool/useTool";
 import { useCanvasDraw } from "./useCanvasDraw";
 import { useCanvasRender } from "./useCanvasRender";
 import { useCanvasView } from "./useCanvasView";
-import { useProject } from "../Project/useProject";
-import { useTool } from "../Tool/useTool";
-import { rgbaToHsva } from "~/util/color";
 
 type Props = {
 	isOnionSkin?: boolean;
@@ -27,7 +27,6 @@ const DrawCanvas: React.FC<Props> = (props) => {
 
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (canvasRef.current == null) {
 			return;
@@ -65,7 +64,9 @@ const DrawCanvas: React.FC<Props> = (props) => {
 		};
 	};
 
-	const getPointerPressure = (event: Pick<PointerEvent, "pointerType" | "pressure">) =>
+	const getPointerPressure = (
+		event: Pick<PointerEvent, "pointerType" | "pressure">,
+	) =>
 		event.pointerType === "mouse" || event.pressure <= 0 ? 1 : event.pressure;
 
 	const handlePointerDown = (event: React.PointerEvent<HTMLCanvasElement>) => {
@@ -85,11 +86,14 @@ const DrawCanvas: React.FC<Props> = (props) => {
 
 		const { x, y } = getPointerPosition(event.clientX, event.clientY);
 
-		canvasDraw.beginDraw({
-			x,
-			y,
-			pressure: getPointerPressure(event.nativeEvent),
-		}, clipId);
+		canvasDraw.beginDraw(
+			{
+				x,
+				y,
+				pressure: getPointerPressure(event.nativeEvent),
+			},
+			clipId,
+		);
 		void canvasRender.render(canvasRef.current, props.isOnionSkin ?? false);
 	};
 

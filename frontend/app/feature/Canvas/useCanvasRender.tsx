@@ -41,9 +41,7 @@ export const useCanvasRender = () => {
 		if (isOnionSkinEnabled && !playbackContext.isPlaying) {
 			const isFirstFrame = frame === 0;
 			if (!isFirstFrame) {
-				const prevFrame = await playbackContext.renderFrame(
-					frame - 1,
-				);
+				const prevFrame = await playbackContext.renderFrame(frame - 1);
 				if (requestId !== renderRequestRef.current) return;
 				if (prevFrame != null) {
 					putFrame(prevFrame, 0.25);
@@ -52,9 +50,7 @@ export const useCanvasRender = () => {
 
 			const isLastFrame = frame === playbackContext.maxFrameCount - 1;
 			if (!isLastFrame) {
-				const nextFrame = await playbackContext.renderFrame(
-					frame + 1,
-				);
+				const nextFrame = await playbackContext.renderFrame(frame + 1);
 				if (requestId !== renderRequestRef.current) return;
 				if (nextFrame != null) {
 					putFrame(nextFrame, 0.25);
@@ -72,10 +68,7 @@ export const useCanvasRender = () => {
 		ctx.drawImage(renderCanvas, 0, 0);
 	};
 
-	const render = (
-		canvas: HTMLCanvasElement,
-		isOnionSkinEnabled: boolean,
-	) => {
+	const render = (canvas: HTMLCanvasElement, isOnionSkinEnabled: boolean) => {
 		if (frameRequestRef.current != null) {
 			cancelAnimationFrame(frameRequestRef.current);
 		}

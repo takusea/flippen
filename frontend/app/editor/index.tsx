@@ -1,11 +1,11 @@
 import { useState } from "react";
+import { Dialog } from "~/base/Dialog";
 import DrawCanvas from "~/feature/Canvas";
+import CreateNewProjectDialog from "~/feature/Project/CreateNewProjectDialog";
+import { useProject } from "~/feature/Project/useProject";
 import Timeline from "~/feature/Timeline";
 import Toolbar from "~/feature/Toolbar";
 import Inspector from "./Inspector";
-import CreateNewProjectDialog from "~/feature/Project/CreateNewProjectDialog";
-import { Dialog } from "~/base/Dialog";
-import { useProject } from "~/feature/Project/useProject";
 
 export function Editor() {
 	const project = useProject();
