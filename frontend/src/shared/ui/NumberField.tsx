@@ -13,6 +13,7 @@ type Props = Omit<
 };
 
 const NumberField: React.FC<Props> = (props) => {
+	const { onValueChange, ...inputProps } = props;
 	const input = useRef<HTMLInputElement>(null);
 
 	const [isMoved, setIsMoved] = useState<boolean>(false);
@@ -35,7 +36,7 @@ const NumberField: React.FC<Props> = (props) => {
 			setIsMoved(true);
 		}
 
-		props.onValueChange?.(
+		onValueChange?.(
 			Math.max(
 				props.min ?? 0,
 				Math.min(props.value + event.movementX, props.max ?? 100),
@@ -78,7 +79,7 @@ const NumberField: React.FC<Props> = (props) => {
 				throw new Error("event.currentTarget.value is not a number");
 			}
 
-			props.onValueChange?.(
+			onValueChange?.(
 				Math.max(
 					props.min ?? 0,
 					Math.min(
@@ -97,7 +98,7 @@ const NumberField: React.FC<Props> = (props) => {
 			onPointerUp={handlePointerUp}
 		>
 			<input
-				{...props}
+				{...inputProps}
 				ref={input}
 				type="number"
 				value={innerValue}

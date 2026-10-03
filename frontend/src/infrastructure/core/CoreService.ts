@@ -1,3 +1,4 @@
+import type { ProjectSettings } from "~/features/project/type";
 import init, { FlippenCore } from "~/infrastructure/wasm/flippen_wasm";
 import type { ClipMetadata } from "~/shared/lib/clip";
 import type { Transform } from "~/shared/lib/transform";
@@ -61,8 +62,8 @@ export class CoreService {
 		return result;
 	}
 
-	createProject(settings: unknown) {
-		this.core.create_project(settings);
+	createProject(settings: ProjectSettings) {
+		this.core.create_project(settings.width, settings.height, settings.frame_rate);
 		this.notify();
 	}
 
@@ -76,7 +77,7 @@ export class CoreService {
 	}
 
 	getClips() {
-		return this.core.get_clips() as ClipMetadata[] | undefined;
+		return JSON.parse(this.core.get_clips()) as ClipMetadata[];
 	}
 
 	addClip(start: number, layer: number) {
@@ -147,7 +148,7 @@ export class CoreService {
 	}
 
 	getToolProperties(tool: string) {
-		return this.core.get_tool_properties(tool) as Record<string, unknown>;
+		return JSON.parse(this.core.get_tool_properties(tool)) as Record<string, unknown>;
 	}
 
 	setToolProperty(tool: string, key: string, value: unknown) {
@@ -156,7 +157,7 @@ export class CoreService {
 	}
 
 	getClipTransform(id: string) {
-		return this.core.get_clip_transform(id) as Transform | undefined;
+		return JSON.parse(this.core.get_clip_transform(id)) as Transform;
 	}
 
 	setClipTransform(id: string, transform: Transform) {
