@@ -17,12 +17,15 @@ import {
 	IconPlayerTrackNext,
 	IconPlayerTrackPrev,
 	IconRefresh,
+	IconRotate,
+	IconZoom,
 } from "@tabler/icons-react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useUndoStack } from "~/features/history/useUndoStack";
 import { usePlayback } from "~/features/playback/usePlayback";
 import { useTool } from "~/features/tool/useTool";
 import IconButton from "~/shared/ui/IconButton";
+import NumberField from "~/shared/ui/NumberField";
 
 type Props = {
 	isOnionSkin: boolean;
@@ -192,6 +195,18 @@ const Toolbar: React.FC<Props> = (props) => {
 					variant={toolContext.tool === "select" ? "primary" : "default"}
 					onClick={() => toolContext.setTool("select")}
 				/>
+			</div>
+			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/25 rounded-lg shadow-sm backdrop-blur-xl">
+				<div className="w-16">
+					<NumberField value={100} max={200} min={0} step={50} />
+				</div>
+				<IconButton label="Reset Zoom" icon={IconZoom} size="small" />
+			</div>
+			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/25 rounded-lg shadow-sm backdrop-blur-xl">
+				<div className="w-16">
+					<NumberField value={0} max={180} min={-180} step={45} />
+				</div>
+				<IconButton label="Reset Rotate" icon={IconRotate} size="small" />
 			</div>
 		</div>
 	);

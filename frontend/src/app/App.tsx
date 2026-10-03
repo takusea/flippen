@@ -19,7 +19,7 @@ function App() {
 			</Dialog>
 			<div className="relative">
 				<DrawCanvas isOnionSkin={isOnionSkin} />
-				<div className="absolute bottom-4 w-fit left-0 right-0 mx-auto max-w-full overflow-x-auto">
+				<div className="absolute bottom-2 w-fit left-0 right-0 mx-auto max-w-full overflow-x-auto">
 					<Toolbar
 						isOnionSkin={isOnionSkin}
 						onIsOnionSkinChange={() => setIsOnionSkin((prev) => !prev)}

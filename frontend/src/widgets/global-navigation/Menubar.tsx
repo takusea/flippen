@@ -45,13 +45,26 @@ const GlobalMenubar: React.FC = () => {
 				<MenubarItem label="Select All" shortcut="Ctrl+A" />
 			</MenubarMenu>
 			<MenubarMenu label="View">
-				<MenubarItem label="test" shortcut="Ctrl+S" />
+				<MenubarItem label="Zoom In" shortcut="Ctrl+S" />
+				<MenubarItem label="Zoom Out" shortcut="Ctrl+S" />
+				<MenubarItem label="Fit Of View" shortcut="Ctrl+S" />
+				<MenubarItem label="Reset Zoom" shortcut="Ctrl+S" />
+				<MenubarSeparator />
+				<MenubarItem label="Rotate Left" shortcut="Ctrl+S" />
+				<MenubarItem label="Rotate Right" shortcut="Ctrl+S" />
+				<MenubarItem label="Reset Rotate" shortcut="Ctrl+S" />
+				<MenubarSeparator />
+				<MenubarItem label="Flip Horizontal" shortcut="Ctrl+S" />
+				<MenubarItem label="Flip Vertical" shortcut="Ctrl+S" />
+				<MenubarItem label="Reset Flip" shortcut="Ctrl+S" />
+				<MenubarSeparator />
+				<MenubarItem label="Show Grid" shortcut="Ctrl+S" />
 			</MenubarMenu>
 			<MenubarMenu label="Setting">
-				<MenubarItem label="test" shortcut="Ctrl+S" />
+				<MenubarItem label="Settings..." shortcut="Ctrl+S" />
 			</MenubarMenu>
 			<MenubarMenu label="Help">
-				<MenubarItem label="test" shortcut="Ctrl+S" />
+				<MenubarItem label="About Flippen..." shortcut="Ctrl+S" />
 			</MenubarMenu>
 		</MenubarRoot>
 	);

@@ -36,10 +36,12 @@ const NumberField: React.FC<Props> = (props) => {
 			setIsMoved(true);
 		}
 
+		const step = Number(props.step ?? 1);
+
 		onValueChange?.(
 			Math.max(
 				props.min ?? 0,
-				Math.min(props.value + event.movementX, props.max ?? 100),
+				Math.min(props.value + event.movementX * step, props.max ?? 100),
 			),
 		);
 	};
