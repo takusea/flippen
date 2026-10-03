@@ -15,6 +15,8 @@ export type CoreSnapshot = {
 };
 
 export class CoreService {
+	private static wasmInitialization: ReturnType<typeof init> | undefined;
+
 	private constructor(private readonly core: FlippenCore) {}
 
 	private readonly listeners = new Set<() => void>();
@@ -23,7 +25,13 @@ export class CoreService {
 	private snapshot: CoreSnapshot | undefined;
 
 	static async create() {
-		await init();
+		if (this.wasmInitialization == null) {
+			this.wasmInitialization = init().catch((error: unknown) => {
+				this.wasmInitialization = undefined;
+				throw error;
+			});
+		}
+		await this.wasmInitialization;
 		return new CoreService(new FlippenCore());
 	}
 
@@ -63,7 +71,7 @@ export class CoreService {
 	}
 
 	createProject(settings: ProjectSettings) {
-		this.core.create_project(settings.width, settings.height, settings.frame_rate);
+		this.core.create_project(settings);
 		this.notify();
 	}
 
@@ -77,7 +85,9 @@ export class CoreService {
 	}
 
 	getClips() {
-		return JSON.parse(this.core.get_clips()) as ClipMetadata[];
+		const clips = this.core.get_clips();
+		if (clips === undefined) return;
+		return clips as ClipMetadata[];
 	}
 
 	addClip(start: number, layer: number) {
@@ -148,7 +158,9 @@ export class CoreService {
 	}
 
 	getToolProperties(tool: string) {
-		return JSON.parse(this.core.get_tool_properties(tool)) as Record<string, unknown>;
+		const properties = this.core.get_tool_properties(tool);
+		if (properties === undefined) return;
+		return properties as Record<string, unknown>;
 	}
 
 	setToolProperty(tool: string, key: string, value: unknown) {
@@ -157,7 +169,9 @@ export class CoreService {
 	}
 
 	getClipTransform(id: string) {
-		return JSON.parse(this.core.get_clip_transform(id)) as Transform;
+		const transform = this.core.get_clip_transform(id);
+		if (transform === undefined) return;
+		return transform as Transform;
 	}
 
 	setClipTransform(id: string, transform: Transform) {

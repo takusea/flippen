@@ -21,6 +21,7 @@ use crate::app::action_manager::ActionManager;
 use crate::app::clip::ClipMetadata;
 use crate::app::composition::Composition;
 use crate::app::project::Project;
+use crate::app::project_settings::ProjectSettings;
 use crate::core::image::Image;
 use crate::core::tool::{Tool, ToolPropertyValue};
 use crate::core::transform::Transform;
@@ -51,12 +52,15 @@ impl FlippenCore {
         }
     }
 
-    pub fn create_project(&mut self, json: JsValue) {
-        let settings = json.into_serde().unwrap();
+    pub fn create_project(&mut self, settings: JsValue) -> Result<(), JsValue> {
+        let settings: ProjectSettings = settings
+            .into_serde()
+            .map_err(|error| JsValue::from_str(&error.to_string()))?;
         self.project = Some(Project {
             composition: Composition::new(),
             settings,
         });
+        Ok(())
     }
 
     pub fn width(&self) -> Option<u32> {
