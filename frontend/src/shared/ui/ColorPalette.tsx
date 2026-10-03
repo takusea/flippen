@@ -16,7 +16,7 @@ const ColorPalette: React.FC<Props> = (props) => {
 						<button
 							type="button"
 							key={index}
-							className="aspect-square rounded cursor-pointer border border-zinc-500/25 bg-[var(--color)]"
+							className="aspect-square rounded cursor-pointer border border-zinc-500/25 bg-(--color)"
 							style={
 								{
 									"--color": `rgb(${rgbaColor.r} ${rgbaColor.g} ${rgbaColor.b} / ${rgbaColor.a / 255})`,

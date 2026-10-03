@@ -19,7 +19,7 @@ const Tooltip: React.FC<Props> = (props) => {
 						side={props.side}
 					>
 						{props.label}
-						<TooltipPrimitive.Arrow className="fill-white/90 dark:fill-zinc-950/90 mt-[-1px]" />
+						<TooltipPrimitive.Arrow className="fill-white/90 dark:fill-zinc-950/90 -mt-px" />
 					</TooltipPrimitive.Content>
 				</TooltipPrimitive.Portal>
 			</TooltipPrimitive.Root>

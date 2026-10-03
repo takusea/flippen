@@ -102,7 +102,7 @@ const NumberField: React.FC<Props> = (props) => {
 				ref={input}
 				type="number"
 				value={innerValue}
-				className="absolute inset-[-1px] px-2 pointer-events-none focus:pointer-events-auto"
+				className="absolute -inset-px px-2 pointer-events-none focus:pointer-events-auto"
 				onPointerMove={handleInputPointerMove}
 				onChange={handleChange}
 				onKeyDown={handleKeyDown}
