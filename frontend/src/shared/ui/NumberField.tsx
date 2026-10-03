@@ -15,6 +15,7 @@ type Props = Omit<
 const NumberField: React.FC<Props> = (props) => {
 	const { onValueChange, ...inputProps } = props;
 	const input = useRef<HTMLInputElement>(null);
+	const dragValue = useRef<number | null>(null);
 
 	const [isMoved, setIsMoved] = useState<boolean>(false);
 	const [innerValue, setInnerValue] = useState<string>("");
@@ -24,6 +25,13 @@ const NumberField: React.FC<Props> = (props) => {
 			props.value?.toString() ?? props.defaultValue?.toString() ?? "",
 		);
 	}, [props.value, props.defaultValue]);
+
+	const min = props.min ?? Number.MIN_SAFE_INTEGER;
+	const max = props.max ?? Number.MAX_SAFE_INTEGER;
+	const step = Number(props.step ?? 1);
+	const clamp = (value: number) => {
+		return Math.max(min, Math.min(Math.round(value / step) * step, max));
+	};
 
 	const cursor = isMoved ? "cursor-ew-resize" : "cursor-text";
 
@@ -36,17 +44,15 @@ const NumberField: React.FC<Props> = (props) => {
 			setIsMoved(true);
 		}
 
-		const step = Number(props.step ?? 1);
-
-		onValueChange?.(
-			Math.max(
-				props.min ?? 0,
-				Math.min(props.value + event.movementX * step, props.max ?? 100),
-			),
-		);
+		const currentValue = dragValue.current ?? props.value;
+		const nextValue = clamp(currentValue + event.movementX * step);
+		dragValue.current = nextValue;
+		onValueChange?.(nextValue);
 	};
 
 	const handlePointerUp = () => {
+		dragValue.current = null;
+
 		if (!isMoved) {
 			if (input.current == null) {
 				throw new Error("input.current is null");
@@ -81,15 +87,9 @@ const NumberField: React.FC<Props> = (props) => {
 				throw new Error("event.currentTarget.value is not a number");
 			}
 
-			onValueChange?.(
-				Math.max(
-					props.min ?? 0,
-					Math.min(
-						Number.parseFloat(event.currentTarget.value),
-						props.max ?? 100,
-					),
-				),
-			);
+			const value = Number.parseFloat(event.currentTarget.value);
+
+			onValueChange?.(clamp(value));
 		}
 	};
 

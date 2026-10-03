@@ -16,8 +16,6 @@ const ClipInspector: React.FC<Props> = (props) => {
 				<span>Position</span>
 				<div className="grid grid-cols-2 gap-2">
 					<NumberField
-						min={0}
-						max={100}
 						value={props.transform.position[0]}
 						onValueChange={(value) => {
 							props.onTransformChange({
@@ -27,8 +25,6 @@ const ClipInspector: React.FC<Props> = (props) => {
 						}}
 					/>
 					<NumberField
-						min={0}
-						max={100}
 						value={props.transform.position[1]}
 						onValueChange={(value) => {
 							props.onTransformChange({
