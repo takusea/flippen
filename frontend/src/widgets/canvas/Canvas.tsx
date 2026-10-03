@@ -6,6 +6,7 @@ import { useProject } from "~/features/project/useProject";
 import { useTool } from "~/features/tool/useTool";
 import { useCore } from "~/infrastructure/core/useCore";
 import { rgbaToHsva } from "~/shared/lib/color";
+import type { Transform } from "~/shared/lib/transform";
 import { useCanvasDraw } from "./useCanvasDraw";
 import { useCanvasRender } from "./useCanvasRender";
 import type { useCanvasView } from "./useCanvasView";
@@ -26,6 +27,12 @@ const DrawCanvas: React.FC<Props> = (props) => {
 	const canvasRender = useCanvasRender();
 
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
+	const moveDragRef = useRef<{
+		pointerId: number;
+		startX: number;
+		startY: number;
+		initialTransform: Transform;
+	} | null>(null);
 
 	useEffect(() => {
 		if (canvasRef.current == null) {
@@ -78,6 +85,21 @@ const DrawCanvas: React.FC<Props> = (props) => {
 		if (canvasRef.current == null) return;
 		if (!(event.buttons & 1) || event.shiftKey) return;
 
+		if (toolContext.tool === "move") {
+			if (clipContext.selectedClipId == null || clipContext.transform == null) {
+				return;
+			}
+			const { x, y } = getPointerPosition(event.clientX, event.clientY);
+			moveDragRef.current = {
+				pointerId: event.pointerId,
+				startX: x,
+				startY: y,
+				initialTransform: { ...clipContext.transform },
+			};
+			event.currentTarget.setPointerCapture(event.pointerId);
+			return;
+		}
+
 		if (toolContext.color !== toolContext.colorHistory[0]) {
 			toolContext.pushColorHistory(toolContext.color);
 		}
@@ -104,6 +126,26 @@ const DrawCanvas: React.FC<Props> = (props) => {
 
 	const handlePointerMove = (event: React.PointerEvent<HTMLCanvasElement>) => {
 		if (canvasRef.current == null) {
+			return;
+		}
+
+		if (toolContext.tool === "move") {
+			if (moveDragRef.current == null) return;
+			if (clipContext.selectedClipId == null || clipContext.transform == null) {
+				moveDragRef.current = null;
+				return;
+			}
+			if (!(event.buttons & 1)) return;
+			const { x, y } = getPointerPosition(event.clientX, event.clientY);
+			const dx = Math.round(x - moveDragRef.current.startX);
+			const dy = Math.round(y - moveDragRef.current.startY);
+			clipContext.changeTransform(clipContext.selectedClipId, {
+				...moveDragRef.current.initialTransform,
+				position: [
+					Math.round(moveDragRef.current.initialTransform.position[0] + dx),
+					Math.round(moveDragRef.current.initialTransform.position[1] + dy),
+				],
+			});
 			return;
 		}
 
@@ -145,6 +187,19 @@ const DrawCanvas: React.FC<Props> = (props) => {
 		void canvasRender.render(canvasRef.current, props.isOnionSkin ?? false);
 	};
 
+	const handlePointerUp = (event: React.PointerEvent<HTMLCanvasElement>) => {
+		if (toolContext.tool === "move") {
+			if (moveDragRef.current != null) {
+				moveDragRef.current = null;
+			}
+			if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+				event.currentTarget.releasePointerCapture(event.pointerId);
+			}
+			return;
+		}
+		canvasDraw.finishDraw();
+	};
+
 	const handleWheel = (event: React.WheelEvent) => {
 		const step = event.deltaY < 0 ? 1 : -1;
 		if (event.shiftKey) {
@@ -184,7 +239,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 				}}
 				onPointerDown={handlePointerDown}
 				onPointerMove={handlePointerMove}
-				onPointerUp={canvasDraw.finishDraw}
+				onPointerUp={handlePointerUp}
 			/>
 		</div>
 	);
