@@ -283,9 +283,9 @@ impl GpuRenderer {
                     .ok_or_else(|| "Clip transform is not invertible".to_string())?;
                 let uniforms = ClipUniforms {
                     inverse_transform: [
-                        [inverse.x.x, inverse.y.x, inverse.z.x, 0.0],
-                        [inverse.x.y, inverse.y.y, inverse.z.y, 0.0],
-                        [0.0, 0.0, 1.0, 0.0],
+                        [inverse.x.x, inverse.x.y, inverse.x.z, 0.0],
+                        [inverse.y.x, inverse.y.y, inverse.y.z, 0.0],
+                        [inverse.z.x, inverse.z.y, inverse.z.z, 0.0],
                     ],
                     image_size: [image.width as f32, image.height as f32],
                     output_size: [width as f32, height as f32],
