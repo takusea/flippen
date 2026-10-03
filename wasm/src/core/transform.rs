@@ -1,4 +1,4 @@
-use cgmath::{Matrix3, Rad, SquareMatrix, Vector2};
+use cgmath::{Matrix3, Rad, SquareMatrix, Vector2, Vector3};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -34,5 +34,36 @@ impl Transform {
 
     pub fn to_inverse_matrix3(&self, center: (f32, f32)) -> Option<Matrix3<f32>> {
         self.to_matrix3(center).invert()
+    }
+
+    pub fn inverse_transform_point(
+        &self,
+        point: (f32, f32),
+        center: (f32, f32),
+    ) -> Option<(f32, f32)> {
+        let inverse = self.to_inverse_matrix3(center)?;
+        let transformed = inverse * Vector3::new(point.0, point.1, 1.0);
+        Some((transformed.x, transformed.y))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Transform;
+
+    #[test]
+    fn inverse_transform_point_accounts_for_translation_rotation_and_scale() {
+        let transform = Transform {
+            position: (10.0, -5.0),
+            rotation: 90.0,
+            scale: (2.0, 1.0),
+        };
+
+        let (x, y) = transform
+            .inverse_transform_point((60.0, 65.0), (50.0, 50.0))
+            .unwrap();
+
+        assert!((x - 60.0).abs() < 0.001);
+        assert!((y - 50.0).abs() < 0.001);
     }
 }

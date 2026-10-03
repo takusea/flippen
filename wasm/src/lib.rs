@@ -165,6 +165,28 @@ impl FlippenCore {
             return;
         }
 
+        let (width, height) = (clip.image.width, clip.image.height);
+        let (x, y) = match clip.transform.inverse_transform_point(
+            (x as f32, y as f32),
+            (width as f32 / 2.0, height as f32 / 2.0),
+        ) {
+            Some((x, y))
+                if x.is_finite()
+                    && y.is_finite()
+                    && x >= 0.0
+                    && y >= 0.0
+                    && x < width as f32
+                    && y < height as f32 =>
+            {
+                (x.floor() as u32, y.floor() as u32)
+            }
+            Some(_) => return,
+            None => {
+                eprintln!("Clip transform is not invertible.");
+                return;
+            }
+        };
+
         let image = clip.get_image_mut();
         let color_array = [color[0], color[1], color[2], color[3]];
         tool.apply(image, x, y, color_array, Some(pressure));
