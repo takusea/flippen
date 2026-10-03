@@ -8,10 +8,11 @@ import { useCore } from "~/infrastructure/core/useCore";
 import { rgbaToHsva } from "~/shared/lib/color";
 import { useCanvasDraw } from "./useCanvasDraw";
 import { useCanvasRender } from "./useCanvasRender";
-import { useCanvasView } from "./useCanvasView";
+import type { useCanvasView } from "./useCanvasView";
 
 type Props = {
 	isOnionSkin?: boolean;
+	canvasView: ReturnType<typeof useCanvasView>;
 };
 
 const DrawCanvas: React.FC<Props> = (props) => {
@@ -22,7 +23,6 @@ const DrawCanvas: React.FC<Props> = (props) => {
 	const layerContext = useLayer();
 	const toolContext = useTool();
 	const canvasDraw = useCanvasDraw();
-	const canvasView = useCanvasView();
 	const canvasRender = useCanvasRender();
 
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -56,7 +56,12 @@ const DrawCanvas: React.FC<Props> = (props) => {
 		const centerX = rect.left + rect.width / 2;
 		const centerY = rect.top + rect.height / 2;
 
-		const transformed = canvasView.applyCanvasTransform(x, y, centerX, centerY);
+		const transformed = props.canvasView.applyCanvasTransform(
+			x,
+			y,
+			centerX,
+			centerY,
+		);
 
 		return {
 			x: transformed.x - parentRect.left,
@@ -143,16 +148,16 @@ const DrawCanvas: React.FC<Props> = (props) => {
 	const handleWheel = (event: React.WheelEvent) => {
 		const step = event.deltaY < 0 ? 1 : -1;
 		if (event.shiftKey) {
-			canvasView.rotate(step);
+			props.canvasView.rotate(step);
 		} else {
-			canvasView.zoom(step);
+			props.canvasView.zoom(step);
 		}
 	};
 
 	const handleContainerPointerMove = (event: React.PointerEvent) => {
 		if (!(event.buttons & 1 && event.shiftKey) && !(event.buttons & 4)) return;
 
-		canvasView.translate(event.movementX, event.movementY);
+		props.canvasView.translate(event.movementX, event.movementY);
 	};
 
 	if (projectContext.settings == null) {
@@ -173,9 +178,9 @@ const DrawCanvas: React.FC<Props> = (props) => {
 				className="absolute inset-0 border border-zinc-500 [image-rendering:pixelated]"
 				style={{
 					imageRendering: "pixelated",
-					scale: canvasView.scale,
-					translate: `${canvasView.position.x}px ${canvasView.position.y}px`,
-					rotate: `${canvasView.rotation}deg`,
+					scale: props.canvasView.scale,
+					translate: `${props.canvasView.position.x}px ${props.canvasView.position.y}px`,
+					rotate: `${props.canvasView.rotation}deg`,
 				}}
 				onPointerDown={handlePointerDown}
 				onPointerMove={handlePointerMove}

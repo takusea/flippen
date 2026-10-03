@@ -3,12 +3,14 @@ import CreateNewProjectDialog from "~/features/project/CreateNewProjectDialog";
 import { useProject } from "~/features/project/useProject";
 import { Dialog } from "~/shared/ui/Dialog";
 import DrawCanvas from "~/widgets/canvas/Canvas";
+import { useCanvasView } from "~/widgets/canvas/useCanvasView";
 import Inspector from "~/widgets/inspector/Inspector";
 import Timeline from "~/widgets/timeline/Timeline";
 import Toolbar from "~/widgets/toolbar";
 
 function App() {
 	const project = useProject();
+	const canvasView = useCanvasView();
 
 	const [isOnionSkin, setIsOnionSkin] = useState<boolean>(false);
 
@@ -18,11 +20,12 @@ function App() {
 				<CreateNewProjectDialog />
 			</Dialog>
 			<div className="relative">
-				<DrawCanvas isOnionSkin={isOnionSkin} />
+				<DrawCanvas isOnionSkin={isOnionSkin} canvasView={canvasView} />
 				<div className="absolute bottom-2 w-fit left-0 right-0 mx-auto max-w-full overflow-x-auto">
 					<Toolbar
 						isOnionSkin={isOnionSkin}
 						onIsOnionSkinChange={() => setIsOnionSkin((prev) => !prev)}
+						canvasView={canvasView}
 					/>
 				</div>
 				<div className="absolute right-0 overflow-y-scroll h-full w-60 ">

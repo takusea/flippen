@@ -62,6 +62,8 @@ export const useCanvasView = () => {
 		position,
 		rotation,
 		scale,
+		minScale: scaleMinimum,
+		maxScale: scaleMaximum,
 		setPosition,
 		setRotation,
 		setScale,

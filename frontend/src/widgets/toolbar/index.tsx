@@ -26,10 +26,12 @@ import { usePlayback } from "~/features/playback/usePlayback";
 import { useTool } from "~/features/tool/useTool";
 import IconButton from "~/shared/ui/IconButton";
 import NumberField from "~/shared/ui/NumberField";
+import type { useCanvasView } from "~/widgets/canvas/useCanvasView";
 
 type Props = {
 	isOnionSkin: boolean;
 	onIsOnionSkinChange: () => void;
+	canvasView: ReturnType<typeof useCanvasView>;
 };
 
 const Toolbar: React.FC<Props> = (props) => {
@@ -198,15 +200,37 @@ const Toolbar: React.FC<Props> = (props) => {
 			</div>
 			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/25 rounded-lg shadow-sm backdrop-blur-xl">
 				<div className="w-16">
-					<NumberField value={100} max={200} min={0} step={50} />
+					<NumberField
+						value={Number((props.canvasView.scale * 100).toFixed(2))}
+						max={props.canvasView.maxScale * 100}
+						min={props.canvasView.minScale * 100}
+						step={10}
+						onValueChange={(value) => props.canvasView.setScale(value / 100)}
+					/>
 				</div>
-				<IconButton label="Reset Zoom" icon={IconZoom} size="small" />
+				<IconButton
+					label="Reset Zoom"
+					icon={IconZoom}
+					size="small"
+					onClick={() => props.canvasView.setScale(1)}
+				/>
 			</div>
 			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/25 rounded-lg shadow-sm backdrop-blur-xl">
 				<div className="w-16">
-					<NumberField value={0} max={180} min={-180} step={45} />
+					<NumberField
+						value={props.canvasView.rotation}
+						max={180}
+						min={-180}
+						step={1}
+						onValueChange={props.canvasView.setRotation}
+					/>
 				</div>
-				<IconButton label="Reset Rotate" icon={IconRotate} size="small" />
+				<IconButton
+					label="Reset Rotate"
+					icon={IconRotate}
+					size="small"
+					onClick={() => props.canvasView.setRotation(0)}
+				/>
 			</div>
 		</div>
 	);
