@@ -8,6 +8,7 @@ import {
 
 import { useLayer } from "~/features/layer/useLayer";
 import { usePlayback } from "~/features/playback/usePlayback";
+import { useProject } from "~/features/project/useProject";
 import { useCore } from "~/infrastructure/core/useCore";
 import type { ClipProperties } from "~/shared/lib/clip";
 import type { Transform } from "~/shared/lib/transform";
@@ -19,6 +20,7 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 	const core = useCore();
 	const layerContext = useLayer();
 	const playbackContext = usePlayback();
+	const projectContext = useProject();
 
 	const { clips } = useSyncExternalStore(
 		core.subscribe,
@@ -26,12 +28,190 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 		() => core.getSnapshot(),
 	);
 	const [selectedClipId, setSelectedClipId] = useState<string>();
+	const [selection, setSelection] = useState<
+		{ x: number; y: number; width: number; height: number } | undefined
+	>();
+	const [clipboard, setClipboard] = useState<
+		| {
+				x: number;
+				y: number;
+				width: number;
+				height: number;
+				pixels: Uint8ClampedArray;
+		  }
+		| undefined
+	>();
 	const selectionContext = useRef({
 		layer: layerContext.selectedLayer,
 		frame: playbackContext.currentFrame,
 	});
 
 	const [transform, setTransform] = useState<Transform>();
+
+	const getCurrentLayerClip = () =>
+		clips.find(
+			(clip) =>
+				clip.layer_index === layerContext.selectedLayer &&
+				clip.start <= playbackContext.currentFrame &&
+				playbackContext.currentFrame < clip.start + clip.duration,
+		);
+
+	const getClipboardImage = () => {
+		const clip = getCurrentLayerClip();
+		const settings = projectContext.settings;
+		if (clip == null || settings == null) return undefined;
+
+		const pixels = core.getClipPixels(clip.id);
+		if (pixels == null) {
+			throw new Error(`Clip pixel data is unavailable for clip ${clip.id}.`);
+		}
+		if (pixels.length !== settings.width * settings.height * 4) {
+			throw new Error("Clip pixel dimensions do not match project settings.");
+		}
+
+		const bounds = selection ?? {
+			x: 0,
+			y: 0,
+			width: settings.width,
+			height: settings.height,
+		};
+		const x = Math.max(0, Math.min(settings.width, bounds.x));
+		const y = Math.max(0, Math.min(settings.height, bounds.y));
+		const right = Math.max(
+			x,
+			Math.min(settings.width, bounds.x + bounds.width),
+		);
+		const bottom = Math.max(
+			y,
+			Math.min(settings.height, bounds.y + bounds.height),
+		);
+		const width = right - x;
+		const height = bottom - y;
+		if (width === 0 || height === 0) return undefined;
+
+		const copiedPixels = new Uint8ClampedArray(width * height * 4);
+		for (let row = 0; row < height; row++) {
+			const sourceStart = ((y + row) * settings.width + x) * 4;
+			const destinationStart = row * width * 4;
+			copiedPixels.set(
+				pixels.subarray(sourceStart, sourceStart + width * 4),
+				destinationStart,
+			);
+		}
+
+		return {
+			clip,
+			x,
+			y,
+			width,
+			height,
+			pixels: copiedPixels,
+		};
+	};
+
+	const copy = () => {
+		const image = getClipboardImage();
+		if (image == null) return;
+		const { clip: _clip, ...copiedImage } = image;
+		setClipboard(copiedImage);
+	};
+
+	const cut = () => {
+		const image = getClipboardImage();
+		if (
+			image == null ||
+			layerContext.lockedLayers.includes(image.clip.layer_index) ||
+			image.clip.locked
+		) {
+			return;
+		}
+
+		const { clip, ...copiedImage } = image;
+		setClipboard(copiedImage);
+
+		const pixels = core.getClipPixels(clip.id);
+		const settings = projectContext.settings;
+		if (pixels == null) {
+			throw new Error(`Clip pixel data is unavailable for clip ${clip.id}.`);
+		}
+		if (settings == null) return;
+		for (let row = 0; row < image.height; row++) {
+			const start = ((image.y + row) * settings.width + image.x) * 4;
+			pixels.fill(0, start, start + image.width * 4);
+		}
+		core.replaceClipPixels(clip.id, pixels);
+	};
+
+	const paste = () => {
+		const settings = projectContext.settings;
+		if (clipboard == null || settings == null) return;
+		if (layerContext.lockedLayers.includes(layerContext.selectedLayer)) return;
+
+		let clip = getCurrentLayerClip();
+		if (clip == null) {
+			core.addClip(playbackContext.currentFrame, layerContext.selectedLayer);
+			clip = core
+				.getClips()
+				?.find(
+					(candidate) =>
+						candidate.layer_index === layerContext.selectedLayer &&
+						candidate.start === playbackContext.currentFrame,
+				);
+			if (clip != null) {
+				selectionContext.current = {
+					layer: layerContext.selectedLayer,
+					frame: playbackContext.currentFrame,
+				};
+				setSelectedClipId(clip.id);
+			}
+		}
+		if (clip == null || clip.locked) return;
+
+		const pixels = core.getClipPixels(clip.id);
+		if (pixels == null) {
+			throw new Error(`Clip pixel data is unavailable for clip ${clip.id}.`);
+		}
+		if (pixels.length !== settings.width * settings.height * 4) {
+			throw new Error("Clip pixel dimensions do not match project settings.");
+		}
+
+		for (let row = 0; row < clipboard.height; row++) {
+			const targetY = clipboard.y + row;
+			if (targetY < 0 || targetY >= settings.height) continue;
+			for (let column = 0; column < clipboard.width; column++) {
+				const targetX = clipboard.x + column;
+				if (targetX < 0 || targetX >= settings.width) continue;
+				const sourceIndex = (row * clipboard.width + column) * 4;
+				const targetIndex = (targetY * settings.width + targetX) * 4;
+				const sourceAlpha = clipboard.pixels[sourceIndex + 3] / 255;
+				if (sourceAlpha === 0) continue;
+				const targetAlpha = pixels[targetIndex + 3] / 255;
+				const outputAlpha = sourceAlpha + targetAlpha * (1 - sourceAlpha);
+				for (let channel = 0; channel < 3; channel++) {
+					pixels[targetIndex + channel] = Math.round(
+						(clipboard.pixels[sourceIndex + channel] * sourceAlpha +
+							pixels[targetIndex + channel] * targetAlpha * (1 - sourceAlpha)) /
+							outputAlpha,
+					);
+				}
+				pixels[targetIndex + 3] = Math.round(outputAlpha * 255);
+			}
+		}
+
+		core.replaceClipPixels(clip.id, pixels);
+	};
+
+	const selectAll = () => {
+		const settings = projectContext.settings;
+		if (settings != null) {
+			setSelection({
+				x: 0,
+				y: 0,
+				width: settings.width,
+				height: settings.height,
+			});
+		}
+	};
 
 	const syncTransform = useCallback(() => {
 		if (selectedClipId == null) {
@@ -166,6 +346,7 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 		const playheadChanged =
 			selectionContext.current.layer !== layerContext.selectedLayer ||
 			selectionContext.current.frame !== playbackContext.currentFrame;
+		if (playheadChanged) setSelection(undefined);
 		selectionContext.current = {
 			layer: layerContext.selectedLayer,
 			frame: playbackContext.currentFrame,
@@ -201,7 +382,13 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 				clips,
 				selectedClipId,
 				transform,
+				selection,
 				selectClip,
+				setSelection,
+				copy,
+				cut,
+				paste,
+				selectAll,
 				addClip,
 				deleteClip,
 				moveClip,

@@ -1,4 +1,5 @@
 import { useHotkeys } from "react-hotkeys-hook";
+import { useClip } from "~/features/clip/useClip";
 import { useUndoStack } from "~/features/history/useUndoStack";
 import { useProject } from "~/features/project/useProject";
 import { useProjectDialogs } from "~/features/project/useProjectDialogs";
@@ -14,6 +15,7 @@ type Props = {
 
 const GlobalMenubar: React.FC<Props> = ({ canvasView }) => {
 	const undoStack = useUndoStack();
+	const clipContext = useClip();
 	const project = useProject();
 	const projectDialogs = useProjectDialogs();
 	const fitToView = () => {
@@ -93,10 +95,22 @@ const GlobalMenubar: React.FC<Props> = ({ canvasView }) => {
 					onSelect={() => undoStack.redo()}
 				/>
 				<MenubarSeparator />
-				<MenubarItem label="Cut" shortcut="Ctrl+X" />
-				<MenubarItem label="Copy" shortcut="Ctrl+C" />
-				<MenubarItem label="Paste" shortcut="Ctrl+V" />
-				<MenubarItem label="Select All" shortcut="Ctrl+A" />
+				<MenubarItem label="Cut" shortcut="Ctrl+X" onSelect={clipContext.cut} />
+				<MenubarItem
+					label="Copy"
+					shortcut="Ctrl+C"
+					onSelect={clipContext.copy}
+				/>
+				<MenubarItem
+					label="Paste"
+					shortcut="Ctrl+V"
+					onSelect={clipContext.paste}
+				/>
+				<MenubarItem
+					label="Select All"
+					shortcut="Ctrl+A"
+					onSelect={clipContext.selectAll}
+				/>
 			</MenubarMenu>
 			<MenubarMenu label="View">
 				<MenubarItem

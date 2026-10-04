@@ -115,6 +115,15 @@ export class CoreService {
 		this.notify();
 	}
 
+	getClipPixels(id: string) {
+		return this.core.get_clip_pixels(id);
+	}
+
+	replaceClipPixels(id: string, pixels: Uint8ClampedArray) {
+		this.core.replace_clip_pixels(id, new Uint8Array(pixels));
+		this.notify();
+	}
+
 	moveClip(id: string, start: number, layer: number) {
 		this.core.move_clip(id, start, layer);
 		this.notify();

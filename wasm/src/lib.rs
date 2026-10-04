@@ -346,6 +346,56 @@ impl FlippenCore {
         }
     }
 
+    pub fn get_clip_pixels(&self, clip_id_str: String) -> Option<Uint8ClampedArray> {
+        let clip_id = Uuid::parse_str(&clip_id_str).ok()?;
+        let project = self.project.as_ref()?;
+        let clip = project
+            .composition
+            .clips
+            .iter()
+            .find(|clip| clip.metadata.id == clip_id)?;
+        Some(Uint8ClampedArray::from(&clip.image.data[..]))
+    }
+
+    pub fn replace_clip_pixels(
+        &mut self,
+        clip_id_str: String,
+        pixels: &[u8],
+    ) -> Result<(), JsValue> {
+        let clip_id =
+            Uuid::parse_str(&clip_id_str).map_err(|error| JsValue::from_str(&error.to_string()))?;
+        let project = self
+            .project
+            .as_mut()
+            .ok_or_else(|| JsValue::from_str("Project is not initialized"))?;
+        let clip = project
+            .composition
+            .clips
+            .iter()
+            .find(|clip| clip.metadata.id == clip_id)
+            .ok_or_else(|| JsValue::from_str("Clip does not exist"))?;
+        if clip.metadata.locked {
+            return Err(JsValue::from_str("Clip is locked"));
+        }
+        if clip.image.data.len() != pixels.len() {
+            return Err(JsValue::from_str(
+                "Pixel data dimensions do not match the clip",
+            ));
+        }
+
+        self.action_manager
+            .do_action(Box::new(BeginToolAction::new(clip_id)), project);
+        let clip = project
+            .composition
+            .clips
+            .iter_mut()
+            .find(|clip| clip.metadata.id == clip_id)
+            .ok_or_else(|| JsValue::from_str("Clip does not exist"))?;
+        clip.image.data.copy_from_slice(pixels);
+        clip.mark_image_changed();
+        Ok(())
+    }
+
     pub fn move_clip(&mut self, clip_id_str: String, start_frame: u32, layer_index: usize) {
         let clip_id = match Uuid::parse_str(&clip_id_str) {
             Ok(id) => id,

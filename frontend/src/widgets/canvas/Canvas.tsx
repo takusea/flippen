@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useClip } from "~/features/clip/useClip";
 import { useLayer } from "~/features/layer/useLayer";
 import { usePlayback } from "~/features/playback/usePlayback";
@@ -33,6 +33,10 @@ const DrawCanvas: React.FC<Props> = (props) => {
 		startY: number;
 		initialTransform: Transform;
 	} | null>(null);
+	const selectionDragRef = useRef<{ x: number; y: number } | null>(null);
+	const [selectionDraft, setSelectionDraft] = useState<
+		{ x: number; y: number; width: number; height: number } | undefined
+	>();
 	const canvasWidth = projectContext.settings?.width;
 	const canvasHeight = projectContext.settings?.height;
 
@@ -105,6 +109,19 @@ const DrawCanvas: React.FC<Props> = (props) => {
 		if (canvasRef.current == null) return;
 		if (!(event.buttons & 1) || event.shiftKey) return;
 
+		if (toolContext.tool === "select") {
+			const { x, y } = getPointerPosition(event.clientX, event.clientY);
+			const start = {
+				x: Math.max(0, Math.min(canvasRef.current.width - 1, Math.floor(x))),
+				y: Math.max(0, Math.min(canvasRef.current.height - 1, Math.floor(y))),
+			};
+			selectionDragRef.current = start;
+			setSelectionDraft({ ...start, width: 0, height: 0 });
+			clipContext.setSelection(undefined);
+			event.currentTarget.setPointerCapture(event.pointerId);
+			return;
+		}
+
 		if (toolContext.tool === "move") {
 			if (clipContext.selectedClipId == null || clipContext.transform == null) {
 				return;
@@ -146,6 +163,27 @@ const DrawCanvas: React.FC<Props> = (props) => {
 
 	const handlePointerMove = (event: React.PointerEvent<HTMLCanvasElement>) => {
 		if (canvasRef.current == null) {
+			return;
+		}
+
+		if (selectionDragRef.current != null) {
+			if (!(event.buttons & 1)) return;
+			const start = selectionDragRef.current;
+			const point = getPointerPosition(event.clientX, event.clientY);
+			const endX = Math.max(
+				0,
+				Math.min(canvasRef.current.width - 1, Math.floor(point.x)),
+			);
+			const endY = Math.max(
+				0,
+				Math.min(canvasRef.current.height - 1, Math.floor(point.y)),
+			);
+			setSelectionDraft({
+				x: Math.min(start.x, endX),
+				y: Math.min(start.y, endY),
+				width: Math.abs(endX - start.x) + 1,
+				height: Math.abs(endY - start.y) + 1,
+			});
 			return;
 		}
 
@@ -208,6 +246,22 @@ const DrawCanvas: React.FC<Props> = (props) => {
 	};
 
 	const handlePointerUp = (event: React.PointerEvent<HTMLCanvasElement>) => {
+		if (selectionDragRef.current != null) {
+			selectionDragRef.current = null;
+			if (
+				selectionDraft != null &&
+				selectionDraft.width > 0 &&
+				selectionDraft.height > 0
+			) {
+				clipContext.setSelection(selectionDraft);
+			}
+			setSelectionDraft(undefined);
+			if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+				event.currentTarget.releasePointerCapture(event.pointerId);
+			}
+			return;
+		}
+
 		if (toolContext.tool === "move") {
 			if (moveDragRef.current != null) {
 				moveDragRef.current = null;
@@ -251,6 +305,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 		translate: `${props.canvasView.position.x}px ${props.canvasView.position.y}px`,
 		rotate: `${props.canvasView.rotation}deg`,
 	};
+	const displayedSelection = selectionDraft ?? clipContext.selection;
 
 	return (
 		<div
@@ -269,6 +324,28 @@ const DrawCanvas: React.FC<Props> = (props) => {
 				onPointerMove={handlePointerMove}
 				onPointerUp={handlePointerUp}
 			/>
+			<div
+				aria-hidden="true"
+				className="pointer-events-none absolute left-0 top-0"
+				style={{
+					width: canvasWidth,
+					height: canvasHeight,
+					...canvasTransform,
+					transformOrigin: "center",
+				}}
+			>
+				{displayedSelection != null && (
+					<div
+						className="absolute border border-dashed border-teal-400 bg-teal-400/10"
+						style={{
+							left: displayedSelection.x,
+							top: displayedSelection.y,
+							width: displayedSelection.width,
+							height: displayedSelection.height,
+						}}
+					/>
+				)}
+			</div>
 			{props.canvasView.isGridVisible && (
 				<div
 					aria-hidden="true"

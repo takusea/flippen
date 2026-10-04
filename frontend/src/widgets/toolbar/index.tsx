@@ -20,9 +20,11 @@ import {
 	IconPlayerTrackPrev,
 	IconRefresh,
 	IconRotate,
+	IconScissors,
 	IconZoom,
 } from "@tabler/icons-react";
 import { useHotkeys } from "react-hotkeys-hook";
+import { useClip } from "~/features/clip/useClip";
 import { useUndoStack } from "~/features/history/useUndoStack";
 import { usePlayback } from "~/features/playback/usePlayback";
 import { useTool } from "~/features/tool/useTool";
@@ -38,13 +40,20 @@ type Props = {
 
 const Toolbar: React.FC<Props> = (props) => {
 	const playbackContext = usePlayback();
+	const clipContext = useClip();
 	const toolContext = useTool();
 	const { undo, redo } = useUndoStack();
 
 	useHotkeys("ctrl+z", undo);
 	useHotkeys("ctrl+shift+z", redo);
-	useHotkeys("ctrl+c", () => {});
-	useHotkeys("ctrl+v", () => {});
+	useHotkeys("ctrl+x", clipContext.cut);
+	useHotkeys("ctrl+c", clipContext.copy);
+	useHotkeys("ctrl+v", clipContext.paste);
+	useHotkeys("ctrl+a", (event) => {
+		event.preventDefault();
+		clipContext.selectAll();
+	});
+	useHotkeys("escape", () => clipContext.setSelection(undefined));
 	useHotkeys("space", () =>
 		playbackContext.isPlaying
 			? playbackContext.pause()
@@ -86,16 +95,22 @@ const Toolbar: React.FC<Props> = (props) => {
 					onClick={redo}
 				/>
 				<IconButton
+					label="Cut"
+					icon={IconScissors}
+					size="small"
+					onClick={clipContext.cut}
+				/>
+				<IconButton
 					label="Copy"
 					icon={IconCopy}
 					size="small"
-					onClick={() => {}}
+					onClick={clipContext.copy}
 				/>
 				<IconButton
 					label="Paste"
 					icon={IconClipboard}
 					size="small"
-					onClick={() => {}}
+					onClick={clipContext.paste}
 				/>
 			</div>
 			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/25 rounded-lg shadow-sm backdrop-blur-xl">
