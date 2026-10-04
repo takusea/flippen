@@ -32,7 +32,7 @@ const GlobalNavigation: React.FC<Props> = (props: Props) => {
 					/>
 				</div>
 			</header>
-			<div className="relative z-0 overflow-hidden row-span-1 col-span-1 border-t border-l border-zinc-500/25 bg-white dark:bg-zinc-900">
+			<div className="relative z-0 overflow-hidden row-span-1 col-span-1 border-t border-zinc-500/25 bg-white dark:bg-zinc-900">
 				{props.children}
 			</div>
 		</div>
