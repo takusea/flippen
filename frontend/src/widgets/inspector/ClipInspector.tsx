@@ -12,14 +12,15 @@ import IconButton from "~/shared/ui/IconButton";
 import NumberField from "~/shared/ui/NumberField";
 import Select from "~/shared/ui/Select";
 import SelectItem from "~/shared/ui/SelectItem";
+import TextField from "~/shared/ui/TextField";
 
 type Props = {
-	name: string;
 	clip: ClipMetadata;
 	isLayerLocked: boolean;
 	transform: Transform;
 	onStartChange: (start: number) => void;
 	onDurationChange: (duration: number) => void;
+	onNameChange: (name: string) => void;
 	onPropertiesChange: (properties: Partial<ClipProperties>) => void;
 	onTransformChange: (transform: Transform) => void;
 };
@@ -30,7 +31,7 @@ const ClipInspector: React.FC<Props> = (props) => {
 	return (
 		<Card>
 			<div className="flex flex-col gap-2">
-				<h2 className="font-bold">Property of {props.name}</h2>
+				<h2 className="font-bold">Property of {props.clip.name}</h2>
 				<div className="flex gap-1">
 					<IconButton
 						icon={props.clip.hidden ? IconEyeOff : IconEye}
@@ -65,6 +66,25 @@ const ClipInspector: React.FC<Props> = (props) => {
 						onClick={() => props.onPropertiesChange({ locked: !isLocked })}
 					/>
 				</div>
+				<label htmlFor="clipName">Name</label>
+				<TextField
+					key={`${props.clip.id}:${props.clip.name}`}
+					id="clipName"
+					defaultValue={props.clip.name}
+					onKeyDown={(event) => {
+						if (event.key === "Enter") event.currentTarget.blur();
+					}}
+					onBlur={(event) => {
+						const nextName = event.currentTarget.value.trim();
+						if (nextName.length === 0) {
+							event.currentTarget.value = props.clip.name;
+							return;
+						}
+						event.currentTarget.value = nextName;
+						if (nextName !== props.clip.name) props.onNameChange(nextName);
+					}}
+				/>
+				<hr className="text-zinc-500/25" />
 				<label htmlFor="clipStart">Start</label>
 				<NumberField
 					id="clipStart"

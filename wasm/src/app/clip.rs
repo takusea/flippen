@@ -6,6 +6,10 @@ fn default_opacity() -> f32 {
     1.0
 }
 
+fn default_name() -> String {
+    "Clip".to_string()
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Hash)]
 #[serde(rename_all = "snake_case")]
 pub enum BlendMode {
@@ -63,6 +67,8 @@ pub struct ClipMetadata {
     pub opacity: f32,
     #[serde(default)]
     pub blend_mode: BlendMode,
+    #[serde(default = "default_name")]
+    pub name: String,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -132,6 +138,7 @@ mod tests {
         let mut clip = Clip {
             metadata: ClipMetadata {
                 id: Uuid::new_v4(),
+                name: "Test clip".to_string(),
                 start: 3,
                 layer_index: 2,
                 duration: 4,
@@ -163,5 +170,38 @@ mod tests {
         assert!((restored.metadata.opacity - 0.4).abs() < f32::EPSILON);
         assert_eq!(restored.metadata.blend_mode, BlendMode::Multiply);
         assert_eq!(restored.transform.anchor, (0.25, 0.75));
+        assert_eq!(restored.metadata.name, "Test clip");
+    }
+
+    #[test]
+    fn legacy_clip_metadata_defaults_to_a_name() {
+        #[derive(serde::Serialize)]
+        struct LegacyClipMetadata {
+            id: Uuid,
+            start: u32,
+            layer_index: usize,
+            duration: u32,
+            hidden: bool,
+            alpha_locked: bool,
+            locked: bool,
+            opacity: f32,
+            blend_mode: BlendMode,
+        }
+
+        let legacy = LegacyClipMetadata {
+            id: Uuid::new_v4(),
+            start: 3,
+            layer_index: 2,
+            duration: 4,
+            hidden: false,
+            alpha_locked: false,
+            locked: false,
+            opacity: 1.0,
+            blend_mode: BlendMode::Normal,
+        };
+        let bytes = rmp_serde::to_vec(&legacy).unwrap();
+        let restored: ClipMetadata = rmp_serde::from_slice(&bytes).unwrap();
+
+        assert_eq!(restored.name, "Clip");
     }
 }

@@ -15,6 +15,7 @@ use crate::action::begin_tool_action::BeginToolAction;
 use crate::action::change_clip_duration_action::ChangeClipDurationAction;
 use crate::action::delete_clip_action::DeleteClipAction;
 use crate::action::move_clip_action::MoveClipAction;
+use crate::action::set_clip_name_action::SetClipNameAction;
 use crate::action::set_clip_properties_action::SetClipPropertiesAction;
 use crate::action::set_clip_transform_action::SetClipTransformAction;
 use crate::action::set_layer_visibility_action::SetLayerVisibilityAction;
@@ -448,6 +449,25 @@ impl FlippenCore {
             return;
         }
         let action = Box::new(SetClipPropertiesAction::new(clip_id, properties));
+
+        if let Some(project) = self.project.as_mut() {
+            self.action_manager.do_action(action, project);
+        }
+    }
+
+    pub fn set_clip_name(&mut self, clip_id_str: String, name: String) {
+        let clip_id = match Uuid::parse_str(&clip_id_str) {
+            Ok(id) => id,
+            Err(error) => {
+                eprintln!("Failed to parse clip_id: {:?}", error);
+                return;
+            }
+        };
+        if name.trim().is_empty() {
+            eprintln!("Clip name cannot be empty.");
+            return;
+        }
+        let action = Box::new(SetClipNameAction::new(clip_id, name));
 
         if let Some(project) = self.project.as_mut() {
             self.action_manager.do_action(action, project);

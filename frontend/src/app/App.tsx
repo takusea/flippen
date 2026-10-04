@@ -67,7 +67,6 @@ function App() {
 				<div className="h-full w-60 p-2 flex flex-col gap-2 overflow-y-auto">
 					{selectedClip && clipContext.transform && (
 						<ClipInspector
-							name={selectedClip.id}
 							clip={selectedClip}
 							isLayerLocked={layerContext.lockedLayers.includes(
 								selectedClip.layer_index,
@@ -82,6 +81,9 @@ function App() {
 							}
 							onDurationChange={(duration) =>
 								clipContext.changeClipDuration(selectedClip.id, duration)
+							}
+							onNameChange={(name) =>
+								clipContext.changeClipName(selectedClip.id, name)
 							}
 							onPropertiesChange={(properties) =>
 								clipContext.changeClipProperties(selectedClip.id, {

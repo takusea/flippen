@@ -23,6 +23,7 @@ export type ClipContextValue = {
 	deleteClip: (id: string) => void;
 	moveClip: (id: string, start: number, layer: number) => void;
 	changeClipDuration: (id: string, duration: number) => void;
+	changeClipName: (id: string, name: string) => void;
 	changeClipProperties: (id: string, properties: ClipProperties) => void;
 	changeTransform: (id: string, transform: Transform) => void;
 	syncTransform: () => void;

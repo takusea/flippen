@@ -1,5 +1,6 @@
 export type ClipMetadata = {
 	id: string;
+	name: string;
 	start: number;
 	duration: number;
 	layer_index: number;

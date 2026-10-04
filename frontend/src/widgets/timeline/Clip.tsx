@@ -2,6 +2,7 @@ import { useState } from "react";
 
 type Props = {
 	id: string;
+	name: string;
 	layerHeight: number;
 	frameWidth: number;
 	startFrame: number;
@@ -73,7 +74,7 @@ const Clip: React.FC<Props> = (props) => {
 			onPointerDown={handlePointerDown}
 		>
 			<div className="absolute h-full flex items-center text-nowrap pointer-events-none px-1">
-				Clip {props.id}
+				{props.name}
 			</div>
 			<div
 				className={props.isLocked ? "" : "cursor-move"}

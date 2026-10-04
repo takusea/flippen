@@ -12,6 +12,7 @@ pub struct AddClipAction {
     start_frame: u32,
     layer_index: usize,
     clip_id: Option<Uuid>,
+    name: Option<String>,
 }
 
 impl AddClipAction {
@@ -20,15 +21,21 @@ impl AddClipAction {
             start_frame,
             layer_index,
             clip_id: None,
+            name: None,
         }
     }
 }
 
 impl Action for AddClipAction {
     fn apply(&mut self, project: &mut Project) {
+        let name = self
+            .name
+            .get_or_insert_with(|| format!("Clip {}", project.composition.clips.len() + 1))
+            .clone();
         let clip = Clip {
             metadata: ClipMetadata {
                 id: Uuid::new_v4(),
+                name,
                 start: self.start_frame,
                 layer_index: self.layer_index,
                 duration: 1,

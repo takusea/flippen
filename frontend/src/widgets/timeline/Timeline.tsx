@@ -103,6 +103,7 @@ const Timeline: React.FC = () => {
 					<Clip
 						key={clip.id}
 						id={clip.id}
+						name={clip.name}
 						layerHeight={layerHeight}
 						frameWidth={frameWidth}
 						startFrame={clip.start}

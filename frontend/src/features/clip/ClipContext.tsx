@@ -328,6 +328,13 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 		core.changeClipDuration(id, duration);
 	};
 
+	const changeClipName = (id: string, name: string) => {
+		if (!clips.some((clip) => clip.id === id) || name.trim().length === 0) {
+			return;
+		}
+		core.changeClipName(id, name.trim());
+	};
+
 	const changeClipProperties = (id: string, properties: ClipProperties) => {
 		const clip = clips.find((candidate) => candidate.id === id);
 		if (clip == null || layerContext.lockedLayers.includes(clip.layer_index)) {
@@ -400,6 +407,7 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 				deleteClip,
 				moveClip,
 				changeClipDuration,
+				changeClipName,
 				changeClipProperties,
 				changeTransform,
 				syncTransform,

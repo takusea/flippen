@@ -134,6 +134,11 @@ export class CoreService {
 		this.notify();
 	}
 
+	changeClipName(id: string, name: string) {
+		this.core.set_clip_name(id, name);
+		this.notify();
+	}
+
 	changeClipProperties(id: string, properties: ClipProperties) {
 		this.core.set_clip_properties(id, properties);
 		this.notify();
