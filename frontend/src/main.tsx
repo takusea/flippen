@@ -6,6 +6,11 @@ import AppProviders from "~/app/AppProviders";
 import GlobalNavigation from "~/widgets/global-navigation/GlobalNavigation";
 
 const preventDefault = (event: Event) => event.preventDefault();
+const preventWheelDefault = (event: WheelEvent) => {
+	if (event.ctrlKey) {
+		event.preventDefault();
+	}
+};
 const preventKeydownDefault = (event: KeyboardEvent) => {
 	const target = event.target;
 	if (
@@ -19,6 +24,7 @@ const preventKeydownDefault = (event: KeyboardEvent) => {
 };
 
 document.addEventListener("contextmenu", preventDefault);
+document.addEventListener("wheel", preventWheelDefault, { passive: false });
 document.addEventListener("keydown", preventKeydownDefault);
 
 createRoot(document.getElementById("root")!).render(
