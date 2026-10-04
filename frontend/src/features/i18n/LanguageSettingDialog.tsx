@@ -1,0 +1,41 @@
+import { Dialog, DialogContent } from "~/shared/ui/Dialog";
+import RadioGroup from "~/shared/ui/RadioGroup";
+import RadioGroupItem from "~/shared/ui/RadioGroupItem";
+import { useI18n } from "./useI18n";
+
+type Props = {
+	open: boolean;
+	onOpenChange: (open: boolean) => void;
+};
+
+const LanguageSettingDialog: React.FC<Props> = ({ open, onOpenChange }) => {
+	const { locale, setLocale, t } = useI18n();
+
+	return (
+		<Dialog open={open} onOpenChange={onOpenChange}>
+			<DialogContent
+				title={t("languageSettings.title")}
+				cancelText={t("common.close")}
+			>
+				<div className="flex flex-col gap-2">
+					<label htmlFor="language-setting-select">
+						{t("languageSettings.language")}
+					</label>
+					<RadioGroup
+						value={locale}
+						onValueChange={(value) => {
+							if (value === "en" || value === "ja") {
+								setLocale(value);
+							}
+						}}
+					>
+						<RadioGroupItem value="en" label="English" id="langEn" />
+						<RadioGroupItem value="ja" label="日本語" id="langJa" />
+					</RadioGroup>
+				</div>
+			</DialogContent>
+		</Dialog>
+	);
+};
+
+export default LanguageSettingDialog;

@@ -1,0 +1,11 @@
+{
+	"language": "Language",
+	"timeline.layer": "Layer {index}",
+	"timeline.showLayer": "Show layer {index}",
+	"timeline.hideLayer": "Hide layer {index}",
+	"timeline.lockLayer": "Lock layer {index}",
+	"timeline.unlockLayer": "Unlock layer {index}",
+	"languageSettings.title": "Language Settings",
+	"languageSettings.language": "Language",
+	"common.close": "Close"
+}

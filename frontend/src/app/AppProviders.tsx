@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { ClipProvider } from "~/features/clip/ClipContext";
 import { UndoStackProvider } from "~/features/history/UndoStackContext";
+import { I18nProvider } from "~/features/i18n/I18nContext";
 import { LayerProvider } from "~/features/layer/LayerContext";
 import { PlaybackProvider } from "~/features/playback/PlaybackContext";
 import { ProjectProvider } from "~/features/project/ProjectContext";
@@ -15,23 +16,25 @@ type Props = {
 
 function AppProviders({ children }: Props) {
 	return (
-		<CoreProvider>
-			<ProjectProvider>
-				<ProjectDialogsProvider>
-					<PlaybackProvider>
-						<LayerProvider>
-							<ToolProvider>
-								<ClipProvider>
-									<UndoStackProvider>
-										<CanvasViewProvider>{children}</CanvasViewProvider>
-									</UndoStackProvider>
-								</ClipProvider>
-							</ToolProvider>
-						</LayerProvider>
-					</PlaybackProvider>
-				</ProjectDialogsProvider>
-			</ProjectProvider>
-		</CoreProvider>
+		<I18nProvider>
+			<CoreProvider>
+				<ProjectProvider>
+					<ProjectDialogsProvider>
+						<PlaybackProvider>
+							<LayerProvider>
+								<ToolProvider>
+									<ClipProvider>
+										<UndoStackProvider>
+											<CanvasViewProvider>{children}</CanvasViewProvider>
+										</UndoStackProvider>
+									</ClipProvider>
+								</ToolProvider>
+							</LayerProvider>
+						</PlaybackProvider>
+					</ProjectDialogsProvider>
+				</ProjectProvider>
+			</CoreProvider>
+		</I18nProvider>
 	);
 }
 

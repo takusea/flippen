@@ -1,0 +1,11 @@
+{
+	"language": "言語",
+	"timeline.layer": "レイヤー {index}",
+	"timeline.showLayer": "レイヤー {index} を表示",
+	"timeline.hideLayer": "レイヤー {index} を非表示",
+	"timeline.lockLayer": "レイヤー {index} をロック",
+	"timeline.unlockLayer": "レイヤー {index} のロックを解除",
+	"languageSettings.title": "言語設定",
+	"languageSettings.language": "言語",
+	"common.close": "閉じる"
+}
