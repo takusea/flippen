@@ -3,6 +3,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { useClip } from "~/features/clip/useClip";
 import { useLayer } from "~/features/layer/useLayer";
 import { usePlayback } from "~/features/playback/usePlayback";
+import { useShortcuts } from "~/features/shortcuts/useShortcuts";
 import Clip from "./Clip";
 import TrackHeader from "./TrackHeader";
 import TrackSide from "./TrackSide";
@@ -18,8 +19,9 @@ const Timeline: React.FC = () => {
 	const clipContext = useClip();
 	const playbackContext = usePlayback();
 	const layerContext = useLayer();
+	const { shortcuts } = useShortcuts();
 
-	useHotkeys("delete", () => {
+	useHotkeys(shortcuts.deleteClip, () => {
 		if (clipContext.selectedClipId != null) {
 			clipContext.deleteClip(clipContext.selectedClipId);
 		}

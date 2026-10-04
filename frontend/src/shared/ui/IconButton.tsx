@@ -10,6 +10,7 @@ type Props = Omit<React.ComponentProps<"button">, "className" | "type"> & {
 	variant?: Variant;
 	size?: Size;
 	toolTipSide?: "top" | "right" | "bottom" | "left";
+	shortcut?: string;
 };
 
 const IconButton: React.FC<Props> = ({
@@ -18,6 +19,7 @@ const IconButton: React.FC<Props> = ({
 	variant,
 	size,
 	toolTipSide,
+	shortcut,
 	...props
 }) => {
 	const padding = (size: Size | undefined) => {
@@ -38,7 +40,7 @@ const IconButton: React.FC<Props> = ({
 	};
 
 	return (
-		<Tooltip label={label} side={toolTipSide ?? "top"}>
+		<Tooltip label={label} shortcut={shortcut} side={toolTipSide ?? "top"}>
 			<button
 				type="button"
 				className={`flex items-center justify-center rounded-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${padding(size)} ${color(variant)}`}

@@ -6,6 +6,9 @@ import LanguageSettingDialog from "~/features/i18n/LanguageSettingDialog";
 import { useI18n } from "~/features/i18n/useI18n";
 import { useProject } from "~/features/project/useProject";
 import { useProjectDialogs } from "~/features/project/useProjectDialogs";
+import ShortcutSettingsDialog from "~/features/shortcuts/ShortcutSettingsDialog";
+import { formatShortcut } from "~/features/shortcuts/shortcutDefinitions";
+import { useShortcuts } from "~/features/shortcuts/useShortcuts";
 import MenubarItem from "~/shared/ui/Menubar/MenubarItem";
 import MenubarMenu from "~/shared/ui/Menubar/MenubarMenu";
 import MenubarRoot from "~/shared/ui/Menubar/MenubarRoot";
@@ -20,6 +23,9 @@ const GlobalMenubar: React.FC<Props> = ({ canvasView }) => {
 	const { t } = useI18n();
 	const [isLanguageSettingDialogOpen, setLanguageSettingDialogOpen] =
 		useState(false);
+	const [isShortcutSettingsDialogOpen, setShortcutSettingsDialogOpen] =
+		useState(false);
+	const { shortcuts } = useShortcuts();
 	const undoStack = useUndoStack();
 	const clipContext = useClip();
 	const project = useProject();
@@ -50,17 +56,20 @@ const GlobalMenubar: React.FC<Props> = ({ canvasView }) => {
 		canvasView.setIsFlippedVertical(false);
 	};
 
-	useHotkeys("ctrl+shift+equal", () => canvasView.zoom(1));
-	useHotkeys("ctrl+minus", () => canvasView.zoom(-1));
-	useHotkeys("ctrl+0", () => canvasView.setScale(1));
-	useHotkeys("ctrl+shift+0", fitToView);
-	useHotkeys("ctrl+alt+ArrowLeft", () => canvasView.rotate(-1));
-	useHotkeys("ctrl+alt+ArrowRight", () => canvasView.rotate(1));
-	useHotkeys("ctrl+alt+0", () => canvasView.setRotation(0));
-	useHotkeys("ctrl+alt+h", toggleHorizontalFlip);
-	useHotkeys("ctrl+alt+v", toggleVerticalFlip);
-	useHotkeys("ctrl+alt+shift+f", resetFlip);
-	useHotkeys("ctrl+alt+g", toggleGrid);
+	useHotkeys(shortcuts.newProject, projectDialogs.openCreateProjectDialog);
+	useHotkeys(shortcuts.openProject, () => project.open());
+	useHotkeys(shortcuts.saveProject, () => project.save());
+	useHotkeys(shortcuts.zoomIn, () => canvasView.zoom(1));
+	useHotkeys(shortcuts.zoomOut, () => canvasView.zoom(-1));
+	useHotkeys(shortcuts.resetZoom, () => canvasView.setScale(1));
+	useHotkeys(shortcuts.fitView, fitToView);
+	useHotkeys(shortcuts.rotateLeft, () => canvasView.rotate(-1));
+	useHotkeys(shortcuts.rotateRight, () => canvasView.rotate(1));
+	useHotkeys(shortcuts.resetRotation, () => canvasView.setRotation(0));
+	useHotkeys(shortcuts.flipHorizontal, toggleHorizontalFlip);
+	useHotkeys(shortcuts.flipVertical, toggleVerticalFlip);
+	useHotkeys(shortcuts.resetFlip, resetFlip);
+	useHotkeys(shortcuts.toggleGrid, toggleGrid);
 
 	return (
 		<>
@@ -68,23 +77,20 @@ const GlobalMenubar: React.FC<Props> = ({ canvasView }) => {
 				<MenubarMenu label={t("menubar.file")}>
 					<MenubarItem
 						label={t("menubar.new")}
-						shortcut="Ctrl+N"
+						shortcut={formatShortcut(shortcuts.newProject)}
 						onSelect={projectDialogs.openCreateProjectDialog}
 					/>
 					<MenubarItem
 						label={t("menubar.open")}
-						shortcut="Ctrl+O"
+						shortcut={formatShortcut(shortcuts.openProject)}
 						onSelect={() => project.open()}
 					/>
 					<MenubarItem
 						label={t("menubar.save")}
-						shortcut="Ctrl+S"
+						shortcut={formatShortcut(shortcuts.saveProject)}
 						onSelect={() => project.save()}
 					/>
-					<MenubarItem
-						label={t("menubar.saveWith")}
-						shortcut="Ctrl+Shift+S"
-					/>
+					<MenubarItem label={t("menubar.saveWith")} shortcut="Ctrl+Shift+S" />
 					<MenubarSeparator />
 					<MenubarItem
 						label={t("menubar.projectSettings")}
@@ -96,99 +102,106 @@ const GlobalMenubar: React.FC<Props> = ({ canvasView }) => {
 				<MenubarMenu label={t("menubar.edit")}>
 					<MenubarItem
 						label={t("menubar.undo")}
-						shortcut="Ctrl+Z"
+						shortcut={formatShortcut(shortcuts.undo)}
 						onSelect={() => undoStack.undo()}
 					/>
 					<MenubarItem
 						label={t("menubar.redo")}
-						shortcut="Ctrl+Shift+Z"
+						shortcut={formatShortcut(shortcuts.redo)}
 						onSelect={() => undoStack.redo()}
 					/>
 					<MenubarSeparator />
 					<MenubarItem
 						label={t("menubar.cut")}
-						shortcut="Ctrl+X"
+						shortcut={formatShortcut(shortcuts.cut)}
 						onSelect={clipContext.cut}
 					/>
 					<MenubarItem
 						label={t("menubar.copy")}
-						shortcut="Ctrl+C"
+						shortcut={formatShortcut(shortcuts.copy)}
 						onSelect={clipContext.copy}
 					/>
 					<MenubarItem
 						label={t("menubar.paste")}
-						shortcut="Ctrl+V"
+						shortcut={formatShortcut(shortcuts.paste)}
 						onSelect={clipContext.paste}
 					/>
 					<MenubarItem
 						label={t("menubar.selectAll")}
-						shortcut="Ctrl+A"
+						shortcut={formatShortcut(shortcuts.selectAll)}
 						onSelect={clipContext.selectAll}
 					/>
 				</MenubarMenu>
 				<MenubarMenu label={t("menubar.view")}>
 					<MenubarItem
 						label={t("menubar.zoomIn")}
-						shortcut="Ctrl++"
+						shortcut={formatShortcut(shortcuts.zoomIn)}
 						onSelect={() => canvasView.zoom(1)}
 					/>
 					<MenubarItem
 						label={t("menubar.zoomOut")}
-						shortcut="Ctrl+-"
+						shortcut={formatShortcut(shortcuts.zoomOut)}
 						onSelect={() => canvasView.zoom(-1)}
 					/>
 					<MenubarItem
 						label={t("menubar.fitView")}
-						shortcut="Ctrl+Shift+0"
+						shortcut={formatShortcut(shortcuts.fitView)}
 						disabled={project.settings == null}
 						onSelect={fitToView}
 					/>
 					<MenubarItem
 						label={t("menubar.resetZoom")}
-						shortcut="Ctrl+0"
+						shortcut={formatShortcut(shortcuts.resetZoom)}
 						onSelect={() => canvasView.setScale(1)}
 					/>
 					<MenubarSeparator />
 					<MenubarItem
 						label={t("menubar.rotateLeft")}
-						shortcut="Ctrl+Alt+←"
+						shortcut={formatShortcut(shortcuts.rotateLeft)}
 						onSelect={() => canvasView.rotate(-1)}
 					/>
 					<MenubarItem
 						label={t("menubar.rotateRight")}
-						shortcut="Ctrl+Alt+→"
+						shortcut={formatShortcut(shortcuts.rotateRight)}
 						onSelect={() => canvasView.rotate(1)}
 					/>
 					<MenubarItem
 						label={t("menubar.resetRotate")}
-						shortcut="Ctrl+Alt+0"
+						shortcut={formatShortcut(shortcuts.resetRotation)}
 						onSelect={() => canvasView.setRotation(0)}
 					/>
 					<MenubarSeparator />
 					<MenubarItem
 						label={t("menubar.flipHorizontal")}
-						shortcut="Ctrl+Alt+H"
+						shortcut={formatShortcut(shortcuts.flipHorizontal)}
 						onSelect={toggleHorizontalFlip}
 					/>
 					<MenubarItem
 						label={t("menubar.flipVertical")}
-						shortcut="Ctrl+Alt+V"
+						shortcut={formatShortcut(shortcuts.flipVertical)}
 						onSelect={toggleVerticalFlip}
 					/>
 					<MenubarItem
 						label={t("menubar.resetFlip")}
-						shortcut="Ctrl+Alt+Shift+F"
+						shortcut={formatShortcut(shortcuts.resetFlip)}
 						onSelect={resetFlip}
 					/>
 					<MenubarSeparator />
 					<MenubarItem
-						label={canvasView.isGridVisible ? t("menubar.hideGrid") : t("menubar.showGrid")}
-						shortcut="Ctrl+Alt+G"
+						label={
+							canvasView.isGridVisible
+								? t("menubar.hideGrid")
+								: t("menubar.showGrid")
+						}
+						shortcut={formatShortcut(shortcuts.toggleGrid)}
 						onSelect={toggleGrid}
 					/>
 				</MenubarMenu>
 				<MenubarMenu label={t("menubar.settings")}>
-					<MenubarItem label={t("menubar.settingsAction")} shortcut="Ctrl+I" />
+					<MenubarItem
+						label={t("menubar.shortcutSettings")}
+						onSelect={() => setShortcutSettingsDialogOpen(true)}
+					/>
 					<MenubarItem
 						label={t("menubar.languageSettings")}
 						onSelect={() => setLanguageSettingDialogOpen(true)}
@@ -201,6 +214,10 @@ const GlobalMenubar: React.FC<Props> = ({ canvasView }) => {
 			<LanguageSettingDialog
 				open={isLanguageSettingDialogOpen}
 				onOpenChange={setLanguageSettingDialogOpen}
+			/>
+			<ShortcutSettingsDialog
+				open={isShortcutSettingsDialogOpen}
+				onOpenChange={setShortcutSettingsDialogOpen}
 			/>
 		</>
 	);
