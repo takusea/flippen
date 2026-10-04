@@ -306,18 +306,42 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 		if (
 			clip == null ||
 			layerContext.lockedLayers.includes(clip.layer_index) ||
-			layerContext.lockedLayers.includes(layer) ||
-			clips.some(
-				(candidate) =>
-					candidate.id !== id &&
-					candidate.layer_index === layer &&
-					start < candidate.start + candidate.duration &&
-					candidate.start < start + clip.duration,
-			)
+			layerContext.lockedLayers.includes(layer)
 		) {
 			return;
 		}
-		core.moveClip(id, start, layer);
+
+		const otherLayerClips = clips.filter(
+			(candidate) => candidate.id !== id && candidate.layer_index === layer,
+		);
+		const candidateStarts = [
+			start,
+			0,
+			...otherLayerClips.flatMap((candidate) => [
+				candidate.start - clip.duration,
+				candidate.start + candidate.duration,
+			]),
+		].filter(
+			(candidateStart) =>
+				candidateStart >= 0 &&
+				!otherLayerClips.some(
+					(candidate) =>
+						candidateStart < candidate.start + candidate.duration &&
+						candidate.start < candidateStart + clip.duration,
+				),
+		);
+		const direction = Math.sign(start - clip.start);
+		const adjustedStart = candidateStarts.reduce((closest, candidateStart) => {
+			const distanceDifference =
+				Math.abs(candidateStart - start) - Math.abs(closest - start);
+			if (distanceDifference !== 0)
+				return distanceDifference < 0 ? candidateStart : closest;
+			return direction * (candidateStart - closest) > 0
+				? candidateStart
+				: closest;
+		});
+
+		core.moveClip(id, adjustedStart, layer);
 	};
 
 	const changeClipDuration = (id: string, duration: number) => {
@@ -325,7 +349,22 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 		if (clip == null || layerContext.lockedLayers.includes(clip.layer_index)) {
 			return;
 		}
-		core.changeClipDuration(id, duration);
+
+		const nextClipStart = clips.reduce(
+			(earliest, candidate) =>
+				candidate.id !== id &&
+				candidate.layer_index === clip.layer_index &&
+				candidate.start >= clip.start
+					? Math.min(earliest, candidate.start)
+					: earliest,
+			Number.POSITIVE_INFINITY,
+		);
+		const adjustedDuration = Math.max(
+			1,
+			Math.min(duration, nextClipStart - clip.start),
+		);
+
+		core.changeClipDuration(id, adjustedDuration);
 	};
 
 	const changeClipName = (id: string, name: string) => {
