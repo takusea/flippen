@@ -6,6 +6,7 @@ export type ProjectContextValue = {
 	open: () => void;
 	save: () => void;
 	createNew: (settings: ProjectSettings) => void;
+	updateSettings: (settings: ProjectSettings) => void;
 };
 
 export const ProjectContext = createContext<ProjectContextValue | null>(null);

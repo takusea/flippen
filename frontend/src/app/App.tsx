@@ -1,20 +1,15 @@
 import { useState } from "react";
 import { useClip } from "~/features/clip/useClip";
-import CreateNewProjectDialog from "~/features/project/CreateNewProjectDialog";
-import { useProject } from "~/features/project/useProject";
 import { useTool } from "~/features/tool/useTool";
-import { Dialog } from "~/shared/ui/Dialog";
 import DrawCanvas from "~/widgets/canvas/Canvas";
 import { useCanvasView } from "~/widgets/canvas/useCanvasView";
 import ClipInspector from "~/widgets/inspector/ClipInspector";
 import ColorInspector from "~/widgets/inspector/ColorInspector";
-import Inspector from "~/widgets/inspector/Inspector";
 import ToolInspector from "~/widgets/inspector/ToolInspector";
 import Timeline from "~/widgets/timeline/Timeline";
 import Toolbar from "~/widgets/toolbar";
 
 function App() {
-	const project = useProject();
 	const canvasView = useCanvasView();
 	const toolContext = useTool();
 	const clipContext = useClip();
@@ -23,9 +18,6 @@ function App() {
 
 	return (
 		<main className="w-full h-full grid grid-cols-[1fr_auto] grid-rows-[1fr_auto]">
-			<Dialog open={project.settings == null}>
-				<CreateNewProjectDialog />
-			</Dialog>
 			<div className="relative w-full h-full grid grid-cols-[auto_1fr_auto] grid-rows-[1fr]">
 				<DrawCanvas isOnionSkin={isOnionSkin} canvasView={canvasView} />
 				<div className="h-full w-60 p-2 flex flex-col gap-2">

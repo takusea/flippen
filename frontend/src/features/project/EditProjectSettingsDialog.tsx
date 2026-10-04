@@ -3,7 +3,7 @@ import { DialogContent } from "~/shared/ui/Dialog";
 import ProjectSettingsForm from "./ProjectSettingsForm";
 import { useProject } from "./useProject";
 
-const CreateNewProjectDialog = () => {
+const EditProjectSettingsDialog = () => {
 	const project = useProject();
 
 	const [projectSettings, setProjectSettings] = useState(
@@ -17,10 +17,10 @@ const CreateNewProjectDialog = () => {
 
 	return (
 		<DialogContent
-			title="プロジェクト新規作成"
+			title="プロジェクト設定"
 			cancelText="キャンセル"
-			submitText="作成"
-			onSubmit={() => project.createNew(projectSettings)}
+			submitText="変更"
+			onSubmit={() => project.updateSettings(projectSettings)}
 		>
 			<ProjectSettingsForm
 				projectSettings={projectSettings}
@@ -30,4 +30,4 @@ const CreateNewProjectDialog = () => {
 	);
 };
 
-export default CreateNewProjectDialog;
+export default EditProjectSettingsDialog;

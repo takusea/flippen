@@ -31,7 +31,7 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({
 			setIsPlaying(true);
 			intervalRef.current = setInterval(
 				advanceFrame,
-				1000 / project.settings?.frame_rate,
+				1000 / project.settings.frameRate,
 			);
 		}
 	};

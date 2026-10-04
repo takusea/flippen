@@ -16,7 +16,7 @@ export const DialogContent: React.FC<Props> = (props) => {
 	return (
 		<DialogPrimitive.Portal {...props}>
 			<DialogPrimitive.Overlay className="fixed inset-0 bg-black/50" />
-			<DialogPrimitive.Content className="fixed left-1/2 top-1/2 max-h-[85vh] w-[90vw] max-w-[500px] -translate-x-1/2 -translate-y-1/2 p-4 border-1 border-zinc-500/25 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl rounded-xl">
+			<DialogPrimitive.Content className="fixed left-1/2 top-1/2 max-h-[85vh] w-[90vw] max-w-120 -translate-x-1/2 -translate-y-1/2 p-4 border border-zinc-500/25 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl rounded-xl">
 				<div className="flex w-full justify-between items-start">
 					<DialogPrimitive.Title className="text-lg font-medium mb-4">
 						{props.title}

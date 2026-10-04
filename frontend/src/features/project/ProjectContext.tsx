@@ -15,6 +15,11 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
 		core.createProject(settings);
 	};
 
+	const updateSettings = (newSettings: ProjectSettings) => {
+		core.setProjectSettings(newSettings);
+		setSettings(newSettings);
+	};
+
 	const open = () => {
 		const input = document.createElement("input");
 		input.type = "file";
@@ -51,7 +56,7 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
 	};
 
 	return (
-		<ProjectContext value={{ settings, open, save, createNew }}>
+		<ProjectContext value={{ settings, open, save, createNew, updateSettings }}>
 			{children}
 		</ProjectContext>
 	);

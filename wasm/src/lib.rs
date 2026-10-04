@@ -63,6 +63,18 @@ impl FlippenCore {
         Ok(())
     }
 
+    pub fn set_project_settings(&mut self, settings: JsValue) -> Result<(), JsValue> {
+        let settings: ProjectSettings = settings
+            .into_serde()
+            .map_err(|error| JsValue::from_str(&error.to_string()))?;
+        let project = self
+            .project
+            .as_mut()
+            .ok_or_else(|| JsValue::from_str("Project is not initialized"))?;
+        project.settings = settings;
+        Ok(())
+    }
+
     pub fn width(&self) -> Option<u32> {
         if let Some(project) = self.project.as_ref() {
             Some(project.settings.width)

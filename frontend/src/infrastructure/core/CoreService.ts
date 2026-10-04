@@ -71,7 +71,22 @@ export class CoreService {
 	}
 
 	createProject(settings: ProjectSettings) {
-		this.core.create_project(settings);
+		this.core.create_project({
+			title: settings.title,
+			width: settings.width,
+			height: settings.height,
+			frame_rate: settings.frameRate,
+		});
+		this.notify();
+	}
+
+	setProjectSettings(settings: ProjectSettings) {
+		this.core.set_project_settings({
+			title: settings.title,
+			width: settings.width,
+			height: settings.height,
+			frame_rate: settings.frameRate,
+		});
 		this.notify();
 	}
 

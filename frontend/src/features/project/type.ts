@@ -1,5 +1,6 @@
 export type ProjectSettings = {
+	title: string;
 	width: number;
 	height: number;
-	frame_rate: number;
+	frameRate: number;
 };

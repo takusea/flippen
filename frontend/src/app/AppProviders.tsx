@@ -4,6 +4,7 @@ import { UndoStackProvider } from "~/features/history/UndoStackContext";
 import { LayerProvider } from "~/features/layer/LayerContext";
 import { PlaybackProvider } from "~/features/playback/PlaybackContext";
 import { ProjectProvider } from "~/features/project/ProjectContext";
+import { ProjectDialogsProvider } from "~/features/project/ProjectDialogsContext";
 import { ToolProvider } from "~/features/tool/ToolContext";
 import { CoreProvider } from "~/infrastructure/core/CoreContext";
 
@@ -15,15 +16,17 @@ function AppProviders({ children }: Props) {
 	return (
 		<CoreProvider>
 			<ProjectProvider>
-				<PlaybackProvider>
-					<LayerProvider>
-						<ToolProvider>
-							<ClipProvider>
-								<UndoStackProvider>{children}</UndoStackProvider>
-							</ClipProvider>
-						</ToolProvider>
-					</LayerProvider>
-				</PlaybackProvider>
+				<ProjectDialogsProvider>
+					<PlaybackProvider>
+						<LayerProvider>
+							<ToolProvider>
+								<ClipProvider>
+									<UndoStackProvider>{children}</UndoStackProvider>
+								</ClipProvider>
+							</ToolProvider>
+						</LayerProvider>
+					</PlaybackProvider>
+				</ProjectDialogsProvider>
 			</ProjectProvider>
 		</CoreProvider>
 	);

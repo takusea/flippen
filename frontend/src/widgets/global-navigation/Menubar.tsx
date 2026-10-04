@@ -1,5 +1,6 @@
 import { useUndoStack } from "~/features/history/useUndoStack";
 import { useProject } from "~/features/project/useProject";
+import { useProjectDialogs } from "~/features/project/useProjectDialogs";
 import MenubarItem from "~/shared/ui/Menubar/MenubarItem";
 import MenubarMenu from "~/shared/ui/Menubar/MenubarMenu";
 import MenubarRoot from "~/shared/ui/Menubar/MenubarRoot";
@@ -8,11 +9,16 @@ import MenubarSeparator from "~/shared/ui/Menubar/MenubarSeparator";
 const GlobalMenubar: React.FC = () => {
 	const undoStack = useUndoStack();
 	const project = useProject();
+	const projectDialogs = useProjectDialogs();
 
 	return (
 		<MenubarRoot>
 			<MenubarMenu label="File">
-				<MenubarItem label="New Project" shortcut="Ctrl+N" />
+				<MenubarItem
+					label="New Project"
+					shortcut="Ctrl+N"
+					onSelect={projectDialogs.openCreateProjectDialog}
+				/>
 				<MenubarItem
 					label="Open"
 					shortcut="Ctrl+O"
@@ -24,6 +30,11 @@ const GlobalMenubar: React.FC = () => {
 					onSelect={() => project.save()}
 				/>
 				<MenubarItem label="Save with..." shortcut="Ctrl+Shift+S" />
+				<MenubarSeparator />
+				<MenubarItem
+					label="Project Settings..."
+					onSelect={projectDialogs.openEditProjectSettingsDialog}
+				/>
 				<MenubarSeparator />
 				<MenubarItem label="Close" />
 			</MenubarMenu>
