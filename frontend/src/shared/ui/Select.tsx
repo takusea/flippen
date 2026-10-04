@@ -1,0 +1,42 @@
+import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
+import * as SelectPrimitive from "radix-ui/select";
+
+type Props = React.ComponentProps<typeof SelectPrimitive.Root> & {
+	id?: string;
+	label?: string;
+	placeholder?: string;
+};
+
+const Select: React.FC<Props> = ({ children, placeholder, ...props }) => {
+	return (
+		<SelectPrimitive.Root {...props}>
+			<SelectPrimitive.Trigger
+				className="h-8 px-2 border border-zinc-500/25 bg-zinc-500/25 rounded flex gap-1 justify-between items-center cursor-pointer"
+				aria-label={props.label}
+				id={props.id}
+			>
+				<SelectPrimitive.Value placeholder={placeholder} />
+				<SelectPrimitive.Icon className="SelectIcon">
+					<IconChevronDown />
+				</SelectPrimitive.Icon>
+			</SelectPrimitive.Trigger>
+			<SelectPrimitive.Portal>
+				<SelectPrimitive.Content
+					position="popper"
+					sideOffset={5}
+					className="overflow-hidden rounded-md p-2 bg-white border border-zinc-500/25 shadow w-(--radix-select-trigger-width) max-h-(--radix-select-content-available-height)"
+				>
+					<SelectPrimitive.ScrollUpButton className="flex h-6 cursor-default items-center justify-center bg-white">
+						<IconChevronUp />
+					</SelectPrimitive.ScrollUpButton>
+					<SelectPrimitive.Viewport>{children}</SelectPrimitive.Viewport>
+					<SelectPrimitive.ScrollDownButton className="flex h-6 cursor-default items-center justify-center bg-white">
+						<IconChevronDown />
+					</SelectPrimitive.ScrollDownButton>
+				</SelectPrimitive.Content>
+			</SelectPrimitive.Portal>
+		</SelectPrimitive.Root>
+	);
+};
+
+export default Select;
