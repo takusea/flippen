@@ -7,6 +7,7 @@ import { ProjectProvider } from "~/features/project/ProjectContext";
 import { ProjectDialogsProvider } from "~/features/project/ProjectDialogsContext";
 import { ToolProvider } from "~/features/tool/ToolContext";
 import { CoreProvider } from "~/infrastructure/core/CoreContext";
+import { CanvasViewProvider } from "~/widgets/canvas/useCanvasView";
 
 type Props = {
 	children: ReactNode;
@@ -21,7 +22,9 @@ function AppProviders({ children }: Props) {
 						<LayerProvider>
 							<ToolProvider>
 								<ClipProvider>
-									<UndoStackProvider>{children}</UndoStackProvider>
+									<UndoStackProvider>
+										<CanvasViewProvider>{children}</CanvasViewProvider>
+									</UndoStackProvider>
 								</ClipProvider>
 							</ToolProvider>
 						</LayerProvider>

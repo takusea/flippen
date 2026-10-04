@@ -6,6 +6,8 @@ import {
 	IconClipboard,
 	IconCopy,
 	IconEraser,
+	IconFlipHorizontal,
+	IconFlipVertical,
 	IconLasso,
 	IconLayersDifference,
 	IconPencil,
@@ -230,6 +232,24 @@ const Toolbar: React.FC<Props> = (props) => {
 					icon={IconRotate}
 					size="small"
 					onClick={() => props.canvasView.setRotation(0)}
+				/>
+			</div>
+			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/25 rounded-lg shadow-sm backdrop-blur-xl">
+				<IconButton
+					label="Flip Horizontal"
+					icon={IconFlipHorizontal}
+					variant={props.canvasView.isFlippedHorizontal ? "primary" : "default"}
+					size="small"
+					onClick={() =>
+						props.canvasView.setIsFlippedHorizontal((prev) => !prev)
+					}
+				/>
+				<IconButton
+					label="Flip Vertical"
+					icon={IconFlipVertical}
+					variant={props.canvasView.isFlippedVertical ? "primary" : "default"}
+					size="small"
+					onClick={() => props.canvasView.setIsFlippedVertical((prev) => !prev)}
 				/>
 			</div>
 		</div>

@@ -219,6 +219,12 @@ const DrawCanvas: React.FC<Props> = (props) => {
 		return;
 	}
 
+	const canvasTransform = {
+		scale: `${props.canvasView.scale * (props.canvasView.isFlippedHorizontal ? -1 : 1)} ${props.canvasView.scale * (props.canvasView.isFlippedVertical ? -1 : 1)}`,
+		translate: `${props.canvasView.position.x}px ${props.canvasView.position.y}px`,
+		rotate: `${props.canvasView.rotation}deg`,
+	};
+
 	return (
 		<div
 			className="absolute inset-0 bg-[url(/transparent.png)]"
@@ -231,15 +237,25 @@ const DrawCanvas: React.FC<Props> = (props) => {
 				width={projectContext.settings?.width}
 				height={projectContext.settings?.height}
 				className="absolute inset-0 border border-zinc-500 [image-rendering:pixelated]"
-				style={{
-					scale: props.canvasView.scale,
-					translate: `${props.canvasView.position.x}px ${props.canvasView.position.y}px`,
-					rotate: `${props.canvasView.rotation}deg`,
-				}}
+				style={canvasTransform}
 				onPointerDown={handlePointerDown}
 				onPointerMove={handlePointerMove}
 				onPointerUp={handlePointerUp}
 			/>
+			{props.canvasView.isGridVisible && (
+				<div
+					aria-hidden="true"
+					className="pointer-events-none absolute inset-0"
+					style={{
+						width: projectContext.settings.width,
+						height: projectContext.settings.height,
+						...canvasTransform,
+						backgroundImage:
+							"linear-gradient(to right, rgb(0 0 0 / 0.25) 1px, transparent 1px), linear-gradient(to bottom, rgb(0 0 0 / 0.25) 1px, transparent 1px)",
+						backgroundSize: "16px 16px",
+					}}
+				/>
+			)}
 		</div>
 	);
 };

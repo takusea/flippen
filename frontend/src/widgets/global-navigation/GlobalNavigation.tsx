@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { useProject } from "~/features/project/useProject";
 import { useProjectDialogs } from "~/features/project/useProjectDialogs";
 import Button from "~/shared/ui/Button";
+import { useCanvasView } from "~/widgets/canvas/useCanvasView";
 import GlobalMenubar from "./Menubar";
 
 type Props = {
@@ -12,6 +13,7 @@ type Props = {
 const GlobalNavigation: React.FC<Props> = (props: Props) => {
 	const project = useProject();
 	const projectDialogs = useProjectDialogs();
+	const canvasView = useCanvasView();
 
 	return (
 		<div className="grid grid-rows-[40px_1fr] w-svw h-svh bg-zinc-100 dark:bg-zinc-950">
@@ -19,7 +21,7 @@ const GlobalNavigation: React.FC<Props> = (props: Props) => {
 				<div className="flex items-center justify-between w-full px-2 gap-2">
 					<div className="flex items-center gap-1">
 						<img src="/favicon.png" width={24} height={24} alt="" />
-						<GlobalMenubar />
+						<GlobalMenubar canvasView={canvasView} />
 					</div>
 					<Button label="Export" icon={IconFileExport} variant="primary" />
 				</div>
