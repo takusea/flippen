@@ -13,6 +13,7 @@ export const LayerProvider: React.FC<{ children: React.ReactNode }> = ({
 		() => core.getSnapshot(),
 	);
 	const [selectedLayer, setSelectedLayer] = useState(0);
+	const [lockedLayers, setLockedLayers] = useState<number[]>([]);
 
 	const showLayer = (layer: number) => {
 		core.showLayer(layer);
@@ -26,14 +27,24 @@ export const LayerProvider: React.FC<{ children: React.ReactNode }> = ({
 		core.hideLayer(layer);
 	};
 
+	const toggleLayerLock = (layer: number) => {
+		setLockedLayers((current) =>
+			current.includes(layer)
+				? current.filter((lockedLayer) => lockedLayer !== layer)
+				: [...current, layer],
+		);
+	};
+
 	return (
 		<LayerContext
 			value={{
 				hiddenLayers,
+				lockedLayers,
 				selectedLayer,
 				selectLayer,
 				showLayer,
 				hideLayer,
+				toggleLayerLock,
 			}}
 		>
 			{children}

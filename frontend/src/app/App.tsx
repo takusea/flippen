@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useClip } from "~/features/clip/useClip";
+import { useLayer } from "~/features/layer/useLayer";
 import { useTool } from "~/features/tool/useTool";
 import DrawCanvas from "~/widgets/canvas/Canvas";
 import { useCanvasView } from "~/widgets/canvas/useCanvasView";
@@ -13,6 +14,7 @@ function App() {
 	const canvasView = useCanvasView();
 	const toolContext = useTool();
 	const clipContext = useClip();
+	const layerContext = useLayer();
 	const selectedClip = clipContext.clips.find(
 		(clip) => clip.id === clipContext.selectedClipId,
 	);
@@ -48,6 +50,9 @@ function App() {
 						<ClipInspector
 							name={selectedClip.id}
 							clip={selectedClip}
+							isLayerLocked={layerContext.lockedLayers.includes(
+								selectedClip.layer_index,
+							)}
 							transform={clipContext.transform}
 							onStartChange={(start) =>
 								clipContext.moveClip(

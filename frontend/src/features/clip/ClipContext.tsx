@@ -59,6 +59,7 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 	};
 
 	const addClip = (start: number, layer: number) => {
+		if (layerContext.lockedLayers.includes(layer)) return;
 		core.addClip(start, layer);
 		const nextClips = core.getClips();
 		if (nextClips == null) return;
@@ -77,6 +78,8 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 	};
 
 	const ensureClipAt = (frame: number, layer: number) => {
+		if (layerContext.lockedLayers.includes(layer)) return undefined;
+
 		const existingClip = clips.find(
 			(clip) =>
 				clip.layer_index === layer &&
@@ -111,22 +114,46 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 	};
 
 	const deleteClip = (id: string) => {
+		const clip = clips.find((candidate) => candidate.id === id);
+		if (clip == null || layerContext.lockedLayers.includes(clip.layer_index)) {
+			return;
+		}
 		core.deleteClip(id);
 	};
 
 	const moveClip = (id: string, start: number, layer: number) => {
+		const clip = clips.find((candidate) => candidate.id === id);
+		if (
+			clip == null ||
+			layerContext.lockedLayers.includes(clip.layer_index) ||
+			layerContext.lockedLayers.includes(layer)
+		) {
+			return;
+		}
 		core.moveClip(id, start, layer);
 	};
 
 	const changeClipDuration = (id: string, duration: number) => {
+		const clip = clips.find((candidate) => candidate.id === id);
+		if (clip == null || layerContext.lockedLayers.includes(clip.layer_index)) {
+			return;
+		}
 		core.changeClipDuration(id, duration);
 	};
 
 	const changeClipProperties = (id: string, properties: ClipProperties) => {
+		const clip = clips.find((candidate) => candidate.id === id);
+		if (clip == null || layerContext.lockedLayers.includes(clip.layer_index)) {
+			return;
+		}
 		core.changeClipProperties(id, properties);
 	};
 
 	const changeTransform = (id: string, transform: Transform) => {
+		const clip = clips.find((candidate) => candidate.id === id);
+		if (clip == null || layerContext.lockedLayers.includes(clip.layer_index)) {
+			return;
+		}
 		void core
 			.runOperation((currentCore) => {
 				currentCore.setClipTransform(id, transform);

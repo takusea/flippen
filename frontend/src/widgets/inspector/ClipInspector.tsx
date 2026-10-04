@@ -16,6 +16,7 @@ import SelectItem from "~/shared/ui/SelectItem";
 type Props = {
 	name: string;
 	clip: ClipMetadata;
+	isLayerLocked: boolean;
 	transform: Transform;
 	onStartChange: (start: number) => void;
 	onDurationChange: (duration: number) => void;
@@ -24,7 +25,7 @@ type Props = {
 };
 
 const ClipInspector: React.FC<Props> = (props) => {
-	const isLocked = props.clip.locked;
+	const isLocked = props.clip.locked || props.isLayerLocked;
 
 	return (
 		<Card>

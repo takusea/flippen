@@ -48,7 +48,7 @@ const Timeline: React.FC = () => {
 	}
 
 	return (
-		<div className="grid grid-rows-[24px_1fr] grid-cols-[128px_1fr]">
+		<div className="grid grid-rows-[24px_1fr] grid-cols-[192px_1fr]">
 			<div className="size-full grid items-center justify-end px-1 font-mono border-b border-r border-zinc-500/25">
 				{playbackContext.currentFrame}/{playbackContext.maxFrameCount}
 			</div>
@@ -67,10 +67,12 @@ const Timeline: React.FC = () => {
 					layerHeight={layerHeight}
 					scrollY={scrollPosition.y}
 					hiddenLayers={layerContext.hiddenLayers}
+					lockedLayers={layerContext.lockedLayers}
 					selectedLayer={layerContext.selectedLayer}
 					onLayerSelect={layerContext.selectLayer}
 					onLayerShow={layerContext.showLayer}
 					onLayerHide={layerContext.hideLayer}
+					onLayerLockToggle={layerContext.toggleLayerLock}
 				/>
 			</div>
 			<div
@@ -108,7 +110,10 @@ const Timeline: React.FC = () => {
 						layerIndex={clip.layer_index}
 						isSelected={clip.id === clipContext.selectedClipId}
 						isHidden={clip.hidden}
-						isLocked={clip.locked}
+						isLocked={
+							clip.locked ||
+							layerContext.lockedLayers.includes(clip.layer_index)
+						}
 						onSelect={() => clipContext.selectClip(clip.id)}
 						onMove={(startFrame: number, layerIndex: number) => {
 							clipContext.moveClip(clip.id, startFrame, layerIndex);
