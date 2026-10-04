@@ -33,6 +33,26 @@ const DrawCanvas: React.FC<Props> = (props) => {
 		startY: number;
 		initialTransform: Transform;
 	} | null>(null);
+	const canvasWidth = projectContext.settings?.width;
+	const canvasHeight = projectContext.settings?.height;
+
+	useEffect(() => {
+		const canvas = canvasRef.current;
+		const viewport = canvas?.parentElement;
+		if (
+			canvas == null ||
+			viewport == null ||
+			canvasWidth == null ||
+			canvasHeight == null
+		) {
+			return;
+		}
+
+		props.canvasView.setPosition({
+			x: (viewport.clientWidth - canvasWidth) / 2,
+			y: (viewport.clientHeight - canvasHeight) / 2,
+		});
+	}, [canvasWidth, canvasHeight, props.canvasView.setPosition]);
 
 	useEffect(() => {
 		if (canvasRef.current == null) {

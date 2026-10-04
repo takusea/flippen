@@ -100,7 +100,10 @@ const useCanvasViewState = () => {
 			(viewportHeight * padding) / contentHeight,
 		);
 		setScale(Math.min(Math.max(scaleMinimum, fitScale), scaleMaximum));
-		setPosition({ x: 0, y: 0 });
+		setPosition({
+			x: (viewportWidth - contentWidth) / 2,
+			y: (viewportHeight - contentHeight) / 2,
+		});
 	};
 
 	return {
