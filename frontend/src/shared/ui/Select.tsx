@@ -24,13 +24,13 @@ const Select: React.FC<Props> = ({ children, placeholder, ...props }) => {
 				<SelectPrimitive.Content
 					position="popper"
 					sideOffset={5}
-					className="overflow-hidden rounded-md p-2 bg-white border border-zinc-500/25 shadow w-(--radix-select-trigger-width) max-h-(--radix-select-content-available-height)"
+					className="overflow-hidden rounded-md p-2 border border-zinc-500/25 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl shadow w-(--radix-select-trigger-width) max-h-(--radix-select-content-available-height)"
 				>
-					<SelectPrimitive.ScrollUpButton className="flex h-6 cursor-default items-center justify-center bg-white">
+					<SelectPrimitive.ScrollUpButton className="flex h-6 cursor-default items-center justify-center">
 						<IconChevronUp />
 					</SelectPrimitive.ScrollUpButton>
 					<SelectPrimitive.Viewport>{children}</SelectPrimitive.Viewport>
-					<SelectPrimitive.ScrollDownButton className="flex h-6 cursor-default items-center justify-center bg-white">
+					<SelectPrimitive.ScrollDownButton className="flex h-6 cursor-default items-center justify-center">
 						<IconChevronDown />
 					</SelectPrimitive.ScrollDownButton>
 				</SelectPrimitive.Content>
