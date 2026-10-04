@@ -32,6 +32,9 @@ impl Action for BeginToolAction {
     fn apply(&mut self, project: &mut Project) {
         if self.prev_image.is_none() {
             if let Some(clip) = project.composition.find_clip(self.clip_id) {
+                if clip.metadata.locked {
+                    return;
+                }
                 self.prev_image = Some(clip.get_image().clone());
             }
         } else {

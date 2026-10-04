@@ -23,6 +23,9 @@ impl SetClipTransformAction {
 impl Action for SetClipTransformAction {
     fn apply(&mut self, project: &mut Project) {
         if let Some(clip) = project.composition.find_clip(self.clip_id) {
+            if clip.metadata.locked {
+                return;
+            }
             if self.previous.is_none() {
                 self.previous = Some(clip.transform.clone());
             }

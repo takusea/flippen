@@ -1,6 +1,6 @@
 import type { ProjectSettings } from "~/features/project/type";
 import init, { FlippenCore } from "~/infrastructure/wasm/flippen_wasm";
-import type { ClipMetadata } from "~/shared/lib/clip";
+import type { ClipMetadata, ClipProperties } from "~/shared/lib/clip";
 import type { Transform } from "~/shared/lib/transform";
 
 type CoreOperation<T> = (core: CoreService) => T | PromiseLike<T>;
@@ -122,6 +122,11 @@ export class CoreService {
 
 	changeClipDuration(id: string, duration: number) {
 		this.core.change_clip_duration(id, duration);
+		this.notify();
+	}
+
+	changeClipProperties(id: string, properties: ClipProperties) {
+		this.core.set_clip_properties(id, properties);
 		this.notify();
 	}
 

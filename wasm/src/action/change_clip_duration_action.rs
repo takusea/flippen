@@ -13,7 +13,7 @@ impl ChangeClipDurationAction {
     pub fn new(clip_id: Uuid, duration: u32) -> Self {
         Self {
             clip_id,
-            duration,
+            duration: duration.max(1),
             previous: None,
         }
     }
@@ -22,6 +22,9 @@ impl ChangeClipDurationAction {
 impl Action for ChangeClipDurationAction {
     fn apply(&mut self, project: &mut Project) {
         if let Some(clip) = project.composition.find_clip(self.clip_id) {
+            if clip.metadata.locked {
+                return;
+            }
             if self.previous.is_none() {
                 self.previous = Some(clip.metadata.duration);
             }

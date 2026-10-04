@@ -73,6 +73,7 @@ impl Composition {
             .clips
             .iter()
             .filter(|clip| clip.contains_frame(frame_index))
+            .filter(|clip| !clip.metadata.hidden)
             .filter(|clip| !self.hidden_layers.contains(&clip.metadata.layer_index))
             .collect();
         clips.sort_by_key(|clip| clip.metadata.layer_index);

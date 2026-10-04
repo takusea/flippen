@@ -13,6 +13,9 @@ function App() {
 	const canvasView = useCanvasView();
 	const toolContext = useTool();
 	const clipContext = useClip();
+	const selectedClip = clipContext.clips.find(
+		(clip) => clip.id === clipContext.selectedClipId,
+	);
 
 	const [isOnionSkin, setIsOnionSkin] = useState<boolean>(false);
 
@@ -41,16 +44,33 @@ function App() {
 					/>
 				</div>
 				<div className="h-full w-60 p-2 flex flex-col gap-2">
-					{clipContext.selectedClipId && clipContext.transform && (
+					{selectedClip && clipContext.transform && (
 						<ClipInspector
-							name={clipContext.selectedClipId}
+							name={selectedClip.id}
+							clip={selectedClip}
 							transform={clipContext.transform}
+							onStartChange={(start) =>
+								clipContext.moveClip(
+									selectedClip.id,
+									start,
+									selectedClip.layer_index,
+								)
+							}
+							onDurationChange={(duration) =>
+								clipContext.changeClipDuration(selectedClip.id, duration)
+							}
+							onPropertiesChange={(properties) =>
+								clipContext.changeClipProperties(selectedClip.id, {
+									hidden: selectedClip.hidden,
+									alpha_locked: selectedClip.alpha_locked,
+									locked: selectedClip.locked,
+									opacity: selectedClip.opacity,
+									blend_mode: selectedClip.blend_mode,
+									...properties,
+								})
+							}
 							onTransformChange={(transform) => {
-								if (!clipContext.selectedClipId) return;
-								clipContext.changeTransform(
-									clipContext.selectedClipId,
-									transform,
-								);
+								clipContext.changeTransform(selectedClip.id, transform);
 							}}
 						/>
 					)}

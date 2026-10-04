@@ -5,4 +5,5 @@ export type Transform = {
 	position: Position2D;
 	rotation: number;
 	scale: Scale2D;
+	anchor: Position2D;
 };

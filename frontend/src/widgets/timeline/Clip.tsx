@@ -8,6 +8,8 @@ type Props = {
 	duration: number;
 	layerIndex: number;
 	isSelected: boolean;
+	isHidden: boolean;
+	isLocked: boolean;
 	onSelect: () => void;
 	onMove: (startFrame: number, layerIndex: number) => void;
 	onDurationChange: (duration: number) => void;
@@ -61,7 +63,7 @@ const Clip: React.FC<Props> = (props) => {
 	return (
 		<div
 			key={props.id}
-			className={`absolute grid grid-cols-[1fr_8px] items-stretch rounded border overflow-hidden ${props.isSelected ? "bg-teal-400/25 border-teal-400 border-2" : "bg-zinc-500/25 border-zinc-500/25"}`}
+			className={`absolute grid grid-cols-[1fr_8px] items-stretch rounded border overflow-hidden ${props.isSelected ? "bg-teal-400/25 border-teal-400 border-2" : "bg-zinc-500/25 border-zinc-500/25"} ${props.isHidden ? "opacity-40" : ""} ${props.isLocked ? "cursor-not-allowed" : ""}`}
 			style={{
 				left: `${props.startFrame * props.frameWidth}px`,
 				top: `${props.layerIndex * props.layerHeight}px`,
@@ -73,8 +75,14 @@ const Clip: React.FC<Props> = (props) => {
 			<div className="absolute h-full flex items-center text-nowrap pointer-events-none px-1">
 				Clip {props.id}
 			</div>
-			<div className="cursor-move" onPointerMove={handlePointerMove} />
-			<div className="cursor-w-resize" onPointerMove={handleRightPointerMove} />
+			<div
+				className={props.isLocked ? "" : "cursor-move"}
+				onPointerMove={props.isLocked ? undefined : handlePointerMove}
+			/>
+			<div
+				className={props.isLocked ? "" : "cursor-w-resize"}
+				onPointerMove={props.isLocked ? undefined : handleRightPointerMove}
+			/>
 		</div>
 	);
 };

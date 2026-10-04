@@ -36,7 +36,7 @@ const NumberField: React.FC<Props> = (props) => {
 	const cursor = isMoved ? "cursor-ew-resize" : "cursor-text";
 
 	const handlePointerMove = (event: React.PointerEvent) => {
-		if (!(event.buttons & 1) || props.value == null) return;
+		if (props.disabled || !(event.buttons & 1) || props.value == null) return;
 
 		event.currentTarget.setPointerCapture(event.pointerId);
 
@@ -52,6 +52,10 @@ const NumberField: React.FC<Props> = (props) => {
 
 	const handlePointerUp = () => {
 		dragValue.current = null;
+		if (props.disabled) {
+			setIsMoved(false);
+			return;
+		}
 
 		if (!isMoved) {
 			if (input.current == null) {
@@ -68,6 +72,7 @@ const NumberField: React.FC<Props> = (props) => {
 	};
 
 	const handleChange = (event: React.ChangeEvent) => {
+		if (props.disabled) return;
 		if (!(event.currentTarget instanceof HTMLInputElement)) {
 			throw new Error("event.currentTarget is not instanceof HTMLInputElement");
 		}
@@ -76,6 +81,7 @@ const NumberField: React.FC<Props> = (props) => {
 	};
 
 	const handleKeyDown = (event: React.KeyboardEvent) => {
+		if (props.disabled) return;
 		if (event.key === "Enter") {
 			if (!(event.currentTarget instanceof HTMLInputElement)) {
 				throw new Error(
@@ -83,11 +89,8 @@ const NumberField: React.FC<Props> = (props) => {
 				);
 			}
 
-			if (Number.isNaN(event.currentTarget.value)) {
-				throw new Error("event.currentTarget.value is not a number");
-			}
-
-			const value = Number.parseFloat(event.currentTarget.value);
+			const value = event.currentTarget.valueAsNumber;
+			if (!Number.isFinite(value)) return;
 
 			onValueChange?.(clamp(value));
 		}
@@ -95,7 +98,7 @@ const NumberField: React.FC<Props> = (props) => {
 
 	return (
 		<div
-			className={`relative h-8 border border-zinc-500/25 bg-zinc-500/25 rounded ${cursor}`}
+			className={`relative h-8 border border-zinc-500/25 bg-zinc-500/25 rounded ${props.disabled ? "opacity-50" : cursor}`}
 			onPointerMove={handlePointerMove}
 			onPointerUp={handlePointerUp}
 		>

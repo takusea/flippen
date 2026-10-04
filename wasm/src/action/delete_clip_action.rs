@@ -21,6 +21,14 @@ impl DeleteClipAction {
 impl Action for DeleteClipAction {
     fn apply(&mut self, project: &mut Project) {
         if self.deleted_clip.is_none() {
+            if project
+                .composition
+                .get_clips()
+                .iter()
+                .any(|clip| clip.metadata.id == self.clip_id && clip.metadata.locked)
+            {
+                return;
+            }
             let deleted = project.composition.delete_clip(self.clip_id);
             self.deleted_clip = deleted;
         }

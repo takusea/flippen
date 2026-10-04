@@ -1,4 +1,4 @@
-use crate::app::clip::Clip;
+use crate::app::clip::{BlendMode, Clip};
 use crate::core::image::Image;
 use bytemuck::{Pod, Zeroable};
 use std::collections::{HashMap, HashSet};
@@ -10,6 +10,9 @@ struct ClipUniforms {
     inverse_transform: [[f32; 4]; 3],
     image_size: [f32; 2],
     output_size: [f32; 2],
+    opacity: f32,
+    blend_mode: u32,
+    _padding: [f32; 2],
 }
 
 struct CachedClipTexture {
@@ -83,6 +86,16 @@ impl GpuRenderer {
                     },
                     count: None,
                 },
+                wgpu::BindGroupLayoutEntry {
+                    binding: 3,
+                    visibility: wgpu::ShaderStages::FRAGMENT,
+                    ty: wgpu::BindingType::Texture {
+                        sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                        view_dimension: wgpu::TextureViewDimension::D2,
+                        multisampled: false,
+                    },
+                    count: None,
+                },
             ],
         });
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
@@ -104,7 +117,7 @@ impl GpuRenderer {
                 entry_point: Some("fragment_main"),
                 targets: &[Some(wgpu::ColorTargetState {
                     format: wgpu::TextureFormat::Rgba8Unorm,
-                    blend: Some(wgpu::BlendState::ALPHA_BLENDING),
+                    blend: None,
                     write_mask: wgpu::ColorWrites::ALL,
                 })],
                 compilation_options: wgpu::PipelineCompilationOptions::default(),
@@ -140,21 +153,27 @@ impl GpuRenderer {
         width: u32,
         height: u32,
     ) -> Result<Image, String> {
-        let output_texture = self.device.create_texture(&wgpu::TextureDescriptor {
-            label: Some("flippen-frame-texture"),
-            size: wgpu::Extent3d {
-                width,
-                height,
-                depth_or_array_layers: 1,
-            },
-            mip_level_count: 1,
-            sample_count: 1,
-            dimension: wgpu::TextureDimension::D2,
-            format: wgpu::TextureFormat::Rgba8Unorm,
-            usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::COPY_SRC,
-            view_formats: &[],
+        let output_textures = [0, 1].map(|_| {
+            self.device.create_texture(&wgpu::TextureDescriptor {
+                label: Some("flippen-frame-texture"),
+                size: wgpu::Extent3d {
+                    width,
+                    height,
+                    depth_or_array_layers: 1,
+                },
+                mip_level_count: 1,
+                sample_count: 1,
+                dimension: wgpu::TextureDimension::D2,
+                format: wgpu::TextureFormat::Rgba8Unorm,
+                usage: wgpu::TextureUsages::RENDER_ATTACHMENT
+                    | wgpu::TextureUsages::TEXTURE_BINDING
+                    | wgpu::TextureUsages::COPY_SRC,
+                view_formats: &[],
+            })
         });
-        let output_view = output_texture.create_view(&wgpu::TextureViewDescriptor::default());
+        let output_views = output_textures
+            .each_ref()
+            .map(|texture| texture.create_view(&wgpu::TextureViewDescriptor::default()));
         let bytes_per_row = width * 4;
         let padded_bytes_per_row = bytes_per_row.div_ceil(wgpu::COPY_BYTES_PER_ROW_ALIGNMENT)
             * wgpu::COPY_BYTES_PER_ROW_ALIGNMENT;
@@ -257,10 +276,88 @@ impl GpuRenderer {
                 label: Some("flippen-frame-encoder"),
             });
         {
+            let _pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+                label: Some("flippen-frame-clear"),
+                color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                    view: &output_views[0],
+                    resolve_target: None,
+                    ops: wgpu::Operations {
+                        load: wgpu::LoadOp::Clear(wgpu::Color::TRANSPARENT),
+                        store: wgpu::StoreOp::Store,
+                    },
+                })],
+                depth_stencil_attachment: None,
+                timestamp_writes: None,
+                occlusion_query_set: None,
+            });
+        }
+
+        for (clip_index, clip) in clips.iter().enumerate() {
+            let image = &clip.image;
+            let cached = self
+                .clip_textures
+                .get(&clip.metadata.id)
+                .ok_or_else(|| "Clip texture cache entry is missing".to_string())?;
+            let inverse = clip
+                .transform
+                .to_inverse_matrix3((image.width as f32 / 2.0, image.height as f32 / 2.0))
+                .ok_or_else(|| "Clip transform is not invertible".to_string())?;
+            let uniforms = ClipUniforms {
+                inverse_transform: [
+                    [inverse.x.x, inverse.x.y, inverse.x.z, 0.0],
+                    [inverse.y.x, inverse.y.y, inverse.y.z, 0.0],
+                    [inverse.z.x, inverse.z.y, inverse.z.z, 0.0],
+                ],
+                image_size: [image.width as f32, image.height as f32],
+                output_size: [width as f32, height as f32],
+                opacity: clip.metadata.opacity,
+                blend_mode: match clip.metadata.blend_mode {
+                    BlendMode::Normal => 0,
+                    BlendMode::Multiply => 1,
+                    BlendMode::Screen => 2,
+                    BlendMode::Add => 3,
+                },
+                _padding: [0.0; 2],
+            };
+            let uniform_buffer =
+                self.device
+                    .create_buffer_init(&wgpu::util::BufferInitDescriptor {
+                        label: Some("flippen-clip-uniforms"),
+                        contents: bytemuck::bytes_of(&uniforms),
+                        usage: wgpu::BufferUsages::UNIFORM,
+                    });
+            let source_index = clip_index % 2;
+            let target_index = (clip_index + 1) % 2;
+            let bind_group = self.device.create_bind_group(&wgpu::BindGroupDescriptor {
+                label: Some("flippen-clip-bind-group"),
+                layout: &self.bind_group_layout,
+                entries: &[
+                    wgpu::BindGroupEntry {
+                        binding: 0,
+                        resource: wgpu::BindingResource::TextureView(
+                            &cached
+                                .texture
+                                .create_view(&wgpu::TextureViewDescriptor::default()),
+                        ),
+                    },
+                    wgpu::BindGroupEntry {
+                        binding: 1,
+                        resource: wgpu::BindingResource::Sampler(&self.sampler),
+                    },
+                    wgpu::BindGroupEntry {
+                        binding: 2,
+                        resource: uniform_buffer.as_entire_binding(),
+                    },
+                    wgpu::BindGroupEntry {
+                        binding: 3,
+                        resource: wgpu::BindingResource::TextureView(&output_views[source_index]),
+                    },
+                ],
+            });
             let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 label: Some("flippen-frame-pass"),
                 color_attachments: &[Some(wgpu::RenderPassColorAttachment {
-                    view: &output_view,
+                    view: &output_views[target_index],
                     resolve_target: None,
                     ops: wgpu::Operations {
                         load: wgpu::LoadOp::Clear(wgpu::Color::TRANSPARENT),
@@ -272,59 +369,12 @@ impl GpuRenderer {
                 occlusion_query_set: None,
             });
             pass.set_pipeline(&self.pipeline);
-
-            for clip in clips {
-                let image = &clip.image;
-                let cached = self.clip_textures.get(&clip.metadata.id).unwrap();
-
-                let inverse = clip
-                    .transform
-                    .to_inverse_matrix3((image.width as f32 / 2.0, image.height as f32 / 2.0))
-                    .ok_or_else(|| "Clip transform is not invertible".to_string())?;
-                let uniforms = ClipUniforms {
-                    inverse_transform: [
-                        [inverse.x.x, inverse.x.y, inverse.x.z, 0.0],
-                        [inverse.y.x, inverse.y.y, inverse.y.z, 0.0],
-                        [inverse.z.x, inverse.z.y, inverse.z.z, 0.0],
-                    ],
-                    image_size: [image.width as f32, image.height as f32],
-                    output_size: [width as f32, height as f32],
-                };
-                let uniform_buffer =
-                    self.device
-                        .create_buffer_init(&wgpu::util::BufferInitDescriptor {
-                            label: Some("flippen-clip-uniforms"),
-                            contents: bytemuck::bytes_of(&uniforms),
-                            usage: wgpu::BufferUsages::UNIFORM,
-                        });
-                let bind_group = self.device.create_bind_group(&wgpu::BindGroupDescriptor {
-                    label: Some("flippen-clip-bind-group"),
-                    layout: &self.bind_group_layout,
-                    entries: &[
-                        wgpu::BindGroupEntry {
-                            binding: 0,
-                            resource: wgpu::BindingResource::TextureView(
-                                &cached
-                                    .texture
-                                    .create_view(&wgpu::TextureViewDescriptor::default()),
-                            ),
-                        },
-                        wgpu::BindGroupEntry {
-                            binding: 1,
-                            resource: wgpu::BindingResource::Sampler(&self.sampler),
-                        },
-                        wgpu::BindGroupEntry {
-                            binding: 2,
-                            resource: uniform_buffer.as_entire_binding(),
-                        },
-                    ],
-                });
-                pass.set_bind_group(0, &bind_group, &[]);
-                pass.draw(0..3, 0..1);
-            }
+            pass.set_bind_group(0, &bind_group, &[]);
+            pass.draw(0..3, 0..1);
         }
+        let final_texture = &output_textures[clips.len() % 2];
         encoder.copy_texture_to_buffer(
-            output_texture.as_image_copy(),
+            final_texture.as_image_copy(),
             wgpu::TexelCopyBufferInfo {
                 buffer: &readback,
                 layout: wgpu::TexelCopyBufferLayout {
@@ -360,6 +410,16 @@ impl GpuRenderer {
             let target_start = row * bytes_per_row as usize;
             data[target_start..target_start + bytes_per_row as usize]
                 .copy_from_slice(&mapped[source_start..source_start + bytes_per_row as usize]);
+        }
+        for pixel in data.chunks_exact_mut(4) {
+            let alpha = pixel[3] as u16;
+            if alpha == 0 {
+                pixel[..3].fill(0);
+            } else {
+                for channel in &mut pixel[..3] {
+                    *channel = ((*channel as u16 * 255 + alpha / 2) / alpha).min(255) as u8;
+                }
+            }
         }
         drop(mapped);
         readback.unmap();

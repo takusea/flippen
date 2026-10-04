@@ -15,10 +15,11 @@ use crate::action::begin_tool_action::BeginToolAction;
 use crate::action::change_clip_duration_action::ChangeClipDurationAction;
 use crate::action::delete_clip_action::DeleteClipAction;
 use crate::action::move_clip_action::MoveClipAction;
+use crate::action::set_clip_properties_action::SetClipPropertiesAction;
 use crate::action::set_clip_transform_action::SetClipTransformAction;
 use crate::action::set_layer_visibility_action::SetLayerVisibilityAction;
 use crate::app::action_manager::ActionManager;
-use crate::app::clip::ClipMetadata;
+use crate::app::clip::{ClipMetadata, ClipProperties};
 use crate::app::composition::Composition;
 use crate::app::project::Project;
 use crate::app::project_settings::ProjectSettings;
@@ -99,6 +100,20 @@ impl FlippenCore {
                 return;
             }
         };
+        let clip_is_locked = self
+            .project
+            .as_ref()
+            .and_then(|project| {
+                project
+                    .composition
+                    .clips
+                    .iter()
+                    .find(|clip| clip.metadata.id == clip_id)
+            })
+            .is_none_or(|clip| clip.metadata.locked);
+        if clip_is_locked {
+            return;
+        }
         let action = Box::new(BeginToolAction::new(clip_id));
         if let Some(project) = self.project.as_mut() {
             self.action_manager.do_action(action, project);
@@ -166,6 +181,9 @@ impl FlippenCore {
             Some(c) => c,
             None => return,
         };
+        if clip.metadata.locked {
+            return;
+        }
 
         let tool = match self.tools.get_mut(tool_index) {
             Some(t) => t,
@@ -199,9 +217,26 @@ impl FlippenCore {
             }
         };
 
+        let alpha_locked = clip.metadata.alpha_locked;
+        let previous_pixels = alpha_locked.then(|| clip.image.data.clone());
         let image = clip.get_image_mut();
         let color_array = [color[0], color[1], color[2], color[3]];
         tool.apply(image, x, y, color_array, Some(pressure));
+        if let Some(previous_pixels) = previous_pixels {
+            for (pixel, previous) in image
+                .data
+                .chunks_exact_mut(4)
+                .zip(previous_pixels.chunks_exact(4))
+            {
+                if previous[3] == 0 {
+                    pixel.copy_from_slice(previous);
+                } else if pixel[3] == 0 {
+                    pixel.copy_from_slice(previous);
+                } else {
+                    pixel[3] = previous[3];
+                }
+            }
+        }
         clip.mark_image_changed();
     }
 
@@ -337,6 +372,32 @@ impl FlippenCore {
         };
 
         let action = Box::new(ChangeClipDurationAction::new(clip_id, duration));
+
+        if let Some(project) = self.project.as_mut() {
+            self.action_manager.do_action(action, project);
+        }
+    }
+
+    pub fn set_clip_properties(&mut self, clip_id_str: String, json: JsValue) {
+        let clip_id = match Uuid::parse_str(&clip_id_str) {
+            Ok(id) => id,
+            Err(error) => {
+                eprintln!("Failed to parse clip_id: {:?}", error);
+                return;
+            }
+        };
+        let properties: ClipProperties = match json.into_serde() {
+            Ok(properties) => properties,
+            Err(error) => {
+                eprintln!("Failed to parse clip properties: {:?}", error);
+                return;
+            }
+        };
+        if !properties.opacity.is_finite() {
+            eprintln!("Clip opacity must be finite.");
+            return;
+        }
+        let action = Box::new(SetClipPropertiesAction::new(clip_id, properties));
 
         if let Some(project) = self.project.as_mut() {
             self.action_manager.do_action(action, project);

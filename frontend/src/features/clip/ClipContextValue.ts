@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import type { ClipMetadata } from "~/shared/lib/clip";
+import type { ClipMetadata, ClipProperties } from "~/shared/lib/clip";
 import type { Transform } from "~/shared/lib/transform";
 
 export type ClipContextValue = {
@@ -11,6 +11,7 @@ export type ClipContextValue = {
 	deleteClip: (id: string) => void;
 	moveClip: (id: string, start: number, layer: number) => void;
 	changeClipDuration: (id: string, duration: number) => void;
+	changeClipProperties: (id: string, properties: ClipProperties) => void;
 	changeTransform: (id: string, transform: Transform) => void;
 	syncTransform: () => void;
 	ensureClipAt: (frame: number, layer: number) => string | undefined;

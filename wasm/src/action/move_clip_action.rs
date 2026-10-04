@@ -23,6 +23,14 @@ impl MoveClipAction {
 
 impl Action for MoveClipAction {
     fn apply(&mut self, project: &mut Project) {
+        if project
+            .composition
+            .get_clips()
+            .iter()
+            .any(|clip| clip.metadata.id == self.clip_id && clip.metadata.locked)
+        {
+            return;
+        }
         if self.previous.is_none() {
             self.previous = project
                 .composition

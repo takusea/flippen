@@ -107,6 +107,8 @@ const Timeline: React.FC = () => {
 						duration={clip.duration}
 						layerIndex={clip.layer_index}
 						isSelected={clip.id === clipContext.selectedClipId}
+						isHidden={clip.hidden}
+						isLocked={clip.locked}
 						onSelect={() => clipContext.selectClip(clip.id)}
 						onMove={(startFrame: number, layerIndex: number) => {
 							clipContext.moveClip(clip.id, startFrame, layerIndex);

@@ -1,8 +1,15 @@
-import { useEffect, useState, useSyncExternalStore } from "react";
+import {
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+	useSyncExternalStore,
+} from "react";
 
 import { useLayer } from "~/features/layer/useLayer";
 import { usePlayback } from "~/features/playback/usePlayback";
 import { useCore } from "~/infrastructure/core/useCore";
+import type { ClipProperties } from "~/shared/lib/clip";
 import type { Transform } from "~/shared/lib/transform";
 import { ClipContext } from "./ClipContextValue";
 
@@ -19,10 +26,14 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 		() => core.getSnapshot(),
 	);
 	const [selectedClipId, setSelectedClipId] = useState<string>();
+	const selectionContext = useRef({
+		layer: layerContext.selectedLayer,
+		frame: playbackContext.currentFrame,
+	});
 
-	const [transform, setTransform] = useState<any>();
+	const [transform, setTransform] = useState<Transform>();
 
-	const syncTransform = () => {
+	const syncTransform = useCallback(() => {
 		if (selectedClipId == null) {
 			setTransform(undefined);
 			return Promise.resolve();
@@ -33,12 +44,18 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 				currentCore.getClipTransform(selectedClipId),
 			)
 			.then((nextTransform) => setTransform(nextTransform));
-	};
+	}, [core, selectedClipId]);
 
 	const selectClip = (id: string) => {
 		setSelectedClipId(id);
 		const clip = clips.find((candidate) => candidate.id === id);
-		if (clip != null) layerContext.selectLayer(clip.layer_index);
+		if (clip != null) {
+			selectionContext.current = {
+				layer: clip.layer_index,
+				frame: playbackContext.currentFrame,
+			};
+			layerContext.selectLayer(clip.layer_index);
+		}
 	};
 
 	const addClip = (start: number, layer: number) => {
@@ -50,6 +67,10 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 				candidate.start === start && candidate.layer_index === layer,
 		);
 		if (clip != null) {
+			selectionContext.current = {
+				layer,
+				frame: playbackContext.currentFrame,
+			};
 			layerContext.selectLayer(layer);
 			setSelectedClipId(clip.id);
 		}
@@ -63,6 +84,10 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 				frame < clip.start + clip.duration,
 		);
 		if (existingClip != null) {
+			selectionContext.current = {
+				layer,
+				frame: playbackContext.currentFrame,
+			};
 			setSelectedClipId(existingClip.id);
 			return existingClip.id;
 		}
@@ -77,6 +102,10 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 				!clips.some((existing) => existing.id === clip.id),
 		);
 		if (newClip == null) return undefined;
+		selectionContext.current = {
+			layer,
+			frame: playbackContext.currentFrame,
+		};
 		setSelectedClipId(newClip.id);
 		return newClip.id;
 	};
@@ -93,6 +122,10 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 		core.changeClipDuration(id, duration);
 	};
 
+	const changeClipProperties = (id: string, properties: ClipProperties) => {
+		core.changeClipProperties(id, properties);
+	};
+
 	const changeTransform = (id: string, transform: Transform) => {
 		void core
 			.runOperation((currentCore) => {
@@ -103,6 +136,20 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 	};
 
 	useEffect(() => {
+		const playheadChanged =
+			selectionContext.current.layer !== layerContext.selectedLayer ||
+			selectionContext.current.frame !== playbackContext.currentFrame;
+		selectionContext.current = {
+			layer: layerContext.selectedLayer,
+			frame: playbackContext.currentFrame,
+		};
+		if (
+			!playheadChanged &&
+			selectedClipId != null &&
+			clips.some((clip) => clip.id === selectedClipId)
+		) {
+			return;
+		}
 		const clip = clips.find(
 			(candidate) =>
 				candidate.layer_index === layerContext.selectedLayer &&
@@ -110,11 +157,16 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 				playbackContext.currentFrame < candidate.start + candidate.duration,
 		);
 		setSelectedClipId(clip?.id);
-	}, [clips, layerContext.selectedLayer, playbackContext.currentFrame]);
+	}, [
+		clips,
+		layerContext.selectedLayer,
+		playbackContext.currentFrame,
+		selectedClipId,
+	]);
 
 	useEffect(() => {
 		syncTransform();
-	}, [selectedClipId]);
+	}, [syncTransform]);
 
 	return (
 		<ClipContext
@@ -127,6 +179,7 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 				deleteClip,
 				moveClip,
 				changeClipDuration,
+				changeClipProperties,
 				changeTransform,
 				syncTransform,
 				ensureClipAt,
