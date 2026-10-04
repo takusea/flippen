@@ -13,6 +13,9 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [isLoop, setIsLoop] = useState(false);
 	const maxFrameCount = 256;
+	const setCurrentFrameClamped = (frame: number) => {
+		setCurrentFrame(Math.min(Math.max(frame, 0), maxFrameCount - 1));
+	};
 
 	const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -62,7 +65,7 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({
 				isPlaying,
 				isLoop,
 				maxFrameCount,
-				setCurrentFrame,
+				setCurrentFrame: setCurrentFrameClamped,
 				setIsLoop,
 				play,
 				pause,

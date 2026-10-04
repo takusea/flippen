@@ -62,7 +62,7 @@ const Toolbar: React.FC<Props> = (props) => {
 		playbackContext.setCurrentFrame(playbackContext.currentFrame + 1),
 	);
 	useHotkeys("ctrl+shift+ArrowRight", () =>
-		playbackContext.setCurrentFrame(playbackContext.maxFrameCount),
+		playbackContext.setCurrentFrame(playbackContext.maxFrameCount - 1),
 	);
 	useHotkeys("1", () => toolContext.setTool("move"));
 	useHotkeys("2", () => toolContext.setTool("pen"));
@@ -159,7 +159,7 @@ const Toolbar: React.FC<Props> = (props) => {
 					icon={IconPlayerSkipForward}
 					size="small"
 					onClick={() =>
-						playbackContext.setCurrentFrame(playbackContext.maxFrameCount)
+						playbackContext.setCurrentFrame(playbackContext.maxFrameCount - 1)
 					}
 				/>
 			</div>
