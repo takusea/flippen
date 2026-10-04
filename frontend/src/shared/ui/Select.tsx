@@ -11,7 +11,7 @@ const Select: React.FC<Props> = ({ children, placeholder, ...props }) => {
 	return (
 		<SelectPrimitive.Root {...props}>
 			<SelectPrimitive.Trigger
-				className="h-8 px-2 border border-zinc-500/25 bg-zinc-500/25 rounded flex gap-1 justify-between items-center cursor-pointer"
+				className="h-8 px-2 border border-zinc-500/25 bg-zinc-500/25 rounded flex gap-1 justify-between items-center not-disabled:cursor-pointer disabled:opacity-50"
 				aria-label={props.label}
 				id={props.id}
 			>
