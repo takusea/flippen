@@ -4,6 +4,7 @@ type Props = {
 	frameWidth: number;
 	scrollX: number;
 	onFrameChange: (frame: number) => void;
+	onWheel: (event: React.WheelEvent<HTMLDivElement>) => void;
 };
 
 const TrackHeader: React.FC<Props> = (props) => {
@@ -26,6 +27,7 @@ const TrackHeader: React.FC<Props> = (props) => {
 				width: `${props.totalFrames * props.frameWidth}px`,
 			}}
 			onPointerMove={handlePointerMove}
+			onWheel={props.onWheel}
 		>
 			{[...Array(props.totalFrames)].map((_, i) => (
 				<div

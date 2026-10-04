@@ -17,6 +17,7 @@ type Props = {
 	onLayerShow: (id: number) => void;
 	onLayerHide: (id: number) => void;
 	onLayerLockToggle: (id: number) => void;
+	onWheel: (event: React.WheelEvent<HTMLDivElement>) => void;
 };
 
 const TrackSide: React.FC<Props> = (props) => {
@@ -24,6 +25,7 @@ const TrackSide: React.FC<Props> = (props) => {
 		<div
 			className="absolute size-full"
 			style={{ translate: `0 -${props.scrollY}px` }}
+			onWheel={props.onWheel}
 		>
 			{[...Array(props.numTracks)].map((_, i) => {
 				const isHidden = props.hiddenLayers.includes(i);
@@ -32,7 +34,7 @@ const TrackSide: React.FC<Props> = (props) => {
 					<div
 						// biome-ignore lint/suspicious/noArrayIndexKey: Layer indices are stable identifiers.
 						key={`layer-${i}`}
-						className={`w-full flex items-center justify-between gap-1 border-l-2 border-b border-zinc-500/25 bg-zinc-500/25 ${props.selectedLayer === i ? "border-l-teal-500" : "border-l-transparent"} ${isHidden ? "opacity-50" : ""}`}
+						className={`w-full overflow-hidden flex items-center justify-between gap-1 border-l-2 border-b border-zinc-500/25 bg-zinc-500/25 ${props.selectedLayer === i ? "border-l-teal-500" : "border-l-transparent"} ${isHidden ? "opacity-50" : ""}`}
 						style={{ height: `${props.layerHeight}px` }}
 					>
 						<button

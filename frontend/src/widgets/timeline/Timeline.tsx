@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useClip } from "~/features/clip/useClip";
 import { useLayer } from "~/features/layer/useLayer";
@@ -8,6 +8,11 @@ import TrackHeader from "./TrackHeader";
 import TrackSide from "./TrackSide";
 
 const NUM_TRACKS = 100;
+const MIN_LAYER_HEIGHT = 12;
+const MAX_LAYER_HEIGHT = 128;
+const MIN_FRAME_WIDTH = 2;
+const MAX_FRAME_WIDTH = 64;
+const WHEEL_ZOOM_SENSITIVITY = 0.0015;
 
 const Timeline: React.FC = () => {
 	const clipContext = useClip();
@@ -26,6 +31,21 @@ const Timeline: React.FC = () => {
 		x: number;
 		y: number;
 	}>({ x: 0, y: 0 });
+	const timelineViewportRef = useRef<HTMLDivElement | null>(null);
+	const [pendingScroll, setPendingScroll] = useState<{
+		x: number;
+		y: number;
+	} | null>(null);
+
+	useLayoutEffect(() => {
+		const viewport = timelineViewportRef.current;
+		if (pendingScroll == null || viewport == null) return;
+
+		viewport.scrollLeft = pendingScroll.x;
+		viewport.scrollTop = pendingScroll.y;
+		setPendingScroll(null);
+		setScrollPosition({ x: viewport.scrollLeft, y: viewport.scrollTop });
+	}, [pendingScroll]);
 
 	function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
 		if (!(event.buttons & 1)) return;
@@ -47,6 +67,54 @@ const Timeline: React.FC = () => {
 		});
 	}
 
+	function handleHorizontalZoom(event: React.WheelEvent<HTMLDivElement>) {
+		event.preventDefault();
+		const viewport = timelineViewportRef.current;
+		if (viewport == null) return;
+
+		const nextFrameWidth = Math.min(
+			MAX_FRAME_WIDTH,
+			Math.max(
+				MIN_FRAME_WIDTH,
+				frameWidth * Math.exp(-event.deltaY * WHEEL_ZOOM_SENSITIVITY),
+			),
+		);
+		if (nextFrameWidth === frameWidth) return;
+
+		const viewportRect = viewport.getBoundingClientRect();
+		const pointerOffset = event.clientX - viewportRect.left;
+		const frameAtPointer = (viewport.scrollLeft + pointerOffset) / frameWidth;
+		setPendingScroll({
+			x: Math.max(0, frameAtPointer * nextFrameWidth - pointerOffset),
+			y: viewport.scrollTop,
+		});
+		setFrameWidth(nextFrameWidth);
+	}
+
+	function handleVerticalZoom(event: React.WheelEvent<HTMLDivElement>) {
+		event.preventDefault();
+		const viewport = timelineViewportRef.current;
+		if (viewport == null) return;
+
+		const nextLayerHeight = Math.min(
+			MAX_LAYER_HEIGHT,
+			Math.max(
+				MIN_LAYER_HEIGHT,
+				layerHeight * Math.exp(-event.deltaY * WHEEL_ZOOM_SENSITIVITY),
+			),
+		);
+		if (nextLayerHeight === layerHeight) return;
+
+		const viewportRect = viewport.getBoundingClientRect();
+		const pointerOffset = event.clientY - viewportRect.top;
+		const layerAtPointer = (viewport.scrollTop + pointerOffset) / layerHeight;
+		setPendingScroll({
+			x: viewport.scrollLeft,
+			y: Math.max(0, layerAtPointer * nextLayerHeight - pointerOffset),
+		});
+		setTrackHeight(nextLayerHeight);
+	}
+
 	return (
 		<div className="h-full min-h-0 min-w-0 grid grid-rows-[24px_minmax(0,1fr)] grid-cols-[192px_minmax(0,1fr)]">
 			<div className="size-full grid items-center justify-end px-1 font-mono border-b border-r border-zinc-500/25">
@@ -59,6 +127,7 @@ const Timeline: React.FC = () => {
 					scrollX={scrollPosition.x}
 					currentFrame={playbackContext.currentFrame}
 					onFrameChange={playbackContext.setCurrentFrame}
+					onWheel={handleHorizontalZoom}
 				/>
 			</div>
 			<div className="relative overflow-hidden border-r border-zinc-500/25">
@@ -73,12 +142,14 @@ const Timeline: React.FC = () => {
 					onLayerShow={layerContext.showLayer}
 					onLayerHide={layerContext.hideLayer}
 					onLayerLockToggle={layerContext.toggleLayerLock}
+					onWheel={handleVerticalZoom}
 				/>
 			</div>
 			<div
 				className="relative overflow-scroll row-start-2 col-start-2"
 				onPointerDown={handlePointerDown}
 				onScroll={handleScroll}
+				ref={timelineViewportRef}
 			>
 				<div
 					className="absolute top-0 w-px bg-teal-400 z-50"
