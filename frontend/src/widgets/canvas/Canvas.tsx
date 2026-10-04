@@ -205,7 +205,14 @@ const DrawCanvas: React.FC<Props> = (props) => {
 		if (event.shiftKey) {
 			props.canvasView.rotate(step);
 		} else {
-			props.canvasView.zoom(step);
+			const canvas = canvasRef.current;
+			if (canvas == null) return;
+			const rect = canvas.getBoundingClientRect();
+			props.canvasView.zoomAt(
+				step,
+				event.clientX - (rect.left + rect.width / 2),
+				event.clientY - (rect.top + rect.height / 2),
+			);
 		}
 	};
 

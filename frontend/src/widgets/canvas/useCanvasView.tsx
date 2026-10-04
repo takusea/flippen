@@ -60,6 +60,21 @@ const useCanvasViewState = () => {
 		);
 	};
 
+	const zoomAt = (step: number, offsetX: number, offsetY: number) => {
+		const zoomFactor = step > 0 ? zoomDelta : 1 / zoomDelta;
+		const nextScale = Math.min(
+			Math.max(scaleMinimum, scale * zoomFactor),
+			scaleMaximum,
+		);
+		const scaleRatio = nextScale / scale;
+
+		setScale(nextScale);
+		setPosition((prev) => ({
+			x: prev.x + offsetX * (1 - scaleRatio),
+			y: prev.y + offsetY * (1 - scaleRatio),
+		}));
+	};
+
 	const rotate = (step: number) => {
 		setRotation((prev) => prev + rotateDelta * step);
 	};
@@ -106,6 +121,7 @@ const useCanvasViewState = () => {
 		applyCanvasTransform,
 		translate,
 		zoom,
+		zoomAt,
 		rotate,
 		fitToView,
 	};
