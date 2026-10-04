@@ -109,7 +109,10 @@ const Timeline: React.FC = () => {
 						duration={clip.duration}
 						layerIndex={clip.layer_index}
 						isSelected={clip.id === clipContext.selectedClipId}
-						isHidden={clip.hidden}
+						isHidden={
+							clip.hidden ||
+							layerContext.hiddenLayers.includes(clip.layer_index)
+						}
 						isLocked={
 							clip.locked ||
 							layerContext.lockedLayers.includes(clip.layer_index)

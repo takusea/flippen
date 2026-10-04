@@ -45,7 +45,9 @@ const TrackSide: React.FC<Props> = (props) => {
 						<IconButton
 							label={`Layer ${i} を${isHidden ? "表示" : "非表示"}`}
 							icon={isHidden ? IconEyeOff : IconEye}
+							variant={isHidden ? "primary" : "default"}
 							size="small"
+							aria-pressed={isHidden}
 							onClick={() =>
 								isHidden ? props.onLayerShow(i) : props.onLayerHide(i)
 							}
@@ -55,7 +57,7 @@ const TrackSide: React.FC<Props> = (props) => {
 							icon={isLocked ? IconLock : IconLockOpen}
 							size="small"
 							aria-pressed={isLocked}
-							variant={isLocked ? "primary" : undefined}
+							variant={isLocked ? "primary" : "default"}
 							onClick={() => props.onLayerLockToggle(i)}
 						/>
 					</div>
