@@ -4,6 +4,7 @@ import {
 	IconLock,
 	IconLockOpen,
 } from "@tabler/icons-react";
+import { useI18n } from "~/features/i18n/useI18n";
 import IconButton from "~/shared/ui/IconButton";
 
 type Props = {
@@ -21,6 +22,8 @@ type Props = {
 };
 
 const TrackSide: React.FC<Props> = (props) => {
+	const { t } = useI18n();
+
 	return (
 		<div
 			className="absolute size-full"
@@ -42,10 +45,12 @@ const TrackSide: React.FC<Props> = (props) => {
 							className="flex-1 h-full px-2 text-left"
 							onClick={() => props.onLayerSelect(i)}
 						>
-							Layer {i}
+							{t("timeline.layer", { index: i })}
 						</button>
 						<IconButton
-							label={`Layer ${i} を${isHidden ? "表示" : "非表示"}`}
+							label={t(isHidden ? "timeline.showLayer" : "timeline.hideLayer", {
+								index: i,
+							})}
 							icon={isHidden ? IconEyeOff : IconEye}
 							variant={isHidden ? "primary" : "default"}
 							size="small"
@@ -55,7 +60,10 @@ const TrackSide: React.FC<Props> = (props) => {
 							}
 						/>
 						<IconButton
-							label={`Layer ${i} を${isLocked ? "ロック解除" : "ロック"}`}
+							label={t(
+								isLocked ? "timeline.unlockLayer" : "timeline.lockLayer",
+								{ index: i },
+							)}
 							icon={isLocked ? IconLock : IconLockOpen}
 							size="small"
 							aria-pressed={isLocked}

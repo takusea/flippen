@@ -29,8 +29,8 @@ const LanguageSettingDialog: React.FC<Props> = ({ open, onOpenChange }) => {
 							}
 						}}
 					>
-						<RadioGroupItem value="en" label="English" id="langEn" />
-						<RadioGroupItem value="ja" label="日本語" id="langJa" />
+						<RadioGroupItem value="en" label={t("languageSettings.english")} id="langEn" />
+						<RadioGroupItem value="ja" label={t("languageSettings.japanese")} id="langJa" />
 					</RadioGroup>
 				</div>
 			</DialogContent>

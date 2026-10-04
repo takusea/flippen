@@ -1,14 +1,16 @@
 import { useState } from "react";
+import { useI18n } from "~/features/i18n/useI18n";
 import { DialogContent } from "~/shared/ui/Dialog";
 import ProjectSettingsForm from "./ProjectSettingsForm";
 import { useProject } from "./useProject";
 
 const CreateNewProjectDialog = () => {
+	const { t } = useI18n();
 	const project = useProject();
 
 	const [projectSettings, setProjectSettings] = useState(
 		project.settings ?? {
-			title: "Untitled",
+			title: t("nav.untitled"),
 			width: 1280,
 			height: 720,
 			frameRate: 8,
@@ -17,9 +19,9 @@ const CreateNewProjectDialog = () => {
 
 	return (
 		<DialogContent
-			title="プロジェクト新規作成"
-			cancelText="キャンセル"
-			submitText="作成"
+			title={t("project.create")}
+			cancelText={t("common.cancel")}
+			submitText={t("project.createAction")}
 			onSubmit={() => project.createNew(projectSettings)}
 		>
 			<ProjectSettingsForm

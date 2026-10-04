@@ -25,6 +25,7 @@ import {
 } from "@tabler/icons-react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useClip } from "~/features/clip/useClip";
+import { useI18n } from "~/features/i18n/useI18n";
 import { useUndoStack } from "~/features/history/useUndoStack";
 import { usePlayback } from "~/features/playback/usePlayback";
 import { useTool } from "~/features/tool/useTool";
@@ -39,6 +40,7 @@ type Props = {
 };
 
 const Toolbar: React.FC<Props> = (props) => {
+	const { t } = useI18n();
 	const playbackContext = usePlayback();
 	const clipContext = useClip();
 	const toolContext = useTool();
@@ -83,31 +85,31 @@ const Toolbar: React.FC<Props> = (props) => {
 		<div className="flex gap-2">
 			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/25 rounded-lg shadow-sm backdrop-blur-xl">
 				<IconButton
-					label="Undo"
+					label={t("toolbar.undo")}
 					icon={IconArrowBackUp}
 					size="small"
 					onClick={undo}
 				/>
 				<IconButton
-					label="Redo"
+					label={t("toolbar.redo")}
 					icon={IconArrowForwardUp}
 					size="small"
 					onClick={redo}
 				/>
 				<IconButton
-					label="Cut"
+					label={t("toolbar.cut")}
 					icon={IconScissors}
 					size="small"
 					onClick={clipContext.cut}
 				/>
 				<IconButton
-					label="Copy"
+					label={t("toolbar.copy")}
 					icon={IconCopy}
 					size="small"
 					onClick={clipContext.copy}
 				/>
 				<IconButton
-					label="Paste"
+					label={t("toolbar.paste")}
 					icon={IconClipboard}
 					size="small"
 					onClick={clipContext.paste}
@@ -115,7 +117,7 @@ const Toolbar: React.FC<Props> = (props) => {
 			</div>
 			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/25 rounded-lg shadow-sm backdrop-blur-xl">
 				<IconButton
-					label="Play"
+					label={t("toolbar.play")}
 					icon={playbackContext.isPlaying ? IconPlayerPause : IconPlayerPlay}
 					variant={playbackContext.isPlaying ? "primary" : "default"}
 					size="small"
@@ -126,20 +128,20 @@ const Toolbar: React.FC<Props> = (props) => {
 					}
 				/>
 				<IconButton
-					label="Stop"
+					label={t("toolbar.stop")}
 					icon={IconPlayerStop}
 					size="small"
 					onClick={playbackContext.stop}
 				/>
 				<IconButton
-					label="Loop"
+					label={t("toolbar.loop")}
 					icon={IconRefresh}
 					variant={playbackContext.isLoop ? "primary" : "default"}
 					size="small"
 					onClick={() => playbackContext.setIsLoop(!playbackContext.isLoop)}
 				/>
 				<IconButton
-					label="OnionSkin"
+					label={t("toolbar.onionSkin")}
 					icon={IconLayersDifference}
 					variant={props.isOnionSkin ? "primary" : "default"}
 					size="small"
@@ -148,13 +150,13 @@ const Toolbar: React.FC<Props> = (props) => {
 			</div>
 			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/25 rounded-lg shadow-sm backdrop-blur-xl">
 				<IconButton
-					label="Rewind"
+					label={t("toolbar.rewind")}
 					icon={IconPlayerSkipBack}
 					size="small"
 					onClick={() => playbackContext.setCurrentFrame(0)}
 				/>
 				<IconButton
-					label="Prev"
+					label={t("toolbar.prev")}
 					icon={IconPlayerTrackPrev}
 					size="small"
 					onClick={() =>
@@ -162,7 +164,7 @@ const Toolbar: React.FC<Props> = (props) => {
 					}
 				/>
 				<IconButton
-					label="Next"
+					label={t("toolbar.next")}
 					icon={IconPlayerTrackNext}
 					size="small"
 					onClick={() =>
@@ -170,7 +172,7 @@ const Toolbar: React.FC<Props> = (props) => {
 					}
 				/>
 				<IconButton
-					label="Forward"
+					label={t("toolbar.forward")}
 					icon={IconPlayerSkipForward}
 					size="small"
 					onClick={() =>
@@ -180,35 +182,35 @@ const Toolbar: React.FC<Props> = (props) => {
 			</div>
 			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/25 rounded-lg shadow-sm backdrop-blur-xl">
 				<IconButton
-					label="Move"
+					label={t("toolbar.move")}
 					icon={IconArrowsMove}
 					size="small"
 					variant={toolContext.tool === "move" ? "primary" : "default"}
 					onClick={() => toolContext.setTool("move")}
 				/>
 				<IconButton
-					label="Pen"
+					label={t("toolbar.pen")}
 					icon={IconPencil}
 					size="small"
 					variant={toolContext.tool === "pen" ? "primary" : "default"}
 					onClick={() => toolContext.setTool("pen")}
 				/>
 				<IconButton
-					label="Eraser"
+					label={t("toolbar.eraser")}
 					icon={IconEraser}
 					size="small"
 					variant={toolContext.tool === "eraser" ? "primary" : "default"}
 					onClick={() => toolContext.setTool("eraser")}
 				/>
 				<IconButton
-					label="Fill"
+					label={t("toolbar.fill")}
 					icon={IconBucketDroplet}
 					size="small"
 					variant={toolContext.tool === "fill" ? "primary" : "default"}
 					onClick={() => toolContext.setTool("fill")}
 				/>
 				<IconButton
-					label="Select"
+					label={t("toolbar.select")}
 					icon={IconLasso}
 					size="small"
 					variant={toolContext.tool === "select" ? "primary" : "default"}
@@ -226,7 +228,7 @@ const Toolbar: React.FC<Props> = (props) => {
 					/>
 				</div>
 				<IconButton
-					label="Reset Zoom"
+					label={t("toolbar.resetZoom")}
 					icon={IconZoom}
 					size="small"
 					onClick={() => props.canvasView.setScale(1)}
@@ -243,7 +245,7 @@ const Toolbar: React.FC<Props> = (props) => {
 					/>
 				</div>
 				<IconButton
-					label="Reset Rotate"
+					label={t("toolbar.resetRotate")}
 					icon={IconRotate}
 					size="small"
 					onClick={() => props.canvasView.setRotation(0)}
@@ -251,7 +253,7 @@ const Toolbar: React.FC<Props> = (props) => {
 			</div>
 			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/25 rounded-lg shadow-sm backdrop-blur-xl">
 				<IconButton
-					label="Flip Horizontal"
+					label={t("toolbar.flipHorizontal")}
 					icon={IconFlipHorizontal}
 					variant={props.canvasView.isFlippedHorizontal ? "primary" : "default"}
 					size="small"
@@ -260,7 +262,7 @@ const Toolbar: React.FC<Props> = (props) => {
 					}
 				/>
 				<IconButton
-					label="Flip Vertical"
+					label={t("toolbar.flipVertical")}
 					icon={IconFlipVertical}
 					variant={props.canvasView.isFlippedVertical ? "primary" : "default"}
 					size="small"

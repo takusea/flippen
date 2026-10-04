@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { useClip } from "~/features/clip/useClip";
+import { useI18n } from "~/features/i18n/useI18n";
 import { useLayer } from "~/features/layer/useLayer";
 import { useTool } from "~/features/tool/useTool";
 import Splitter from "~/shared/ui/Splitter";
@@ -16,6 +17,7 @@ const MIN_CANVAS_HEIGHT = 160;
 const MIN_TIMELINE_HEIGHT = 96;
 
 function App() {
+	const { t } = useI18n();
 	const canvasView = useCanvasView();
 	const toolContext = useTool();
 	const clipContext = useClip();
@@ -104,7 +106,7 @@ function App() {
 			</div>
 			<Splitter
 				orientation="horizontal"
-				label="Resize timeline"
+				label={t("app.resizeTimeline")}
 				value={timelineHeight}
 				min={MIN_TIMELINE_HEIGHT}
 				max={maxTimelineHeight}

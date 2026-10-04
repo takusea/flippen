@@ -1,3 +1,4 @@
+import { useI18n } from "~/features/i18n/useI18n";
 import { useTool } from "~/features/tool/useTool";
 import Card from "~/shared/ui/Card";
 import Slider from "~/shared/ui/Slider";
@@ -8,13 +9,16 @@ type Props = {
 };
 
 const ToolInspector: React.FC<Props> = (props) => {
+	const { t } = useI18n();
 	const toolContext = useTool();
 
 	return (
 		<Card>
 			<div className="flex flex-col gap-2">
 				<h2 className="font-bold">
-					Property of {toolContext.tool.toUpperCase()} Tool
+					{t("toolInspector.propertyOfTool", {
+						tool: toolContext.tool.toUpperCase(),
+					})}
 				</h2>
 				{Object.entries(props.properties).map(([key, value]) => {
 					const numericValue =

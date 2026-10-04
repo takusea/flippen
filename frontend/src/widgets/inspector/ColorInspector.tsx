@@ -1,3 +1,4 @@
+import { useI18n } from "~/features/i18n/useI18n";
 import { type HSVAColor, hsvaToRgba } from "~/shared/lib/color";
 import Card from "~/shared/ui/Card";
 import ColorPalette from "~/shared/ui/ColorPalette";
@@ -10,6 +11,7 @@ type Props = {
 };
 
 const ColorInspector: React.FC<Props> = (props) => {
+	const { t } = useI18n();
 	const rgbaColor = hsvaToRgba(props.currentColor);
 	const hsvaColor = {
 		h: Math.round(props.currentColor.h),
@@ -21,7 +23,7 @@ const ColorInspector: React.FC<Props> = (props) => {
 	return (
 		<Card>
 			<div className="flex flex-col gap-2">
-				<h2 className="font-bold">ColorPicker</h2>
+				<h2 className="font-bold">{t("inspector.colorPicker")}</h2>
 				<ColorPicker
 					currentColor={props.currentColor}
 					onCurrentColorChange={props.onCurrentColorChange}

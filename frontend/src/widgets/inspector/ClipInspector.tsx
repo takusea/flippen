@@ -5,6 +5,7 @@ import {
 	IconLock,
 	IconLockOpen,
 } from "@tabler/icons-react";
+import { useI18n } from "~/features/i18n/useI18n";
 import type { ClipMetadata, ClipProperties } from "~/shared/lib/clip";
 import type { Transform } from "~/shared/lib/transform";
 import Card from "~/shared/ui/Card";
@@ -26,16 +27,19 @@ type Props = {
 };
 
 const ClipInspector: React.FC<Props> = (props) => {
+	const { t } = useI18n();
 	const isLocked = props.clip.locked || props.isLayerLocked;
 
 	return (
 		<Card>
 			<div className="flex flex-col gap-2">
-				<h2 className="font-bold">Property of {props.clip.name}</h2>
+				<h2 className="font-bold">
+					{t("inspector.propertyOf", { name: props.clip.name })}
+				</h2>
 				<div className="flex gap-1">
 					<IconButton
 						icon={props.clip.hidden ? IconEyeOff : IconEye}
-						label={props.clip.hidden ? "Show" : "Hide"}
+						label={props.clip.hidden ? t("inspector.show") : t("inspector.hide")}
 						size="small"
 						variant={props.clip.hidden ? "primary" : undefined}
 						aria-pressed={props.clip.hidden}
@@ -46,7 +50,7 @@ const ClipInspector: React.FC<Props> = (props) => {
 					/>
 					<IconButton
 						icon={IconAlpha}
-						label="Lock Alpha"
+						label={t("inspector.lockAlpha")}
 						size="small"
 						variant={props.clip.alpha_locked ? "primary" : undefined}
 						aria-pressed={props.clip.alpha_locked}
@@ -59,14 +63,14 @@ const ClipInspector: React.FC<Props> = (props) => {
 					/>
 					<IconButton
 						icon={isLocked ? IconLock : IconLockOpen}
-						label={isLocked ? "Unlock" : "Lock"}
+						label={isLocked ? t("inspector.unlock") : t("inspector.lock")}
 						size="small"
 						variant={isLocked ? "primary" : undefined}
 						aria-pressed={isLocked}
 						onClick={() => props.onPropertiesChange({ locked: !isLocked })}
 					/>
 				</div>
-				<label htmlFor="clipName">Name</label>
+				<label htmlFor="clipName">{t("inspector.name")}</label>
 				<TextField
 					key={`${props.clip.id}:${props.clip.name}`}
 					id="clipName"
@@ -85,7 +89,7 @@ const ClipInspector: React.FC<Props> = (props) => {
 					}}
 				/>
 				<hr className="text-zinc-500/25" />
-				<label htmlFor="clipStart">Start</label>
+				<label htmlFor="clipStart">{t("inspector.start")}</label>
 				<NumberField
 					id="clipStart"
 					min={0}
@@ -93,7 +97,7 @@ const ClipInspector: React.FC<Props> = (props) => {
 					disabled={isLocked}
 					onValueChange={props.onStartChange}
 				/>
-				<label htmlFor="clipLength">Length</label>
+				<label htmlFor="clipLength">{t("inspector.length")}</label>
 				<NumberField
 					id="clipLength"
 					min={1}
@@ -102,11 +106,11 @@ const ClipInspector: React.FC<Props> = (props) => {
 					onValueChange={props.onDurationChange}
 				/>
 				<hr className="text-zinc-500/25" />
-				<label htmlFor="clipPosition">Position</label>
+				<label htmlFor="clipPosition">{t("inspector.position")}</label>
 				<div className="grid grid-cols-2 gap-2">
 					<NumberField
 						id="clipPosition"
-						aria-label="Position X"
+						aria-label={t("inspector.positionX")}
 						value={props.transform.position[0]}
 						disabled={isLocked}
 						onValueChange={(value) => {
@@ -118,7 +122,7 @@ const ClipInspector: React.FC<Props> = (props) => {
 					/>
 					<NumberField
 						id="clipPositionY"
-						aria-label="Position Y"
+						aria-label={t("inspector.positionY")}
 						value={props.transform.position[1]}
 						disabled={isLocked}
 						onValueChange={(value) => {
@@ -129,11 +133,11 @@ const ClipInspector: React.FC<Props> = (props) => {
 						}}
 					/>
 				</div>
-				<label htmlFor="clipAnchor">Anchor</label>
+				<label htmlFor="clipAnchor">{t("inspector.anchor")}</label>
 				<div className="grid grid-cols-2 gap-2">
 					<NumberField
 						id="clipAnchor"
-						aria-label="Anchor X"
+						aria-label={t("inspector.anchorX")}
 						min={0}
 						max={1}
 						step={0.01}
@@ -148,7 +152,7 @@ const ClipInspector: React.FC<Props> = (props) => {
 					/>
 					<NumberField
 						id="clipAnchorY"
-						aria-label="Anchor Y"
+						aria-label={t("inspector.anchorY")}
 						min={0}
 						max={1}
 						step={0.01}
@@ -162,7 +166,7 @@ const ClipInspector: React.FC<Props> = (props) => {
 						}}
 					/>
 				</div>
-				<label htmlFor="clipRotation">Rotation</label>
+				<label htmlFor="clipRotation">{t("inspector.rotation")}</label>
 				<NumberField
 					id="clipRotation"
 					min={0}
@@ -176,11 +180,11 @@ const ClipInspector: React.FC<Props> = (props) => {
 						});
 					}}
 				/>
-				<label htmlFor="clipScale">Scale</label>
+				<label htmlFor="clipScale">{t("inspector.scale")}</label>
 				<div className="grid grid-cols-2 gap-2">
 					<NumberField
 						id="clipScale"
-						aria-label="Scale X"
+						aria-label={t("inspector.scaleX")}
 						min={0}
 						max={10}
 						step={0.01}
@@ -195,7 +199,7 @@ const ClipInspector: React.FC<Props> = (props) => {
 					/>
 					<NumberField
 						id="clipScaleY"
-						aria-label="Scale Y"
+						aria-label={t("inspector.scaleY")}
 						min={0}
 						max={10}
 						step={0.01}
@@ -210,7 +214,7 @@ const ClipInspector: React.FC<Props> = (props) => {
 					/>
 				</div>
 				<hr className="text-zinc-500/25" />
-				<label htmlFor="clipOpacity">Opacity</label>
+				<label htmlFor="clipOpacity">{t("inspector.opacity")}</label>
 				<NumberField
 					id="clipOpacity"
 					min={0}
@@ -220,7 +224,7 @@ const ClipInspector: React.FC<Props> = (props) => {
 					disabled={isLocked}
 					onValueChange={(opacity) => props.onPropertiesChange({ opacity })}
 				/>
-				<label htmlFor="clipBlendMode">Blend Mode</label>
+				<label htmlFor="clipBlendMode">{t("inspector.blendMode")}</label>
 				<Select
 					id="clipBlendMode"
 					value={props.clip.blend_mode}
@@ -233,10 +237,10 @@ const ClipInspector: React.FC<Props> = (props) => {
 						props.onPropertiesChange({ blend_mode })
 					}
 				>
-					<SelectItem value="normal">Normal</SelectItem>
-					<SelectItem value="multiply">Multiply</SelectItem>
-					<SelectItem value="screen">Screen</SelectItem>
-					<SelectItem value="add">Add</SelectItem>
+					<SelectItem value="normal">{t("inspector.blendMode.normal")}</SelectItem>
+					<SelectItem value="multiply">{t("inspector.blendMode.multiply")}</SelectItem>
+					<SelectItem value="screen">{t("inspector.blendMode.screen")}</SelectItem>
+					<SelectItem value="add">{t("inspector.blendMode.add")}</SelectItem>
 				</Select>
 			</div>
 		</Card>

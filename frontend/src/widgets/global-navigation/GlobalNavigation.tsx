@@ -1,8 +1,10 @@
 import { IconFileExport } from "@tabler/icons-react";
 import type { ReactNode } from "react";
+import { useI18n } from "~/features/i18n/useI18n";
 import { useProject } from "~/features/project/useProject";
 import { useProjectDialogs } from "~/features/project/useProjectDialogs";
 import Button from "~/shared/ui/Button";
+import Tooltip from "~/shared/ui/Tooltip";
 import { useCanvasView } from "~/widgets/canvas/useCanvasView";
 import GlobalMenubar from "./Menubar";
 
@@ -11,6 +13,7 @@ type Props = {
 };
 
 const GlobalNavigation: React.FC<Props> = (props: Props) => {
+	const { t } = useI18n();
 	const project = useProject();
 	const projectDialogs = useProjectDialogs();
 	const canvasView = useCanvasView();
@@ -23,13 +26,15 @@ const GlobalNavigation: React.FC<Props> = (props: Props) => {
 						<img src="/favicon.png" width={24} height={24} alt="" />
 						<GlobalMenubar canvasView={canvasView} />
 					</div>
-					<Button label="Export" icon={IconFileExport} variant="primary" />
+					<Button label={t("nav.export")} icon={IconFileExport} variant="primary" />
 				</div>
 				<div className="absolute inset-0 w-fit h-fit m-auto">
-					<Button
-						label={project.settings?.title ?? "Untitled"}
-						onClick={projectDialogs.openEditProjectSettingsDialog}
-					/>
+					<Tooltip label={t("nav.projectSettings")} side="bottom">
+						<Button
+							label={project.settings?.title ?? t("nav.untitled")}
+							onClick={projectDialogs.openEditProjectSettingsDialog}
+						/>
+					</Tooltip>
 				</div>
 			</header>
 			<div className="relative z-0 overflow-hidden row-span-1 col-span-1 border-t border-zinc-500/25 bg-white dark:bg-zinc-900">
