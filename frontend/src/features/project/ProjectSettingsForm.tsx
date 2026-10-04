@@ -1,7 +1,7 @@
 import { useI18n } from "~/features/i18n/useI18n";
 import NumberField from "~/shared/ui/NumberField";
 import TextField from "~/shared/ui/TextField";
-import type { ProjectSettings } from "./type";
+import { MAX_FRAME_INDEX, type ProjectSettings } from "./type";
 
 type Props = {
 	projectSettings: ProjectSettings;
@@ -54,6 +54,32 @@ const ProjectSettingsForm = (props: Props) => {
 					props.onProjectSettingsChanged({
 						...props.projectSettings,
 						frameRate,
+					})
+				}
+			/>
+			<label htmlFor="startFrame">{t("project.startFrame")}</label>
+			<NumberField
+				id="startFrame"
+				value={props.projectSettings.startFrame}
+				min={0}
+				max={props.projectSettings.endFrame}
+				onValueChange={(startFrame) =>
+					props.onProjectSettingsChanged({
+						...props.projectSettings,
+						startFrame,
+					})
+				}
+			/>
+			<label htmlFor="endFrame">{t("project.endFrame")}</label>
+			<NumberField
+				id="endFrame"
+				value={props.projectSettings.endFrame}
+				min={props.projectSettings.startFrame}
+				max={MAX_FRAME_INDEX}
+				onValueChange={(endFrame) =>
+					props.onProjectSettingsChanged({
+						...props.projectSettings,
+						endFrame,
 					})
 				}
 			/>

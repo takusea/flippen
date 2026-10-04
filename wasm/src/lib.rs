@@ -93,6 +93,15 @@ impl FlippenCore {
         }
     }
 
+    pub fn get_project_settings(&self) -> Result<JsValue, JsValue> {
+        let project = self
+            .project
+            .as_ref()
+            .ok_or_else(|| JsValue::from_str("Project is not initialized"))?;
+        JsValue::from_serde(&project.settings)
+            .map_err(|error| JsValue::from_str(&error.to_string()))
+    }
+
     pub fn begin_draw(&mut self, clip_id_str: String) {
         let clip_id = match Uuid::parse_str(&clip_id_str) {
             Ok(id) => id,

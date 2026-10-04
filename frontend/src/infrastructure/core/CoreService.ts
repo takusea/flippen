@@ -76,6 +76,8 @@ export class CoreService {
 			width: settings.width,
 			height: settings.height,
 			frame_rate: settings.frameRate,
+			start_frame: settings.startFrame,
+			end_frame: settings.endFrame,
 		});
 		this.notify();
 	}
@@ -86,6 +88,8 @@ export class CoreService {
 			width: settings.width,
 			height: settings.height,
 			frame_rate: settings.frameRate,
+			start_frame: settings.startFrame,
+			end_frame: settings.endFrame,
 		});
 		this.notify();
 	}
@@ -93,6 +97,25 @@ export class CoreService {
 	importProject(data: Uint8Array) {
 		this.core.import(data);
 		this.notify();
+	}
+
+	getProjectSettings(): ProjectSettings {
+		const settings = this.core.get_project_settings() as {
+			title: string;
+			width: number;
+			height: number;
+			frame_rate: number;
+			start_frame: number;
+			end_frame: number;
+		};
+		return {
+			title: settings.title,
+			width: settings.width,
+			height: settings.height,
+			frameRate: settings.frame_rate,
+			startFrame: settings.start_frame,
+			endFrame: settings.end_frame,
+		};
 	}
 
 	exportProject() {

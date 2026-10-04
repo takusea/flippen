@@ -1,7 +1,14 @@
-import { useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import {
+	DEFAULT_END_FRAME,
+	DEFAULT_START_FRAME,
+	MAX_FRAME_INDEX,
+} from "~/features/project/type";
 import { useProject } from "~/features/project/useProject";
 import { useCore } from "~/infrastructure/core/useCore";
 import { PlaybackContext } from "./PlaybackContextValue";
+
+const FRAME_RANGE_BUFFER = 256;
 
 export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({
 	children,
@@ -12,44 +19,50 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({
 	const [currentFrame, setCurrentFrame] = useState(0);
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [isLoop, setIsLoop] = useState(false);
-	const maxFrameCount = 256;
+	const startFrame = project.settings?.startFrame ?? DEFAULT_START_FRAME;
+	const endFrame = project.settings?.endFrame ?? DEFAULT_END_FRAME;
+	const maxFrameCount = Math.min(
+		MAX_FRAME_INDEX + 1,
+		endFrame + FRAME_RANGE_BUFFER + 1,
+	);
 	const setCurrentFrameClamped = (frame: number) => {
-		setCurrentFrame(Math.min(Math.max(frame, 0), maxFrameCount - 1));
+		setCurrentFrame(Math.min(Math.max(frame, startFrame), endFrame));
 	};
 
-	const intervalRef = useRef<NodeJS.Timeout | null>(null);
+	useEffect(() => {
+		setCurrentFrame((frame) => Math.min(Math.max(frame, startFrame), endFrame));
+	}, [startFrame, endFrame]);
 
-	const advanceFrame = () => {
-		setCurrentFrame((prev) => {
-			if (prev + 1 < maxFrameCount) return prev + 1;
-			if (isLoop) return 0;
-			pause();
-			return prev;
-		});
-	};
+	useEffect(() => {
+		if (!isPlaying || !project.settings) return;
+
+		const interval = setInterval(() => {
+			setCurrentFrame((frame) => {
+				if (frame < endFrame) return frame + 1;
+				return isLoop ? startFrame : frame;
+			});
+		}, 1000 / project.settings.frameRate);
+		return () => clearInterval(interval);
+	}, [endFrame, isLoop, isPlaying, project.settings, startFrame]);
+
+	useEffect(() => {
+		if (isPlaying && !isLoop && currentFrame >= endFrame) {
+			setIsPlaying(false);
+		}
+	}, [currentFrame, endFrame, isLoop, isPlaying]);
 
 	const play = () => {
 		if (!project.settings) return;
-		if (!isPlaying) {
-			setIsPlaying(true);
-			intervalRef.current = setInterval(
-				advanceFrame,
-				1000 / project.settings.frameRate,
-			);
-		}
+		setIsPlaying(true);
 	};
 
 	const pause = () => {
 		setIsPlaying(false);
-		if (intervalRef.current) {
-			clearInterval(intervalRef.current);
-			intervalRef.current = null;
-		}
 	};
 
 	const stop = () => {
 		pause();
-		setCurrentFrame(0);
+		setCurrentFrame(startFrame);
 	};
 
 	const renderFrame = async (
@@ -64,6 +77,8 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({
 				currentFrame,
 				isPlaying,
 				isLoop,
+				startFrame,
+				endFrame,
 				maxFrameCount,
 				setCurrentFrame: setCurrentFrameClamped,
 				setIsLoop,

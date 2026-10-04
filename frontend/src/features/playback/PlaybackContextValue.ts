@@ -4,6 +4,8 @@ export type PlaybackContextValue = {
 	currentFrame: number;
 	isPlaying: boolean;
 	isLoop: boolean;
+	startFrame: number;
+	endFrame: number;
 	maxFrameCount: number;
 
 	setCurrentFrame: (frame: number) => void;

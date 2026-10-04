@@ -1,8 +1,10 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useClip } from "~/features/clip/useClip";
+import { useI18n } from "~/features/i18n/useI18n";
 import { useLayer } from "~/features/layer/useLayer";
 import { usePlayback } from "~/features/playback/usePlayback";
+import { useProject } from "~/features/project/useProject";
 import { useShortcuts } from "~/features/shortcuts/useShortcuts";
 import Clip from "./Clip";
 import TrackHeader from "./TrackHeader";
@@ -17,7 +19,9 @@ const WHEEL_ZOOM_SENSITIVITY = 0.0015;
 
 const Timeline: React.FC = () => {
 	const clipContext = useClip();
+	const { t } = useI18n();
 	const playbackContext = usePlayback();
+	const projectContext = useProject();
 	const layerContext = useLayer();
 	const { shortcuts } = useShortcuts();
 
@@ -67,6 +71,18 @@ const Timeline: React.FC = () => {
 			x: event.currentTarget.scrollLeft,
 			y: event.currentTarget.scrollTop,
 		});
+	}
+
+	function updateStartFrame(startFrame: number) {
+		const settings = projectContext.settings;
+		if (settings == null || startFrame === settings.startFrame) return;
+		projectContext.updateSettings({ ...settings, startFrame });
+	}
+
+	function updateEndFrame(endFrame: number) {
+		const settings = projectContext.settings;
+		if (settings == null || endFrame === settings.endFrame) return;
+		projectContext.updateSettings({ ...settings, endFrame });
 	}
 
 	function handleHorizontalZoom(event: React.WheelEvent<HTMLDivElement>) {
@@ -119,8 +135,10 @@ const Timeline: React.FC = () => {
 
 	return (
 		<div className="h-full min-h-0 min-w-0 grid grid-rows-[24px_minmax(0,1fr)] grid-cols-[192px_minmax(0,1fr)]">
-			<div className="size-full grid items-center justify-end px-1 font-mono border-b border-r border-zinc-500/25">
-				{playbackContext.currentFrame}/{playbackContext.maxFrameCount}
+			<div className="size-full flex items-center justify-between px-1 font-mono border-b border-r border-zinc-500/25">
+				<span>{playbackContext.startFrame} - </span>
+				<span>{playbackContext.currentFrame}</span>
+				<span> - {playbackContext.endFrame}</span>
 			</div>
 			<div className="relative overflow-hidden border-b border-zinc-500/25">
 				<TrackHeader
@@ -128,7 +146,11 @@ const Timeline: React.FC = () => {
 					totalFrames={playbackContext.maxFrameCount}
 					scrollX={scrollPosition.x}
 					currentFrame={playbackContext.currentFrame}
+					startFrame={playbackContext.startFrame}
+					endFrame={playbackContext.endFrame}
 					onFrameChange={playbackContext.setCurrentFrame}
+					onStartFrameChange={updateStartFrame}
+					onEndFrameChange={updateEndFrame}
 					onWheel={handleHorizontalZoom}
 				/>
 			</div>
@@ -171,6 +193,21 @@ const Timeline: React.FC = () => {
 						}}
 					/>
 				))}
+				<div
+					className="absolute top-0 pointer-events-none bg-zinc-950/20"
+					style={{
+						height: `${layerHeight * NUM_TRACKS}px`,
+						width: `${playbackContext.startFrame * frameWidth}px`,
+					}}
+				/>
+				<div
+					className="absolute top-0 pointer-events-none bg-zinc-950/20"
+					style={{
+						left: `${(playbackContext.endFrame + 1) * frameWidth}px`,
+						height: `${layerHeight * NUM_TRACKS}px`,
+						width: `${(playbackContext.maxFrameCount - playbackContext.endFrame - 1) * frameWidth}px`,
+					}}
+				/>
 
 				{clipContext.clips.map((clip) => (
 					<Clip
@@ -200,6 +237,20 @@ const Timeline: React.FC = () => {
 						}
 					/>
 				))}
+				<div
+					className="absolute top-0 z-10 h-full w-px bg-zinc-500/25 pointer-events-none"
+					style={{
+						height: `${layerHeight * NUM_TRACKS}px`,
+						left: `${playbackContext.startFrame * frameWidth}px`,
+					}}
+				/>
+				<div
+					className="absolute top-0 z-10 h-full w-px bg-zinc-500/25 pointer-events-none"
+					style={{
+						height: `${layerHeight * NUM_TRACKS}px`,
+						left: `${(playbackContext.endFrame + 1) * frameWidth}px`,
+					}}
+				/>
 			</div>
 		</div>
 	);

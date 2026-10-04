@@ -36,6 +36,7 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
 					throw new Error("FileReader result is not an ArrayBuffer");
 				}
 				core.importProject(new Uint8Array(result));
+				setSettings(core.getProjectSettings());
 			});
 			reader.readAsArrayBuffer(file);
 		});

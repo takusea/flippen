@@ -39,7 +39,7 @@ export const useCanvasRender = () => {
 		};
 
 		if (isOnionSkinEnabled && !playbackContext.isPlaying) {
-			const isFirstFrame = frame === 0;
+			const isFirstFrame = frame === playbackContext.startFrame;
 			if (!isFirstFrame) {
 				const prevFrame = await playbackContext.renderFrame(frame - 1);
 				if (requestId !== renderRequestRef.current) return;
@@ -48,7 +48,7 @@ export const useCanvasRender = () => {
 				}
 			}
 
-			const isLastFrame = frame === playbackContext.maxFrameCount - 1;
+			const isLastFrame = frame === playbackContext.endFrame;
 			if (!isLastFrame) {
 				const nextFrame = await playbackContext.renderFrame(frame + 1);
 				if (requestId !== renderRequestRef.current) return;

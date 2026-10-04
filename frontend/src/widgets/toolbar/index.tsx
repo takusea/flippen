@@ -70,7 +70,9 @@ const Toolbar: React.FC<Props> = (props) => {
 	useHotkeys(shortcuts.toggleLoop, () =>
 		playbackContext.setIsLoop(!playbackContext.isLoop),
 	);
-	useHotkeys(shortcuts.firstFrame, () => playbackContext.setCurrentFrame(0));
+	useHotkeys(shortcuts.firstFrame, () =>
+		playbackContext.setCurrentFrame(playbackContext.startFrame),
+	);
 	useHotkeys(shortcuts.previousFrame, () =>
 		playbackContext.setCurrentFrame(playbackContext.currentFrame - 1),
 	);
@@ -78,7 +80,7 @@ const Toolbar: React.FC<Props> = (props) => {
 		playbackContext.setCurrentFrame(playbackContext.currentFrame + 1),
 	);
 	useHotkeys(shortcuts.lastFrame, () =>
-		playbackContext.setCurrentFrame(playbackContext.maxFrameCount - 1),
+		playbackContext.setCurrentFrame(playbackContext.endFrame),
 	);
 	useHotkeys(shortcuts.moveTool, () => toolContext.setTool("move"));
 	useHotkeys(shortcuts.penTool, () => toolContext.setTool("pen"));
@@ -167,7 +169,9 @@ const Toolbar: React.FC<Props> = (props) => {
 					shortcut={formatShortcut(shortcuts.firstFrame)}
 					icon={IconPlayerSkipBack}
 					size="small"
-					onClick={() => playbackContext.setCurrentFrame(0)}
+					onClick={() =>
+						playbackContext.setCurrentFrame(playbackContext.startFrame)
+					}
 				/>
 				<IconButton
 					label={t("toolbar.prev")}
@@ -193,7 +197,7 @@ const Toolbar: React.FC<Props> = (props) => {
 					icon={IconPlayerSkipForward}
 					size="small"
 					onClick={() =>
-						playbackContext.setCurrentFrame(playbackContext.maxFrameCount - 1)
+						playbackContext.setCurrentFrame(playbackContext.endFrame)
 					}
 				/>
 			</div>

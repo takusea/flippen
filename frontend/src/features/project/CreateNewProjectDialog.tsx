@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useI18n } from "~/features/i18n/useI18n";
 import { DialogContent } from "~/shared/ui/Dialog";
 import ProjectSettingsForm from "./ProjectSettingsForm";
+import { DEFAULT_END_FRAME, DEFAULT_START_FRAME } from "./type";
 import { useProject } from "./useProject";
 
 const CreateNewProjectDialog = () => {
@@ -14,6 +15,8 @@ const CreateNewProjectDialog = () => {
 			width: 1280,
 			height: 720,
 			frameRate: 8,
+			startFrame: DEFAULT_START_FRAME,
+			endFrame: DEFAULT_END_FRAME,
 		},
 	);
 
