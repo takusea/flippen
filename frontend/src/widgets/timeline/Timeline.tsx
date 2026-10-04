@@ -49,7 +49,7 @@ const Timeline: React.FC = () => {
 
 	return (
 		<div className="grid grid-rows-[24px_1fr] grid-cols-[128px_1fr]">
-			<div className="size-full grid place-content-center font-mono border-b border-r border-zinc-500/25">
+			<div className="size-full grid items-center justify-end px-1 font-mono border-b border-r border-zinc-500/25">
 				{playbackContext.currentFrame}/{playbackContext.maxFrameCount}
 			</div>
 			<div className="relative overflow-hidden border-b border-zinc-500/25">

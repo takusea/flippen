@@ -36,7 +36,7 @@ const TrackHeader: React.FC<Props> = (props) => {
 				/>
 			))}
 			<div
-				className="absolute h-full flex items-center px-1 border-b border-teal-500"
+				className="absolute h-full flex items-center px-1 border-b border-teal-500 font-mono"
 				style={{
 					translate: `${props.currentFrame * props.frameWidth}px 0`,
 					width: `${props.frameWidth}px`,

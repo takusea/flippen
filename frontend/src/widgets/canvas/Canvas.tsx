@@ -232,7 +232,6 @@ const DrawCanvas: React.FC<Props> = (props) => {
 				height={projectContext.settings?.height}
 				className="absolute inset-0 border border-zinc-500 [image-rendering:pixelated]"
 				style={{
-					imageRendering: "pixelated",
 					scale: props.canvasView.scale,
 					translate: `${props.canvasView.position.x}px ${props.canvasView.position.y}px`,
 					rotate: `${props.canvasView.rotation}deg`,
