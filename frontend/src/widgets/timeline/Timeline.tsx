@@ -48,7 +48,7 @@ const Timeline: React.FC = () => {
 	}
 
 	return (
-		<div className="grid grid-rows-[24px_1fr] grid-cols-[192px_1fr]">
+		<div className="h-full min-h-0 min-w-0 grid grid-rows-[24px_minmax(0,1fr)] grid-cols-[192px_minmax(0,1fr)]">
 			<div className="size-full grid items-center justify-end px-1 font-mono border-b border-r border-zinc-500/25">
 				{playbackContext.currentFrame}/{playbackContext.maxFrameCount}
 			</div>

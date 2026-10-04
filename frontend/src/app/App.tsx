@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useClip } from "~/features/clip/useClip";
 import { useLayer } from "~/features/layer/useLayer";
 import { useTool } from "~/features/tool/useTool";
+import Splitter from "~/shared/ui/Splitter";
 import DrawCanvas from "~/widgets/canvas/Canvas";
 import { useCanvasView } from "~/widgets/canvas/useCanvasView";
 import ClipInspector from "~/widgets/inspector/ClipInspector";
@@ -9,6 +10,10 @@ import ColorInspector from "~/widgets/inspector/ColorInspector";
 import ToolInspector from "~/widgets/inspector/ToolInspector";
 import Timeline from "~/widgets/timeline/Timeline";
 import Toolbar from "~/widgets/toolbar";
+
+const SPLITTER_HEIGHT = 6;
+const MIN_CANVAS_HEIGHT = 160;
+const MIN_TIMELINE_HEIGHT = 96;
 
 function App() {
 	const canvasView = useCanvasView();
@@ -20,12 +25,26 @@ function App() {
 	);
 
 	const [isOnionSkin, setIsOnionSkin] = useState<boolean>(false);
+	const [timelineHeight, setTimelineHeight] = useState<number>(160);
+	const mainRef = useRef<HTMLElement>(null);
+	const maxTimelineHeight = Math.max(
+		MIN_TIMELINE_HEIGHT,
+		(mainRef.current?.clientHeight ?? document.documentElement.clientHeight) -
+			MIN_CANVAS_HEIGHT -
+			SPLITTER_HEIGHT,
+	);
 
 	return (
-		<main className="w-full h-full grid grid-cols-[1fr_auto] grid-rows-[1fr_auto]">
+		<main
+			ref={mainRef}
+			className="w-full h-full grid grid-cols-[minmax(0,1fr)]"
+			style={{
+				gridTemplateRows: `minmax(0, 1fr) ${SPLITTER_HEIGHT}px ${timelineHeight}px`,
+			}}
+		>
 			<div className="relative w-full h-full grid grid-cols-[auto_1fr_auto] grid-rows-[1fr]">
 				<DrawCanvas isOnionSkin={isOnionSkin} canvasView={canvasView} />
-				<div className="h-full w-60 p-2 flex flex-col gap-2">
+				<div className="h-full w-60 p-2 flex flex-col gap-2 overflow-y-auto">
 					<ToolInspector
 						properties={toolContext.properties}
 						onPropertyChange={(key, value) => {
@@ -38,14 +57,14 @@ function App() {
 						onCurrentColorChange={toolContext.setColor}
 					/>
 				</div>
-				<div className="p-2 mx-auto mt-auto">
+				<div className="p-2 mx-auto mt-auto overflow-x-auto">
 					<Toolbar
 						isOnionSkin={isOnionSkin}
 						onIsOnionSkinChange={() => setIsOnionSkin((prev) => !prev)}
 						canvasView={canvasView}
 					/>
 				</div>
-				<div className="h-full w-60 p-2 flex flex-col gap-2">
+				<div className="h-full w-60 p-2 flex flex-col gap-2 overflow-y-auto">
 					{selectedClip && clipContext.transform && (
 						<ClipInspector
 							name={selectedClip.id}
@@ -81,7 +100,22 @@ function App() {
 					)}
 				</div>
 			</div>
-			<div className="h-40 grid place-content-stretch col-span-2 border-t-2 border-zinc-500/25 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl z-10">
+			<Splitter
+				orientation="horizontal"
+				label="Resize timeline"
+				value={timelineHeight}
+				min={MIN_TIMELINE_HEIGHT}
+				max={maxTimelineHeight}
+				onResize={(delta) => {
+					setTimelineHeight((height) =>
+						Math.min(
+							maxTimelineHeight,
+							Math.max(MIN_TIMELINE_HEIGHT, height - delta),
+						),
+					);
+				}}
+			/>
+			<div className="min-h-0 grid place-content-stretch bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl z-10">
 				<Timeline />
 			</div>
 		</main>
