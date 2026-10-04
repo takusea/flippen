@@ -306,7 +306,14 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 		if (
 			clip == null ||
 			layerContext.lockedLayers.includes(clip.layer_index) ||
-			layerContext.lockedLayers.includes(layer)
+			layerContext.lockedLayers.includes(layer) ||
+			clips.some(
+				(candidate) =>
+					candidate.id !== id &&
+					candidate.layer_index === layer &&
+					start < candidate.start + candidate.duration &&
+					candidate.start < start + clip.duration,
+			)
 		) {
 			return;
 		}
