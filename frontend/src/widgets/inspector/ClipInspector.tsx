@@ -39,7 +39,9 @@ const ClipInspector: React.FC<Props> = (props) => {
 				<div className="flex gap-1">
 					<IconButton
 						icon={props.clip.hidden ? IconEyeOff : IconEye}
-						label={props.clip.hidden ? t("inspector.show") : t("inspector.hide")}
+						label={
+							props.clip.hidden ? t("inspector.show") : t("inspector.hide")
+						}
 						size="small"
 						variant={props.clip.hidden ? "primary" : undefined}
 						aria-pressed={props.clip.hidden}
@@ -237,9 +239,15 @@ const ClipInspector: React.FC<Props> = (props) => {
 						props.onPropertiesChange({ blend_mode })
 					}
 				>
-					<SelectItem value="normal">{t("inspector.blendMode.normal")}</SelectItem>
-					<SelectItem value="multiply">{t("inspector.blendMode.multiply")}</SelectItem>
-					<SelectItem value="screen">{t("inspector.blendMode.screen")}</SelectItem>
+					<SelectItem value="normal">
+						{t("inspector.blendMode.normal")}
+					</SelectItem>
+					<SelectItem value="multiply">
+						{t("inspector.blendMode.multiply")}
+					</SelectItem>
+					<SelectItem value="screen">
+						{t("inspector.blendMode.screen")}
+					</SelectItem>
 					<SelectItem value="add">{t("inspector.blendMode.add")}</SelectItem>
 				</Select>
 			</div>
