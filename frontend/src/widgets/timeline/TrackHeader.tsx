@@ -122,7 +122,7 @@ const TrackHeader: React.FC<Props> = (props) => {
 			/>
 			{[...Array(props.totalFrames)].map((_, i) => (
 				<div
-					// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+					// biome-ignore lint/suspicious/noArrayIndexKey: Frame ticks are positional and have no persistent identity.
 					key={i}
 					className="absolute bottom-0 h-2 w-px bg-zinc-500/25"
 					style={{ left: `${(i + 1) * props.frameWidth}px` }}

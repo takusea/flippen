@@ -7,15 +7,20 @@ type Props = {
 };
 
 const ColorPalette: React.FC<Props> = (props) => {
+	const colorHistory = new Map<string, HSVAColor>();
+	for (const color of props.colorHistory) {
+		colorHistory.set(`${color.h}:${color.s}:${color.v}:${color.a}`, color);
+	}
+
 	return (
 		<div>
 			<div className="grid gap-1 grid-cols-[repeat(auto-fill,minmax(16px,1fr))]">
-				{props.colorHistory?.map((color, index) => {
+				{Array.from(colorHistory, ([key, color]) => {
 					const rgbaColor = hsvaToRgba(color);
 					return (
 						<button
 							type="button"
-							key={index}
+							key={key}
 							className="aspect-square rounded cursor-pointer border border-zinc-500/25 bg-(--color)"
 							style={
 								{
