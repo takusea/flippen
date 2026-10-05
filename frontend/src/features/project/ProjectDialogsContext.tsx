@@ -1,8 +1,8 @@
 import { type ReactNode, useState } from "react";
 import { Dialog } from "~/shared/ui/Dialog";
-import { ProjectDialogsContext } from "./ProjectDialogsContextValue";
 import CreateNewProjectDialog from "./CreateNewProjectDialog";
 import EditProjectSettingsDialog from "./EditProjectSettingsDialog";
+import { ProjectDialogsContext } from "./ProjectDialogsContextValue";
 
 type Props = {
 	children: ReactNode;

@@ -6,6 +6,7 @@ import LanguageSettingDialog from "~/features/i18n/LanguageSettingDialog";
 import { useI18n } from "~/features/i18n/useI18n";
 import { useProject } from "~/features/project/useProject";
 import { useProjectDialogs } from "~/features/project/useProjectDialogs";
+import { useProjectExport } from "~/features/project/useProjectExport";
 import ShortcutSettingsDialog from "~/features/shortcuts/ShortcutSettingsDialog";
 import { formatShortcut } from "~/features/shortcuts/shortcutDefinitions";
 import { useShortcuts } from "~/features/shortcuts/useShortcuts";
@@ -25,6 +26,7 @@ const GlobalMenubar: React.FC<Props> = ({ canvasView }) => {
 		useState(false);
 	const [isShortcutSettingsDialogOpen, setShortcutSettingsDialogOpen] =
 		useState(false);
+	const { setDialogOpen } = useProjectExport();
 	const { shortcuts } = useShortcuts();
 	const undoStack = useUndoStack();
 	const clipContext = useClip();
@@ -91,6 +93,12 @@ const GlobalMenubar: React.FC<Props> = ({ canvasView }) => {
 						onSelect={() => project.save()}
 					/>
 					<MenubarItem label={t("menubar.saveWith")} shortcut="Ctrl+Shift+S" />
+					<MenubarSeparator />
+					<MenubarItem
+						label={t("menubar.export")}
+						disabled={project.settings == null}
+						onSelect={() => setDialogOpen(true)}
+					/>
 					<MenubarSeparator />
 					<MenubarItem
 						label={t("menubar.projectSettings")}
