@@ -1,15 +1,10 @@
-import {
-	useCallback,
-	useEffect,
-	useRef,
-	useState,
-	useSyncExternalStore,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useLayer } from "~/features/layer/useLayer";
 import { usePlayback } from "~/features/playback/usePlayback";
 import { useProject } from "~/features/project/useProject";
 import { useCore } from "~/infrastructure/core/useCore";
+import { useCoreSnapshot } from "~/infrastructure/core/useCoreSnapshot";
 import type { ClipProperties } from "~/shared/lib/clip";
 import type { Transform } from "~/shared/lib/transform";
 import { ClipContext } from "./ClipContextValue";
@@ -22,11 +17,7 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 	const playbackContext = usePlayback();
 	const projectContext = useProject();
 
-	const { clips } = useSyncExternalStore(
-		core.subscribe,
-		() => core.getSnapshot(),
-		() => core.getSnapshot(),
-	);
+	const { clips } = useCoreSnapshot();
 	const [selectedClipId, setSelectedClipId] = useState<string>();
 	const [selection, setSelection] = useState<
 		{ x: number; y: number; width: number; height: number } | undefined
@@ -56,12 +47,12 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 				playbackContext.currentFrame < clip.start + clip.duration,
 		);
 
-	const getClipboardImage = () => {
+	const getClipboardImage = async () => {
 		const clip = getCurrentLayerClip();
 		const settings = projectContext.settings;
 		if (clip == null || settings == null) return undefined;
 
-		const pixels = core.getClipPixels(clip.id);
+		const pixels = await core.getClipPixels(clip.id);
 		if (pixels == null) {
 			throw new Error(`Clip pixel data is unavailable for clip ${clip.id}.`);
 		}
@@ -109,15 +100,15 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 		};
 	};
 
-	const copy = () => {
-		const image = getClipboardImage();
+	const copy = async () => {
+		const image = await getClipboardImage();
 		if (image == null) return;
 		const { clip: _clip, ...copiedImage } = image;
 		setClipboard(copiedImage);
 	};
 
-	const cut = () => {
-		const image = getClipboardImage();
+	const cut = async () => {
+		const image = await getClipboardImage();
 		if (
 			image == null ||
 			layerContext.lockedLayers.includes(image.clip.layer_index) ||
@@ -129,7 +120,7 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 		const { clip, ...copiedImage } = image;
 		setClipboard(copiedImage);
 
-		const pixels = core.getClipPixels(clip.id);
+		const pixels = await core.getClipPixels(clip.id);
 		const settings = projectContext.settings;
 		if (pixels == null) {
 			throw new Error(`Clip pixel data is unavailable for clip ${clip.id}.`);
@@ -139,24 +130,25 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 			const start = ((image.y + row) * settings.width + image.x) * 4;
 			pixels.fill(0, start, start + image.width * 4);
 		}
-		core.replaceClipPixels(clip.id, pixels);
+		await core.replaceClipPixels(clip.id, pixels);
 	};
 
-	const paste = () => {
+	const paste = async () => {
 		const settings = projectContext.settings;
 		if (clipboard == null || settings == null) return;
 		if (layerContext.lockedLayers.includes(layerContext.selectedLayer)) return;
 
 		let clip = getCurrentLayerClip();
 		if (clip == null) {
-			core.addClip(playbackContext.currentFrame, layerContext.selectedLayer);
-			clip = core
-				.getClips()
-				?.find(
-					(candidate) =>
-						candidate.layer_index === layerContext.selectedLayer &&
-						candidate.start === playbackContext.currentFrame,
-				);
+			const nextClips = await core.addClip(
+				playbackContext.currentFrame,
+				layerContext.selectedLayer,
+			);
+			clip = nextClips.find(
+				(candidate) =>
+					candidate.layer_index === layerContext.selectedLayer &&
+					candidate.start === playbackContext.currentFrame,
+			);
 			if (clip != null) {
 				selectionContext.current = {
 					layer: layerContext.selectedLayer,
@@ -167,7 +159,7 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 		}
 		if (clip == null || clip.locked) return;
 
-		const pixels = core.getClipPixels(clip.id);
+		const pixels = await core.getClipPixels(clip.id);
 		if (pixels == null) {
 			throw new Error(`Clip pixel data is unavailable for clip ${clip.id}.`);
 		}
@@ -198,7 +190,7 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 			}
 		}
 
-		core.replaceClipPixels(clip.id, pixels);
+		await core.replaceClipPixels(clip.id, pixels);
 	};
 
 	const selectAll = () => {
@@ -213,17 +205,13 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 		}
 	};
 
-	const syncTransform = useCallback(() => {
+	const syncTransform = useCallback(async () => {
 		if (selectedClipId == null) {
 			setTransform(undefined);
-			return Promise.resolve();
+			return;
 		}
 
-		return core
-			.runOperation((currentCore) =>
-				currentCore.getClipTransform(selectedClipId),
-			)
-			.then((nextTransform) => setTransform(nextTransform));
+		setTransform(await core.getClipTransform(selectedClipId));
 	}, [core, selectedClipId]);
 
 	const selectClip = (id: string) => {
@@ -238,11 +226,9 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 		}
 	};
 
-	const addClip = (start: number, layer: number) => {
+	const addClip = async (start: number, layer: number) => {
 		if (layerContext.lockedLayers.includes(layer)) return;
-		core.addClip(start, layer);
-		const nextClips = core.getClips();
-		if (nextClips == null) return;
+		const nextClips = await core.addClip(start, layer);
 		const clip = nextClips.find(
 			(candidate) =>
 				candidate.start === start && candidate.layer_index === layer,
@@ -257,7 +243,7 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 		}
 	};
 
-	const ensureClipAt = (frame: number, layer: number) => {
+	const ensureClipAt = async (frame: number, layer: number) => {
 		if (layerContext.lockedLayers.includes(layer)) return undefined;
 
 		const existingClip = clips.find(
@@ -275,9 +261,7 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 			return existingClip.id;
 		}
 
-		core.addClip(frame, layer);
-		const nextClips = core.getClips();
-		if (nextClips == null) return undefined;
+		const nextClips = await core.addClip(frame, layer);
 		const newClip = nextClips.find(
 			(clip) =>
 				clip.start === frame &&
@@ -293,15 +277,15 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 		return newClip.id;
 	};
 
-	const deleteClip = (id: string) => {
+	const deleteClip = async (id: string) => {
 		const clip = clips.find((candidate) => candidate.id === id);
 		if (clip == null || layerContext.lockedLayers.includes(clip.layer_index)) {
 			return;
 		}
-		core.deleteClip(id);
+		await core.deleteClip(id);
 	};
 
-	const moveClip = (id: string, start: number, layer: number) => {
+	const moveClip = async (id: string, start: number, layer: number) => {
 		const clip = clips.find((candidate) => candidate.id === id);
 		if (
 			clip == null ||
@@ -341,10 +325,10 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 				: closest;
 		});
 
-		core.moveClip(id, adjustedStart, layer);
+		await core.moveClip(id, adjustedStart, layer);
 	};
 
-	const changeClipDuration = (id: string, duration: number) => {
+	const changeClipDuration = async (id: string, duration: number) => {
 		const clip = clips.find((candidate) => candidate.id === id);
 		if (clip == null || layerContext.lockedLayers.includes(clip.layer_index)) {
 			return;
@@ -364,35 +348,33 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 			Math.min(duration, nextClipStart - clip.start),
 		);
 
-		core.changeClipDuration(id, adjustedDuration);
+		await core.changeClipDuration(id, adjustedDuration);
 	};
 
-	const changeClipName = (id: string, name: string) => {
+	const changeClipName = async (id: string, name: string) => {
 		if (!clips.some((clip) => clip.id === id) || name.trim().length === 0) {
 			return;
 		}
-		core.changeClipName(id, name.trim());
+		await core.changeClipName(id, name.trim());
 	};
 
-	const changeClipProperties = (id: string, properties: ClipProperties) => {
+	const changeClipProperties = async (
+		id: string,
+		properties: ClipProperties,
+	) => {
 		const clip = clips.find((candidate) => candidate.id === id);
 		if (clip == null || layerContext.lockedLayers.includes(clip.layer_index)) {
 			return;
 		}
-		core.changeClipProperties(id, properties);
+		await core.changeClipProperties(id, properties);
 	};
 
-	const changeTransform = (id: string, transform: Transform) => {
+	const changeTransform = async (id: string, transform: Transform) => {
 		const clip = clips.find((candidate) => candidate.id === id);
 		if (clip == null || layerContext.lockedLayers.includes(clip.layer_index)) {
 			return;
 		}
-		void core
-			.runOperation((currentCore) => {
-				currentCore.setClipTransform(id, transform);
-				return currentCore.getClipTransform(id);
-			})
-			.then((nextTransform) => setTransform(nextTransform));
+		setTransform(await core.updateClipTransform(id, transform));
 	};
 
 	useEffect(() => {

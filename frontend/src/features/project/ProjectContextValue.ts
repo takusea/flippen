@@ -4,9 +4,9 @@ import type { ProjectSettings } from "./type";
 export type ProjectContextValue = {
 	settings: ProjectSettings | null;
 	open: () => void;
-	save: () => void;
-	createNew: (settings: ProjectSettings) => void;
-	updateSettings: (settings: ProjectSettings) => void;
+	save: () => Promise<void>;
+	createNew: (settings: ProjectSettings) => Promise<void>;
+	updateSettings: (settings: ProjectSettings) => Promise<void>;
 };
 
 export const ProjectContext = createContext<ProjectContextValue | null>(null);

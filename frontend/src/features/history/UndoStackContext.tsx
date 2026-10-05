@@ -6,12 +6,12 @@ export const UndoStackProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
 	const core = useCore();
 
-	const undo = () => {
-		core.undo();
+	const undo = async () => {
+		await core.undo();
 	};
 
-	const redo = () => {
-		core.redo();
+	const redo = async () => {
+		await core.redo();
 	};
 
 	return <UndoStackContext value={{ undo, redo }}>{children}</UndoStackContext>;

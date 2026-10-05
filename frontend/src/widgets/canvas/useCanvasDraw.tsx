@@ -36,23 +36,12 @@ export const useCanvasDraw = () => {
 
 		const clipId = drawingClipIdRef.current;
 		const tool = toolContext.tool;
-		const color = new Uint8Array([
-			rgbaColor.r,
-			rgbaColor.g,
-			rgbaColor.b,
-			rgbaColor.a,
-		]);
-
-		void core.runOperation((currentCore) => {
-			currentCore.applyTool(
-				clipId,
-				tool,
-				state.x,
-				state.y,
-				color,
-				state.pressure,
-			);
-		});
+		void core.applyToolPoints(
+			clipId,
+			tool,
+			[state],
+			new Uint8Array([rgbaColor.r, rgbaColor.g, rgbaColor.b, rgbaColor.a]),
+		);
 	};
 
 	const interpolateDrawState = (prev: DrawState, current: DrawState) => {
@@ -61,6 +50,7 @@ export const useCanvasDraw = () => {
 		const dPressure = current.pressure - prev.pressure;
 		const distance = Math.hypot(dx, dy);
 		const steps = Math.ceil(distance);
+		if (steps === 0) return [current];
 
 		const drawStates = [];
 		for (let i = 0; i <= steps; i++) {
@@ -74,10 +64,10 @@ export const useCanvasDraw = () => {
 	};
 
 	const drawMultiple = (states: DrawState[]) => {
-		if (!drawStateRef.current.isDrawing) return;
+		if (!drawStateRef.current.isDrawing || states.length === 0) return;
 
 		const baseState = drawStateRef.current.state;
-		states
+		const points = states
 			.reduce(
 				(acc, curr) => {
 					acc.push([acc[acc.length - 1][1], curr]);
@@ -85,8 +75,17 @@ export const useCanvasDraw = () => {
 				},
 				[[baseState, baseState]],
 			)
-			.flatMap(([prev, current]) => interpolateDrawState(prev, current))
-			.forEach((state) => draw(state));
+			.flatMap(([prev, current]) => interpolateDrawState(prev, current));
+		const clipId = drawingClipIdRef.current;
+		if (clipId != null) {
+			const color = new Uint8Array([
+				rgbaColor.r,
+				rgbaColor.g,
+				rgbaColor.b,
+				rgbaColor.a,
+			]);
+			void core.applyToolPoints(clipId, toolContext.tool, points, color);
+		}
 
 		updateDrawState({ isDrawing: true, state: states[states.length - 1] });
 	};

@@ -21,13 +21,9 @@ export const ToolProvider: React.FC<{ children: React.ReactNode }> = ({
 
 	const COLOR_HISTORY_LIMIT = 100;
 
-	const setProperty = (key: string, value: unknown) => {
-		core.setToolProperty(tool, key, value);
-		syncProperties();
-	};
-
-	const syncProperties = () => {
-		setProperties(core.getToolProperties(tool) ?? {});
+	const setProperty = async (key: string, value: unknown) => {
+		await core.setToolProperty(tool, key, value);
+		setProperties((await core.getToolProperties(tool)) ?? {});
 	};
 
 	const pushColorHistory = (color: HSVAColor) => {
@@ -35,8 +31,14 @@ export const ToolProvider: React.FC<{ children: React.ReactNode }> = ({
 	};
 
 	useEffect(() => {
-		syncProperties();
-	}, [tool]);
+		let active = true;
+		void core.getToolProperties(tool).then((nextProperties) => {
+			if (active) setProperties(nextProperties ?? {});
+		});
+		return () => {
+			active = false;
+		};
+	}, [core.getToolProperties, tool]);
 
 	return (
 		<ToolContext

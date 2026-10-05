@@ -3,12 +3,18 @@ import init, { FlippenCore } from "~/infrastructure/wasm/flippen_wasm";
 import type { ClipMetadata, ClipProperties } from "~/shared/lib/clip";
 import type { Transform } from "~/shared/lib/transform";
 
-type CoreOperation<T> = (core: CoreService) => T | PromiseLike<T>;
 type WasmOperation<T> = (core: FlippenCore) => T | PromiseLike<T>;
+
+export type ToolPoint = {
+	x: number;
+	y: number;
+	pressure: number;
+};
 
 export type CoreSnapshot = {
 	clips: ClipMetadata[];
 	hiddenLayers: number[];
+	projectSettings: ProjectSettings | undefined;
 	canUndo: boolean;
 	canRedo: boolean;
 	revision: number;
@@ -20,18 +26,25 @@ export class CoreService {
 	private constructor(private readonly core: FlippenCore) {}
 
 	private readonly listeners = new Set<() => void>();
-	private operationQueue = Promise.resolve();
+	private operationQueue: Promise<void> = Promise.resolve();
 	private revision = 0;
-	private snapshot: CoreSnapshot | undefined;
+	private snapshot: CoreSnapshot = {
+		clips: [],
+		hiddenLayers: [],
+		projectSettings: undefined,
+		canUndo: false,
+		canRedo: false,
+		revision: 0,
+	};
 
 	static async create() {
-		if (this.wasmInitialization == null) {
-			this.wasmInitialization = init().catch((error: unknown) => {
-				this.wasmInitialization = undefined;
+		if (CoreService.wasmInitialization == null) {
+			CoreService.wasmInitialization = init().catch((error: unknown) => {
+				CoreService.wasmInitialization = undefined;
 				throw error;
 			});
 		}
-		await this.wasmInitialization;
+		await CoreService.wasmInitialization;
 		return new CoreService(new FlippenCore());
 	}
 
@@ -43,26 +56,27 @@ export class CoreService {
 	};
 
 	private notify() {
+		const settings = this.readProjectSettings();
 		this.revision += 1;
-		this.snapshot = undefined;
+		this.snapshot = {
+			clips: (this.core.get_clips() as ClipMetadata[] | undefined) ?? [],
+			hiddenLayers: Array.from(this.core.get_hidden_layers()),
+			projectSettings: settings,
+			canUndo: this.core.can_undo(),
+			canRedo: this.core.can_redo(),
+			revision: this.revision,
+		};
 		for (const listener of this.listeners) listener();
 	}
 
-	getSnapshot(): CoreSnapshot {
-		if (this.snapshot == null) {
-			this.snapshot = {
-				clips: this.getClips() ?? [],
-				hiddenLayers: this.getHiddenLayers(),
-				canUndo: this.canUndo(),
-				canRedo: this.canRedo(),
-				revision: this.revision,
-			};
-		}
-		return this.snapshot;
-	}
+	getSnapshot = (): CoreSnapshot => this.snapshot;
 
-	private enqueue<T>(operation: WasmOperation<T>) {
-		const result = this.operationQueue.then(() => operation(this.core));
+	private enqueue<T>(operation: WasmOperation<T>, notify = false): Promise<T> {
+		const result = this.operationQueue.then(async () => {
+			const value = await operation(this.core);
+			if (notify) this.notify();
+			return value;
+		});
 		this.operationQueue = result.then(
 			() => undefined,
 			() => undefined,
@@ -70,36 +84,8 @@ export class CoreService {
 		return result;
 	}
 
-	createProject(settings: ProjectSettings) {
-		this.core.create_project({
-			title: settings.title,
-			width: settings.width,
-			height: settings.height,
-			frame_rate: settings.frameRate,
-			start_frame: settings.startFrame,
-			end_frame: settings.endFrame,
-		});
-		this.notify();
-	}
-
-	setProjectSettings(settings: ProjectSettings) {
-		this.core.set_project_settings({
-			title: settings.title,
-			width: settings.width,
-			height: settings.height,
-			frame_rate: settings.frameRate,
-			start_frame: settings.startFrame,
-			end_frame: settings.endFrame,
-		});
-		this.notify();
-	}
-
-	importProject(data: Uint8Array) {
-		this.core.import(data);
-		this.notify();
-	}
-
-	getProjectSettings(): ProjectSettings {
+	private readProjectSettings(): ProjectSettings | undefined {
+		if (this.core.width() == null) return;
 		const settings = this.core.get_project_settings() as {
 			title: string;
 			width: number;
@@ -118,129 +104,225 @@ export class CoreService {
 		};
 	}
 
+	createProject(settings: ProjectSettings) {
+		return this.enqueue(
+			(core) =>
+				core.create_project({
+					title: settings.title,
+					width: settings.width,
+					height: settings.height,
+					frame_rate: settings.frameRate,
+					start_frame: settings.startFrame,
+					end_frame: settings.endFrame,
+				}),
+			true,
+		);
+	}
+
+	setProjectSettings(settings: ProjectSettings) {
+		return this.enqueue(
+			(core) =>
+				core.set_project_settings({
+					title: settings.title,
+					width: settings.width,
+					height: settings.height,
+					frame_rate: settings.frameRate,
+					start_frame: settings.startFrame,
+					end_frame: settings.endFrame,
+				}),
+			true,
+		);
+	}
+
+	importProject(data: Uint8Array) {
+		return this.enqueue((core) => core.import(data), true);
+	}
+
+	getProjectSettings() {
+		return this.enqueue((core) => {
+			if (core.width() == null) return;
+			const settings = core.get_project_settings() as {
+				title: string;
+				width: number;
+				height: number;
+				frame_rate: number;
+				start_frame: number;
+				end_frame: number;
+			};
+			return {
+				title: settings.title,
+				width: settings.width,
+				height: settings.height,
+				frameRate: settings.frame_rate,
+				startFrame: settings.start_frame,
+				endFrame: settings.end_frame,
+			};
+		});
+	}
+
 	exportProject() {
-		return this.core.export();
+		return this.enqueue((core) => core.export());
 	}
 
 	getClips() {
-		const clips = this.core.get_clips();
-		if (clips === undefined) return;
-		return clips as ClipMetadata[];
+		return this.enqueue(
+			(core) => (core.get_clips() as ClipMetadata[] | undefined) ?? [],
+		);
 	}
 
 	addClip(start: number, layer: number) {
-		this.core.add_clip(start, layer);
-		this.notify();
+		return this.enqueue((core) => {
+			core.add_clip(start, layer);
+			return (core.get_clips() as ClipMetadata[] | undefined) ?? [];
+		}, true);
 	}
 
 	deleteClip(id: string) {
-		this.core.delete_clip(id);
-		this.notify();
+		return this.enqueue((core) => core.delete_clip(id), true);
 	}
 
 	getClipPixels(id: string) {
-		return this.core.get_clip_pixels(id);
+		return this.enqueue((core) => core.get_clip_pixels(id));
 	}
 
 	replaceClipPixels(id: string, pixels: Uint8ClampedArray) {
-		this.core.replace_clip_pixels(id, new Uint8Array(pixels));
-		this.notify();
+		return this.enqueue(
+			(core) => core.replace_clip_pixels(id, new Uint8Array(pixels)),
+			true,
+		);
 	}
 
 	moveClip(id: string, start: number, layer: number) {
-		this.core.move_clip(id, start, layer);
-		this.notify();
+		return this.enqueue((core) => core.move_clip(id, start, layer), true);
 	}
 
 	changeClipDuration(id: string, duration: number) {
-		this.core.change_clip_duration(id, duration);
-		this.notify();
+		return this.enqueue(
+			(core) => core.change_clip_duration(id, duration),
+			true,
+		);
 	}
 
 	changeClipName(id: string, name: string) {
-		this.core.set_clip_name(id, name);
-		this.notify();
+		return this.enqueue((core) => core.set_clip_name(id, name), true);
 	}
 
 	changeClipProperties(id: string, properties: ClipProperties) {
-		this.core.set_clip_properties(id, properties);
-		this.notify();
+		return this.enqueue(
+			(core) =>
+				core.set_clip_properties(id, {
+					hidden: properties.hidden,
+					alpha_locked: properties.alpha_locked,
+					locked: properties.locked,
+					opacity: properties.opacity,
+					blend_mode: properties.blend_mode,
+				}),
+			true,
+		);
 	}
 
 	getHiddenLayers() {
-		return Array.from(this.core.get_hidden_layers());
+		return this.enqueue((core) => Array.from(core.get_hidden_layers()));
 	}
 
 	showLayer(layer: number) {
-		this.core.show_layer(layer);
-		this.notify();
+		return this.enqueue((core) => core.show_layer(layer), true);
 	}
 
 	hideLayer(layer: number) {
-		this.core.hide_layer(layer);
-		this.notify();
+		return this.enqueue((core) => core.hide_layer(layer), true);
 	}
 
 	undo() {
-		this.core.undo();
-		this.notify();
+		return this.enqueue((core) => core.undo(), true);
 	}
 
 	redo() {
-		this.core.redo();
-		this.notify();
+		return this.enqueue((core) => core.redo(), true);
 	}
 
 	canUndo() {
-		return this.core.can_undo();
+		return this.enqueue((core) => core.can_undo());
 	}
 
 	canRedo() {
-		return this.core.can_redo();
+		return this.enqueue((core) => core.can_redo());
 	}
 
 	beginDraw(clipId: string) {
-		this.core.begin_draw(clipId);
+		return this.enqueue((core) => core.begin_draw(clipId), true);
 	}
 
-	applyTool(
+	applyToolPoints(
 		clipId: string,
 		tool: string,
-		x: number,
-		y: number,
+		points: ToolPoint[],
 		color: Uint8Array,
-		pressure: number,
 	) {
-		this.core.apply_tool(clipId, tool, x, y, color, pressure);
+		return this.enqueue((core) => {
+			for (const point of points) {
+				core.apply_tool(clipId, tool, point.x, point.y, color, point.pressure);
+			}
+		});
+	}
+
+	endDraw() {
+		return this.enqueue(() => undefined, true);
 	}
 
 	getToolProperties(tool: string) {
-		const properties = this.core.get_tool_properties(tool);
-		if (properties === undefined) return;
-		return properties as Record<string, unknown>;
+		return this.enqueue((core) => {
+			const properties = core.get_tool_properties(tool);
+			if (properties === undefined) return;
+			return properties as Record<string, unknown>;
+		});
 	}
 
 	setToolProperty(tool: string, key: string, value: unknown) {
-		this.core.set_tool_property(tool, key, value);
-		this.notify();
+		return this.enqueue(
+			(core) => core.set_tool_property(tool, key, value),
+			true,
+		);
 	}
 
 	getClipTransform(id: string) {
-		const transform = this.core.get_clip_transform(id);
-		if (transform === undefined) return;
-		return transform as Transform;
+		return this.enqueue((core) => {
+			const transform = core.get_clip_transform(id);
+			if (transform === undefined) return;
+			return transform as Transform;
+		});
 	}
 
 	setClipTransform(id: string, transform: Transform) {
-		this.core.set_clip_transform(id, transform);
-		this.notify();
+		return this.enqueue(
+			(core) =>
+				core.set_clip_transform(id, {
+					position: transform.position,
+					scale: transform.scale,
+					rotation: transform.rotation,
+				}),
+			true,
+		);
+	}
+
+	updateClipTransform(id: string, transform: Transform) {
+		return this.enqueue((core) => {
+			core.set_clip_transform(id, {
+				position: transform.position,
+				scale: transform.scale,
+				rotation: transform.rotation,
+			});
+			const nextTransform = core.get_clip_transform(id);
+			if (nextTransform === undefined) return;
+			return nextTransform as Transform;
+		}, true);
 	}
 
 	renderFrame(frame: number) {
 		return this.enqueue((core) => core.render_frame(frame));
 	}
 
-	runOperation<T>(operation: CoreOperation<T>) {
-		return this.enqueue(() => operation(this));
+	runOperation<T>(operation: WasmOperation<T>, notify = false) {
+		return this.enqueue(operation, notify);
 	}
 }

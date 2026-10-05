@@ -105,7 +105,9 @@ const DrawCanvas: React.FC<Props> = (props) => {
 	) =>
 		event.pointerType === "mouse" || event.pressure <= 0 ? 1 : event.pressure;
 
-	const handlePointerDown = (event: React.PointerEvent<HTMLCanvasElement>) => {
+	const handlePointerDown = async (
+		event: React.PointerEvent<HTMLCanvasElement>,
+	) => {
 		if (canvasRef.current == null) return;
 		if (!(event.buttons & 1) || event.shiftKey) return;
 
@@ -141,12 +143,12 @@ const DrawCanvas: React.FC<Props> = (props) => {
 			toolContext.pushColorHistory(toolContext.color);
 		}
 
-		const clipId = clipContext.ensureClipAt(
+		const clipId = await clipContext.ensureClipAt(
 			playbackContext.currentFrame,
 			layerContext.selectedLayer,
 		);
 		if (clipId == null) return;
-		core.beginDraw(clipId);
+		await core.beginDraw(clipId);
 
 		const { x, y } = getPointerPosition(event.clientX, event.clientY);
 
@@ -272,6 +274,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 			return;
 		}
 		canvasDraw.finishDraw();
+		void core.endDraw();
 	};
 
 	const handleWheel = (event: React.WheelEvent) => {

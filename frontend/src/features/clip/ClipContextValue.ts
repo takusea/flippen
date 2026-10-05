@@ -15,19 +15,22 @@ export type ClipContextValue = {
 			| { x: number; y: number; width: number; height: number }
 			| undefined,
 	) => void;
-	copy: () => void;
-	cut: () => void;
-	paste: () => void;
+	copy: () => Promise<void>;
+	cut: () => Promise<void>;
+	paste: () => Promise<void>;
 	selectAll: () => void;
-	addClip: (start: number, layer: number) => void;
-	deleteClip: (id: string) => void;
-	moveClip: (id: string, start: number, layer: number) => void;
-	changeClipDuration: (id: string, duration: number) => void;
-	changeClipName: (id: string, name: string) => void;
-	changeClipProperties: (id: string, properties: ClipProperties) => void;
-	changeTransform: (id: string, transform: Transform) => void;
-	syncTransform: () => void;
-	ensureClipAt: (frame: number, layer: number) => string | undefined;
+	addClip: (start: number, layer: number) => Promise<void>;
+	deleteClip: (id: string) => Promise<void>;
+	moveClip: (id: string, start: number, layer: number) => Promise<void>;
+	changeClipDuration: (id: string, duration: number) => Promise<void>;
+	changeClipName: (id: string, name: string) => Promise<void>;
+	changeClipProperties: (
+		id: string,
+		properties: ClipProperties,
+	) => Promise<void>;
+	changeTransform: (id: string, transform: Transform) => Promise<void>;
+	syncTransform: () => Promise<void>;
+	ensureClipAt: (frame: number, layer: number) => Promise<string | undefined>;
 };
 
 export const ClipContext = createContext<ClipContextValue | null>(null);

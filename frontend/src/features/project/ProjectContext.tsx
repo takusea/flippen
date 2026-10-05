@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { useCore } from "~/infrastructure/core/useCore";
+import { useCoreSnapshot } from "~/infrastructure/core/useCoreSnapshot";
 import { ProjectContext } from "./ProjectContextValue";
 import type { ProjectSettings } from "./type";
 
@@ -7,17 +7,15 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
 	children,
 }) => {
 	const core = useCore();
-
-	const [settings, setSettings] = useState<ProjectSettings | null>(null);
+	const { projectSettings } = useCoreSnapshot();
+	const settings = projectSettings ?? null;
 
 	const createNew = (settings: ProjectSettings) => {
-		setSettings(settings);
-		core.createProject(settings);
+		return core.createProject(settings);
 	};
 
 	const updateSettings = (newSettings: ProjectSettings) => {
-		core.setProjectSettings(newSettings);
-		setSettings(newSettings);
+		return core.setProjectSettings(newSettings);
 	};
 
 	const open = () => {
@@ -35,8 +33,7 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
 				if (!(result instanceof ArrayBuffer)) {
 					throw new Error("FileReader result is not an ArrayBuffer");
 				}
-				core.importProject(new Uint8Array(result));
-				setSettings(core.getProjectSettings());
+				void core.importProject(new Uint8Array(result));
 			});
 			reader.readAsArrayBuffer(file);
 		});
@@ -44,8 +41,8 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
 		input.remove();
 	};
 
-	const save = () => {
-		const data = core.exportProject();
+	const save = async () => {
+		const data = await core.exportProject();
 		const blob = new Blob([data.buffer as ArrayBuffer], {
 			type: "application/msgpack",
 		});
