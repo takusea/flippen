@@ -111,7 +111,7 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 		const image = await getClipboardImage();
 		if (
 			image == null ||
-			layerContext.lockedLayers.includes(image.clip.layer_index) ||
+			layerContext.isLayerLocked(image.clip.layer_index) ||
 			image.clip.locked
 		) {
 			return;
@@ -136,7 +136,7 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 	const paste = async () => {
 		const settings = projectContext.settings;
 		if (clipboard == null || settings == null) return;
-		if (layerContext.lockedLayers.includes(layerContext.selectedLayer)) return;
+		if (layerContext.isLayerLocked(layerContext.selectedLayer)) return;
 
 		let clip = getCurrentLayerClip();
 		if (clip == null) {
@@ -227,7 +227,7 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 	};
 
 	const addClip = async (start: number, layer: number) => {
-		if (layerContext.lockedLayers.includes(layer)) return;
+		if (layerContext.isLayerLocked(layer)) return;
 		const nextClips = await core.addClip(start, layer);
 		const clip = nextClips.find(
 			(candidate) =>
@@ -244,7 +244,7 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 	};
 
 	const ensureClipAt = async (frame: number, layer: number) => {
-		if (layerContext.lockedLayers.includes(layer)) return undefined;
+		if (layerContext.isLayerLocked(layer)) return undefined;
 
 		const existingClip = clips.find(
 			(clip) =>
@@ -279,7 +279,7 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 
 	const deleteClip = async (id: string) => {
 		const clip = clips.find((candidate) => candidate.id === id);
-		if (clip == null || layerContext.lockedLayers.includes(clip.layer_index)) {
+		if (clip == null || layerContext.isLayerLocked(clip.layer_index)) {
 			return;
 		}
 		await core.deleteClip(id);
@@ -289,8 +289,8 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 		const clip = clips.find((candidate) => candidate.id === id);
 		if (
 			clip == null ||
-			layerContext.lockedLayers.includes(clip.layer_index) ||
-			layerContext.lockedLayers.includes(layer)
+			layerContext.isLayerLocked(clip.layer_index) ||
+			layerContext.isLayerLocked(layer)
 		) {
 			return;
 		}
@@ -330,7 +330,7 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 
 	const changeClipDuration = async (id: string, duration: number) => {
 		const clip = clips.find((candidate) => candidate.id === id);
-		if (clip == null || layerContext.lockedLayers.includes(clip.layer_index)) {
+		if (clip == null || layerContext.isLayerLocked(clip.layer_index)) {
 			return;
 		}
 
@@ -363,7 +363,7 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 		properties: ClipProperties,
 	) => {
 		const clip = clips.find((candidate) => candidate.id === id);
-		if (clip == null || layerContext.lockedLayers.includes(clip.layer_index)) {
+		if (clip == null || layerContext.isLayerLocked(clip.layer_index)) {
 			return;
 		}
 		await core.changeClipProperties(id, properties);
@@ -371,7 +371,7 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 
 	const changeTransform = async (id: string, transform: Transform) => {
 		const clip = clips.find((candidate) => candidate.id === id);
-		if (clip == null || layerContext.lockedLayers.includes(clip.layer_index)) {
+		if (clip == null || layerContext.isLayerLocked(clip.layer_index)) {
 			return;
 		}
 		setTransform(await core.updateClipTransform(id, transform));

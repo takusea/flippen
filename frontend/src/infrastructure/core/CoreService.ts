@@ -1,6 +1,7 @@
 import type { ProjectSettings } from "~/features/project/type";
 import init, { FlippenCore } from "~/infrastructure/wasm/flippen_wasm";
 import type { ClipMetadata, ClipProperties } from "~/shared/lib/clip";
+import type { LayerState } from "~/shared/lib/layer";
 import type { Transform } from "~/shared/lib/transform";
 
 type WasmOperation<T> = (core: FlippenCore) => T | PromiseLike<T>;
@@ -13,7 +14,7 @@ export type ToolPoint = {
 
 export type CoreSnapshot = {
 	clips: ClipMetadata[];
-	hiddenLayers: number[];
+	layers: LayerState[];
 	projectSettings: ProjectSettings | undefined;
 	canUndo: boolean;
 	canRedo: boolean;
@@ -30,7 +31,7 @@ export class CoreService {
 	private revision = 0;
 	private snapshot: CoreSnapshot = {
 		clips: [],
-		hiddenLayers: [],
+		layers: [],
 		projectSettings: undefined,
 		canUndo: false,
 		canRedo: false,
@@ -57,10 +58,11 @@ export class CoreService {
 
 	private notify() {
 		const settings = this.readProjectSettings();
+		const layers = (this.core.get_layers() as LayerState[] | undefined) ?? [];
 		this.revision += 1;
 		this.snapshot = {
 			clips: (this.core.get_clips() as ClipMetadata[] | undefined) ?? [],
-			hiddenLayers: Array.from(this.core.get_hidden_layers()),
+			layers,
 			projectSettings: settings,
 			canUndo: this.core.can_undo(),
 			canRedo: this.core.can_redo(),
@@ -221,16 +223,20 @@ export class CoreService {
 		);
 	}
 
-	getHiddenLayers() {
-		return this.enqueue((core) => Array.from(core.get_hidden_layers()));
-	}
-
 	showLayer(layer: number) {
 		return this.enqueue((core) => core.show_layer(layer), true);
 	}
 
 	hideLayer(layer: number) {
 		return this.enqueue((core) => core.hide_layer(layer), true);
+	}
+
+	unlockLayer(layer: number) {
+		return this.enqueue((core) => core.unlock_layer(layer), true);
+	}
+
+	lockLayer(layer: number) {
+		return this.enqueue((core) => core.lock_layer(layer), true);
 	}
 
 	undo() {

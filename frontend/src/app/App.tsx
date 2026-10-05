@@ -70,7 +70,7 @@ function App() {
 					{selectedClip && clipContext.transform && (
 						<ClipInspector
 							clip={selectedClip}
-							isLayerLocked={layerContext.lockedLayers.includes(
+							isLayerLocked={layerContext.isLayerLocked(
 								selectedClip.layer_index,
 							)}
 							transform={clipContext.transform}

@@ -1,8 +1,10 @@
 import { createContext } from "react";
+import type { LayerState } from "~/shared/lib/layer";
 
 export type LayerContextValue = {
-	hiddenLayers: number[];
-	lockedLayers: number[];
+	layers: LayerState[];
+	isLayerHidden: (layer: number) => boolean;
+	isLayerLocked: (layer: number) => boolean;
 	selectedLayer: number;
 	selectLayer: (layer: number) => void;
 	showLayer: (layer: number) => void;

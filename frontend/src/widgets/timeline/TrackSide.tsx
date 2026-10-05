@@ -5,14 +5,13 @@ import {
 	IconLockOpen,
 } from "@tabler/icons-react";
 import { useI18n } from "~/features/i18n/useI18n";
+import type { LayerState } from "~/shared/lib/layer";
 import IconButton from "~/shared/ui/IconButton";
 
 type Props = {
-	numTracks: number;
+	layers: LayerState[];
 	layerHeight: number;
 	scrollY: number;
-	hiddenLayers: number[];
-	lockedLayers: number[];
 	selectedLayer: number;
 	onLayerSelect: (id: number) => void;
 	onLayerShow: (id: number) => void;
@@ -30,9 +29,9 @@ const TrackSide: React.FC<Props> = (props) => {
 			style={{ translate: `0 -${props.scrollY}px` }}
 			onWheel={props.onWheel}
 		>
-			{[...Array(props.numTracks)].map((_, i) => {
-				const isHidden = props.hiddenLayers.includes(i);
-				const isLocked = props.lockedLayers.includes(i);
+			{props.layers.map((layer, i) => {
+				const isHidden = layer.hidden;
+				const isLocked = layer.locked;
 				return (
 					<div
 						// biome-ignore lint/suspicious/noArrayIndexKey: Layer indices are stable identifiers.

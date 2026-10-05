@@ -18,10 +18,10 @@ use crate::action::move_clip_action::MoveClipAction;
 use crate::action::set_clip_name_action::SetClipNameAction;
 use crate::action::set_clip_properties_action::SetClipPropertiesAction;
 use crate::action::set_clip_transform_action::SetClipTransformAction;
+use crate::action::set_layer_lock_action::SetLayerLockAction;
 use crate::action::set_layer_visibility_action::SetLayerVisibilityAction;
 use crate::app::action_manager::ActionManager;
 use crate::app::clip::{ClipMetadata, ClipProperties};
-use crate::app::composition::Composition;
 use crate::app::project::Project;
 use crate::app::project_settings::ProjectSettings;
 use crate::core::image::Image;
@@ -58,10 +58,7 @@ impl FlippenCore {
         let settings: ProjectSettings = settings
             .into_serde()
             .map_err(|error| JsValue::from_str(&error.to_string()))?;
-        self.project = Some(Project {
-            composition: Composition::new(),
-            settings,
-        });
+        self.project = Some(Project::new(settings));
         Ok(())
     }
 
@@ -110,18 +107,11 @@ impl FlippenCore {
                 return;
             }
         };
-        let clip_is_locked = self
+        if self
             .project
             .as_ref()
-            .and_then(|project| {
-                project
-                    .composition
-                    .clips
-                    .iter()
-                    .find(|clip| clip.metadata.id == clip_id)
-            })
-            .is_none_or(|clip| clip.metadata.locked);
-        if clip_is_locked {
+            .is_some_and(|project| project.is_clip_locked(clip_id))
+        {
             return;
         }
         let action = Box::new(BeginToolAction::new(clip_id));
@@ -182,18 +172,13 @@ impl FlippenCore {
             None => return,
         };
 
-        let clip = match project
-            .composition
-            .clips
-            .iter_mut()
-            .find(|clip| clip.metadata.id == clip_id)
-        {
+        if project.is_clip_locked(clip_id) {
+            return;
+        }
+        let clip = match project.get_clip_mut(clip_id) {
             Some(c) => c,
             None => return,
         };
-        if clip.metadata.locked {
-            return;
-        }
 
         let tool = match self.tools.get_mut(tool_index) {
             Some(t) => t,
@@ -332,6 +317,15 @@ impl FlippenCore {
         JsValue::from_serde(&clip_metadatas).unwrap()
     }
 
+    pub fn get_layers(&self) -> JsValue {
+        let project = match self.project.as_ref() {
+            Some(project) => project,
+            None => return JsValue::undefined(),
+        };
+
+        JsValue::from_serde(project.composition.get_layers()).unwrap()
+    }
+
     pub fn add_clip(&mut self, start_frame: u32, layer_index: usize) {
         let action = Box::new(AddClipAction::new(start_frame, layer_index));
 
@@ -379,12 +373,9 @@ impl FlippenCore {
             .as_mut()
             .ok_or_else(|| JsValue::from_str("Project is not initialized"))?;
         let clip = project
-            .composition
-            .clips
-            .iter()
-            .find(|clip| clip.metadata.id == clip_id)
+            .get_clip(clip_id)
             .ok_or_else(|| JsValue::from_str("Clip does not exist"))?;
-        if clip.metadata.locked {
+        if project.is_clip_locked(clip_id) {
             return Err(JsValue::from_str("Clip is locked"));
         }
         if clip.image.data.len() != pixels.len() {
@@ -483,17 +474,6 @@ impl FlippenCore {
         }
     }
 
-    pub fn get_hidden_layers(&mut self) -> Vec<usize> {
-        let project = match &mut self.project {
-            Some(p) => p,
-            None => {
-                return Vec::new();
-            }
-        };
-
-        project.composition.hidden_layers.clone()
-    }
-
     pub fn show_layer(&mut self, layer_index: usize) {
         let action = Box::new(SetLayerVisibilityAction::new(layer_index, false));
 
@@ -504,6 +484,22 @@ impl FlippenCore {
 
     pub fn hide_layer(&mut self, layer_index: usize) {
         let action = Box::new(SetLayerVisibilityAction::new(layer_index, true));
+
+        if let Some(project) = self.project.as_mut() {
+            self.action_manager.do_action(action, project);
+        }
+    }
+
+    pub fn unlock_layer(&mut self, layer_index: usize) {
+        let action = Box::new(SetLayerLockAction::new(layer_index, false));
+
+        if let Some(project) = self.project.as_mut() {
+            self.action_manager.do_action(action, project);
+        }
+    }
+
+    pub fn lock_layer(&mut self, layer_index: usize) {
+        let action = Box::new(SetLayerLockAction::new(layer_index, true));
 
         if let Some(project) = self.project.as_mut() {
             self.action_manager.do_action(action, project);
@@ -579,7 +575,10 @@ impl FlippenCore {
 
     pub fn import(&mut self, data: &[u8]) {
         match rmp_serde::from_slice::<Project>(data) {
-            Ok(project) => self.project = Some(project),
+            Ok(mut project) => {
+                project.composition.ensure_layers();
+                self.project = Some(project);
+            }
             Err(e) => {
                 eprintln!("Failed to import composition: {:?}", e);
             }

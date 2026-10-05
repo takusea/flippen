@@ -1,7 +1,6 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useClip } from "~/features/clip/useClip";
-import { useI18n } from "~/features/i18n/useI18n";
 import { useLayer } from "~/features/layer/useLayer";
 import { usePlayback } from "~/features/playback/usePlayback";
 import { useProject } from "~/features/project/useProject";
@@ -10,7 +9,6 @@ import Clip from "./Clip";
 import TrackHeader from "./TrackHeader";
 import TrackSide from "./TrackSide";
 
-const NUM_TRACKS = 100;
 const MIN_LAYER_HEIGHT = 12;
 const MAX_LAYER_HEIGHT = 128;
 const MIN_FRAME_WIDTH = 2;
@@ -19,10 +17,10 @@ const WHEEL_ZOOM_SENSITIVITY = 0.0015;
 
 const Timeline: React.FC = () => {
 	const clipContext = useClip();
-	const { t } = useI18n();
 	const playbackContext = usePlayback();
 	const projectContext = useProject();
 	const layerContext = useLayer();
+	const layerCount = layerContext.layers.length;
 	const { shortcuts } = useShortcuts();
 
 	useHotkeys(shortcuts.deleteClip, () => {
@@ -156,11 +154,9 @@ const Timeline: React.FC = () => {
 			</div>
 			<div className="relative overflow-hidden border-r border-zinc-500/25">
 				<TrackSide
-					numTracks={NUM_TRACKS}
+					layers={layerContext.layers}
 					layerHeight={layerHeight}
 					scrollY={scrollPosition.y}
-					hiddenLayers={layerContext.hiddenLayers}
-					lockedLayers={layerContext.lockedLayers}
 					selectedLayer={layerContext.selectedLayer}
 					onLayerSelect={layerContext.selectLayer}
 					onLayerShow={layerContext.showLayer}
@@ -178,13 +174,13 @@ const Timeline: React.FC = () => {
 				<div
 					className="absolute top-0 w-px bg-teal-400 z-50"
 					style={{
-						height: `${layerHeight * NUM_TRACKS}px`,
+						height: `${layerHeight * layerCount}px`,
 						translate: `${playbackContext.currentFrame * frameWidth}px 0`,
 					}}
 				/>
-				{[...Array(NUM_TRACKS)].map((_, i) => (
+				{[...Array(layerCount)].map((_, i) => (
 					<div
-						// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+						// biome-ignore lint/suspicious/noArrayIndexKey: Layer indices are stable identifiers.
 						key={i}
 						className="absolute top-0 left-0 h-px bg-zinc-500/25"
 						style={{
@@ -196,7 +192,7 @@ const Timeline: React.FC = () => {
 				<div
 					className="absolute top-0 pointer-events-none bg-zinc-950/20"
 					style={{
-						height: `${layerHeight * NUM_TRACKS}px`,
+						height: `${layerHeight * layerCount}px`,
 						width: `${playbackContext.startFrame * frameWidth}px`,
 					}}
 				/>
@@ -204,7 +200,7 @@ const Timeline: React.FC = () => {
 					className="absolute top-0 pointer-events-none bg-zinc-950/20"
 					style={{
 						left: `${(playbackContext.endFrame + 1) * frameWidth}px`,
-						height: `${layerHeight * NUM_TRACKS}px`,
+						height: `${layerHeight * layerCount}px`,
 						width: `${(playbackContext.maxFrameCount - playbackContext.endFrame - 1) * frameWidth}px`,
 					}}
 				/>
@@ -221,12 +217,10 @@ const Timeline: React.FC = () => {
 						layerIndex={clip.layer_index}
 						isSelected={clip.id === clipContext.selectedClipId}
 						isHidden={
-							clip.hidden ||
-							layerContext.hiddenLayers.includes(clip.layer_index)
+							clip.hidden || layerContext.isLayerHidden(clip.layer_index)
 						}
 						isLocked={
-							clip.locked ||
-							layerContext.lockedLayers.includes(clip.layer_index)
+							clip.locked || layerContext.isLayerLocked(clip.layer_index)
 						}
 						onSelect={() => clipContext.selectClip(clip.id)}
 						onMove={(startFrame: number, layerIndex: number) => {
@@ -240,14 +234,14 @@ const Timeline: React.FC = () => {
 				<div
 					className="absolute top-0 z-10 h-full w-px bg-zinc-500/25 pointer-events-none"
 					style={{
-						height: `${layerHeight * NUM_TRACKS}px`,
+						height: `${layerHeight * layerCount}px`,
 						left: `${playbackContext.startFrame * frameWidth}px`,
 					}}
 				/>
 				<div
 					className="absolute top-0 z-10 h-full w-px bg-zinc-500/25 pointer-events-none"
 					style={{
-						height: `${layerHeight * NUM_TRACKS}px`,
+						height: `${layerHeight * layerCount}px`,
 						left: `${(playbackContext.endFrame + 1) * frameWidth}px`,
 					}}
 				/>

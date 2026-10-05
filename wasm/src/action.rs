@@ -6,4 +6,5 @@ pub mod move_clip_action;
 pub mod set_clip_name_action;
 pub mod set_clip_properties_action;
 pub mod set_clip_transform_action;
+pub mod set_layer_lock_action;
 pub mod set_layer_visibility_action;

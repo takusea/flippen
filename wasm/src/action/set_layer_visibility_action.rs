@@ -19,10 +19,7 @@ impl SetLayerVisibilityAction {
 
 impl Action for SetLayerVisibilityAction {
     fn apply(&mut self, project: &mut Project) {
-        let was_hidden = project
-            .composition
-            .hidden_layers
-            .contains(&self.layer_index);
+        let was_hidden = project.composition.is_layer_hidden(self.layer_index);
         if self.previous.is_none() {
             self.previous = Some(was_hidden);
         }

@@ -58,6 +58,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 		});
 	}, [canvasWidth, canvasHeight, props.canvasView.setPosition]);
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: The WASM renderer reads layer state from shared core state.
 	useEffect(() => {
 		if (canvasRef.current == null) {
 			return;
@@ -67,7 +68,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 	}, [
 		clipContext.clips,
 		clipContext.transform,
-		layerContext.hiddenLayers,
+		layerContext.layers,
 		playbackContext.currentFrame,
 	]);
 
