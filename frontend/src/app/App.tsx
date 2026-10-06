@@ -3,6 +3,7 @@ import { useClip } from "~/features/clip/useClip";
 import { useI18n } from "~/features/i18n/useI18n";
 import { useLayer } from "~/features/layer/useLayer";
 import { useTool } from "~/features/tool/useTool";
+import { useCore } from "~/infrastructure/core/useCore";
 import Splitter from "~/shared/ui/Splitter";
 import DrawCanvas from "~/widgets/canvas/Canvas";
 import { useCanvasView } from "~/widgets/canvas/useCanvasView";
@@ -28,6 +29,7 @@ const App: React.FC<Props> = ({
 	const { t } = useI18n();
 	const canvasView = useCanvasView();
 	const toolContext = useTool();
+	const core = useCore();
 	const clipContext = useClip();
 	const layerContext = useLayer();
 	const selectedClip = clipContext.clips.find(
@@ -107,6 +109,12 @@ const App: React.FC<Props> = ({
 							onTransformChange={(transform) => {
 								clipContext.changeTransform(selectedClip.id, transform);
 							}}
+							onInteractionStart={() => {
+								void core.beginActionGroup();
+							}}
+							onInteractionEnd={() => {
+								void core.endActionGroup();
+							}}
 						/>
 					)}
 				</div>
@@ -131,6 +139,6 @@ const App: React.FC<Props> = ({
 			</div>
 		</main>
 	);
-}
+};
 
 export default App;

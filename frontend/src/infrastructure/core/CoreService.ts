@@ -276,6 +276,14 @@ export class CoreService {
 		return this.enqueue((core) => core.end_draw(), true);
 	}
 
+	beginActionGroup() {
+		return this.enqueue((core) => core.begin_action_group());
+	}
+
+	endActionGroup() {
+		return this.enqueue((core) => core.end_action_group(), true);
+	}
+
 	getToolProperties(tool: string) {
 		return this.enqueue((core) => {
 			const properties = core.get_tool_properties(tool);

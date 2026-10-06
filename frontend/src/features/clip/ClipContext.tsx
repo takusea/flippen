@@ -15,7 +15,7 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 	const layerContext = useLayer();
 	const playbackContext = usePlayback();
 	const projectContext = useProject();
-	const { clips } = useCoreSnapshot();
+	const { clips, revision } = useCoreSnapshot();
 
 	const currentClip = useCurrentClip(
 		clips,
@@ -48,6 +48,7 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 		clips,
 		selectedClipId: selectionState.selectedClipId,
 		isLayerLocked: layerContext.isLayerLocked,
+		revision,
 	});
 
 	return (

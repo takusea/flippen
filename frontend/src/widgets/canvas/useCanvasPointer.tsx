@@ -84,6 +84,7 @@ export const useCanvasPointer = (
 				initialTransform: { ...clipContext.transform },
 			};
 			event.currentTarget.setPointerCapture(event.pointerId);
+			await core.beginActionGroup();
 			return;
 		}
 
@@ -116,7 +117,7 @@ export const useCanvasPointer = (
 		if (canvas == null) return;
 		if (selection.moveSelection(event)) return;
 
-		if (toolContext.tool === "move") {
+		if (toolContext.tool === "move" && moveDragRef.current != null) {
 			if (moveDragRef.current == null) return;
 			if (clipContext.selectedClipId == null || clipContext.transform == null) {
 				moveDragRef.current = null;
@@ -174,8 +175,10 @@ export const useCanvasPointer = (
 	const handlePointerUp = (event: React.PointerEvent<HTMLCanvasElement>) => {
 		if (selection.finishSelection(event)) return;
 
-		if (toolContext.tool === "move") {
+		if (moveDragRef.current != null || toolContext.tool === "move") {
+			const hadMoveDrag = moveDragRef.current != null;
 			moveDragRef.current = null;
+			if (hadMoveDrag) void core.endActionGroup();
 			if (event.currentTarget.hasPointerCapture(event.pointerId)) {
 				event.currentTarget.releasePointerCapture(event.pointerId);
 			}

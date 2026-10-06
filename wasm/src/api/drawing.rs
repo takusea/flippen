@@ -37,6 +37,14 @@ impl FlippenCore {
         self.action_manager.end_pixel_recording();
     }
 
+    pub fn begin_action_group(&mut self) {
+        self.action_manager.begin_action_group();
+    }
+
+    pub fn end_action_group(&mut self) {
+        self.action_manager.end_action_group();
+    }
+
     pub fn undo(&mut self) {
         if let Some(project) = self.project.as_mut() {
             self.action_manager.undo(project);

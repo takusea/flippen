@@ -87,6 +87,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 				onPointerDown={canvasPointer.handlePointerDown}
 				onPointerMove={canvasPointer.handlePointerMove}
 				onPointerUp={canvasPointer.handlePointerUp}
+				onPointerCancel={canvasPointer.handlePointerUp}
 			/>
 			<CanvasOverlay
 				width={projectContext.settings.width}

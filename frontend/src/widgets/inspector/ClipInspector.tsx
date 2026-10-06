@@ -24,6 +24,8 @@ type Props = {
 	onNameChange: (name: string) => void;
 	onPropertiesChange: (properties: Partial<ClipProperties>) => void;
 	onTransformChange: (transform: Transform) => void;
+	onInteractionStart: () => void;
+	onInteractionEnd: () => void;
 };
 
 const ClipInspector: React.FC<Props> = (props) => {
@@ -97,6 +99,8 @@ const ClipInspector: React.FC<Props> = (props) => {
 					min={0}
 					value={props.clip.start}
 					disabled={isLocked}
+					onInteractionStart={props.onInteractionStart}
+					onInteractionEnd={props.onInteractionEnd}
 					onValueChange={props.onStartChange}
 				/>
 				<label htmlFor="clipLength">{t("inspector.length")}</label>
@@ -105,6 +109,8 @@ const ClipInspector: React.FC<Props> = (props) => {
 					min={1}
 					value={props.clip.duration}
 					disabled={isLocked}
+					onInteractionStart={props.onInteractionStart}
+					onInteractionEnd={props.onInteractionEnd}
 					onValueChange={props.onDurationChange}
 				/>
 				<hr className="text-zinc-500/25" />
@@ -115,6 +121,8 @@ const ClipInspector: React.FC<Props> = (props) => {
 						aria-label={t("inspector.positionX")}
 						value={props.transform.position[0]}
 						disabled={isLocked}
+						onInteractionStart={props.onInteractionStart}
+						onInteractionEnd={props.onInteractionEnd}
 						onValueChange={(value) => {
 							props.onTransformChange({
 								...props.transform,
@@ -127,6 +135,8 @@ const ClipInspector: React.FC<Props> = (props) => {
 						aria-label={t("inspector.positionY")}
 						value={props.transform.position[1]}
 						disabled={isLocked}
+						onInteractionStart={props.onInteractionStart}
+						onInteractionEnd={props.onInteractionEnd}
 						onValueChange={(value) => {
 							props.onTransformChange({
 								...props.transform,
@@ -145,6 +155,8 @@ const ClipInspector: React.FC<Props> = (props) => {
 						step={0.01}
 						value={props.transform.anchor[0]}
 						disabled={isLocked}
+						onInteractionStart={props.onInteractionStart}
+						onInteractionEnd={props.onInteractionEnd}
 						onValueChange={(value) => {
 							props.onTransformChange({
 								...props.transform,
@@ -160,6 +172,8 @@ const ClipInspector: React.FC<Props> = (props) => {
 						step={0.01}
 						value={props.transform.anchor[1]}
 						disabled={isLocked}
+						onInteractionStart={props.onInteractionStart}
+						onInteractionEnd={props.onInteractionEnd}
 						onValueChange={(value) => {
 							props.onTransformChange({
 								...props.transform,
@@ -175,6 +189,8 @@ const ClipInspector: React.FC<Props> = (props) => {
 					max={360}
 					value={props.transform.rotation}
 					disabled={isLocked}
+					onInteractionStart={props.onInteractionStart}
+					onInteractionEnd={props.onInteractionEnd}
 					onValueChange={(value) => {
 						props.onTransformChange({
 							...props.transform,
@@ -192,6 +208,8 @@ const ClipInspector: React.FC<Props> = (props) => {
 						step={0.01}
 						value={props.transform.scale[0]}
 						disabled={isLocked}
+						onInteractionStart={props.onInteractionStart}
+						onInteractionEnd={props.onInteractionEnd}
 						onValueChange={(value) => {
 							props.onTransformChange({
 								...props.transform,
@@ -207,6 +225,8 @@ const ClipInspector: React.FC<Props> = (props) => {
 						step={0.01}
 						value={props.transform.scale[1]}
 						disabled={isLocked}
+						onInteractionStart={props.onInteractionStart}
+						onInteractionEnd={props.onInteractionEnd}
 						onValueChange={(value) => {
 							props.onTransformChange({
 								...props.transform,
@@ -224,6 +244,8 @@ const ClipInspector: React.FC<Props> = (props) => {
 					step={0.01}
 					value={props.clip.opacity}
 					disabled={isLocked}
+					onInteractionStart={props.onInteractionStart}
+					onInteractionEnd={props.onInteractionEnd}
 					onValueChange={(opacity) => props.onPropertiesChange({ opacity })}
 				/>
 				<label htmlFor="clipBlendMode">{t("inspector.blendMode")}</label>

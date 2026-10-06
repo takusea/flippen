@@ -10,13 +10,22 @@ type Props = Omit<
 	value?: number;
 	defaultValue?: number;
 	onValueChange?: (value: number) => void;
+	onInteractionStart?: () => void;
+	onInteractionEnd?: () => void;
 };
 
 const NumberField: React.FC<Props> = (props) => {
-	const { onValueChange, onBlur, ...inputProps } = props;
+	const {
+		onValueChange,
+		onBlur,
+		onInteractionStart,
+		onInteractionEnd,
+		...inputProps
+	} = props;
 	const input = useRef<HTMLInputElement>(null);
 	const dragValue = useRef<number | null>(null);
 	const lastCommittedValue = useRef<number | null>(null);
+	const interactionStarted = useRef(false);
 
 	const [isMoved, setIsMoved] = useState<boolean>(false);
 	const [innerValue, setInnerValue] = useState<string>("");
@@ -51,8 +60,22 @@ const NumberField: React.FC<Props> = (props) => {
 		onValueChange?.(nextValue);
 	};
 
-	const handlePointerUp = () => {
+	const finishInteraction = () => {
 		dragValue.current = null;
+		if (interactionStarted.current) {
+			interactionStarted.current = false;
+			onInteractionEnd?.();
+		}
+	};
+
+	const handlePointerDown = (event: React.PointerEvent) => {
+		if (props.disabled || event.button !== 0) return;
+		interactionStarted.current = true;
+		onInteractionStart?.();
+	};
+
+	const handlePointerUp = () => {
+		finishInteraction();
 		if (props.disabled) {
 			setIsMoved(false);
 			return;
@@ -113,8 +136,13 @@ const NumberField: React.FC<Props> = (props) => {
 	return (
 		<div
 			className={`relative h-8 border border-zinc-500/25 bg-zinc-500/25 rounded ${props.disabled ? "opacity-50" : cursor}`}
+			onPointerDown={handlePointerDown}
 			onPointerMove={handlePointerMove}
 			onPointerUp={handlePointerUp}
+			onPointerCancel={() => {
+				finishInteraction();
+				setIsMoved(false);
+			}}
 		>
 			<input
 				{...inputProps}
