@@ -99,14 +99,15 @@ export const useCanvasPointer = (
 		await core.beginDraw(clipId);
 
 		const { x, y } = getPointerPosition(event.clientX, event.clientY);
-		canvasDraw.beginDraw(
-			{
-				x,
-				y,
-				pressure: getPointerPressure(event.nativeEvent),
-			},
-			clipId,
-		);
+		const drawState = {
+			x,
+			y,
+			pressure: getPointerPressure(event.nativeEvent),
+		};
+		canvasDraw.beginDraw(drawState, clipId);
+		if (toolContext.tool === "fill") {
+			canvasDraw.draw(drawState);
+		}
 		render(canvasRef.current, isOnionSkin);
 	};
 
