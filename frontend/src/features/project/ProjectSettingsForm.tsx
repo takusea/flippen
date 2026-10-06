@@ -17,10 +17,10 @@ const ProjectSettingsForm = (props: Props) => {
 			<TextField
 				id="title"
 				value={props.projectSettings.title}
-				onChange={(event) =>
+				onValueChange={(title) =>
 					props.onProjectSettingsChanged({
 						...props.projectSettings,
-						title: event.target.value,
+						title,
 					})
 				}
 			/>

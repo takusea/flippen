@@ -13,9 +13,10 @@ type Props = Omit<
 };
 
 const NumberField: React.FC<Props> = (props) => {
-	const { onValueChange, ...inputProps } = props;
+	const { onValueChange, onBlur, ...inputProps } = props;
 	const input = useRef<HTMLInputElement>(null);
 	const dragValue = useRef<number | null>(null);
+	const lastCommittedValue = useRef<number | null>(null);
 
 	const [isMoved, setIsMoved] = useState<boolean>(false);
 	const [innerValue, setInnerValue] = useState<string>("");
@@ -78,10 +79,21 @@ const NumberField: React.FC<Props> = (props) => {
 		}
 
 		setInnerValue(event.currentTarget.value);
+		lastCommittedValue.current = null;
+	};
+
+	const commitValue = (target: HTMLInputElement) => {
+		if (props.disabled) return;
+
+		const value = target.valueAsNumber;
+		if (!Number.isFinite(value) || value === lastCommittedValue.current) return;
+
+		const nextValue = clamp(value);
+		lastCommittedValue.current = nextValue;
+		onValueChange?.(nextValue);
 	};
 
 	const handleKeyDown = (event: React.KeyboardEvent) => {
-		if (props.disabled) return;
 		if (event.key === "Enter") {
 			if (!(event.currentTarget instanceof HTMLInputElement)) {
 				throw new Error(
@@ -89,11 +101,13 @@ const NumberField: React.FC<Props> = (props) => {
 				);
 			}
 
-			const value = event.currentTarget.valueAsNumber;
-			if (!Number.isFinite(value)) return;
-
-			onValueChange?.(clamp(value));
+			commitValue(event.currentTarget);
 		}
+	};
+
+	const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+		commitValue(event.currentTarget);
+		onBlur?.(event);
 	};
 
 	return (
@@ -111,6 +125,7 @@ const NumberField: React.FC<Props> = (props) => {
 				onPointerMove={handleInputPointerMove}
 				onChange={handleChange}
 				onKeyDown={handleKeyDown}
+				onBlur={handleBlur}
 			/>
 		</div>
 	);
