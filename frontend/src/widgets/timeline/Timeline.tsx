@@ -5,6 +5,7 @@ import { useLayer } from "~/features/layer/useLayer";
 import { usePlayback } from "~/features/playback/usePlayback";
 import { useProject } from "~/features/project/useProject";
 import { useShortcuts } from "~/features/shortcuts/useShortcuts";
+import { useCore } from "~/infrastructure/core/useCore";
 import Clip from "./Clip";
 import TrackHeader from "./TrackHeader";
 import TrackSide from "./TrackSide";
@@ -16,6 +17,7 @@ const MAX_FRAME_WIDTH = 64;
 const WHEEL_ZOOM_SENSITIVITY = 0.0015;
 
 const Timeline: React.FC = () => {
+	const core = useCore();
 	const clipContext = useClip();
 	const playbackContext = usePlayback();
 	const projectContext = useProject();
@@ -229,6 +231,12 @@ const Timeline: React.FC = () => {
 						onDurationChange={(duration) =>
 							clipContext.changeClipDuration(clip.id, duration)
 						}
+						onInteractionStart={() => {
+							void core.beginActionGroup();
+						}}
+						onInteractionEnd={() => {
+							void core.endActionGroup();
+						}}
 					/>
 				))}
 				<div

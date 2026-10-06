@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 type Props = {
 	id: string;
@@ -14,10 +14,25 @@ type Props = {
 	onSelect: () => void;
 	onMove: (startFrame: number, layerIndex: number) => void;
 	onDurationChange: (duration: number) => void;
+	onInteractionStart: () => void;
+	onInteractionEnd: () => void;
 };
 
 const Clip: React.FC<Props> = (props) => {
 	const [startPosX, setStartPosX] = useState(0);
+	const isInteracting = useRef(false);
+
+	const startInteraction = () => {
+		if (isInteracting.current) return;
+		isInteracting.current = true;
+		props.onInteractionStart();
+	};
+
+	const endInteraction = () => {
+		if (!isInteracting.current) return;
+		isInteracting.current = false;
+		props.onInteractionEnd();
+	};
 
 	const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
 		event.stopPropagation();
@@ -32,6 +47,7 @@ const Clip: React.FC<Props> = (props) => {
 	const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
 		event.stopPropagation();
 		if (!(event.buttons & 1)) return;
+		startInteraction();
 		event.currentTarget.setPointerCapture(event.pointerId);
 
 		const rect = event.currentTarget.getBoundingClientRect();
@@ -53,6 +69,7 @@ const Clip: React.FC<Props> = (props) => {
 	) => {
 		event.stopPropagation();
 		if (!(event.buttons & 1)) return;
+		startInteraction();
 		event.currentTarget.setPointerCapture(event.pointerId);
 
 		const rect = event.currentTarget.getBoundingClientRect();
@@ -72,6 +89,9 @@ const Clip: React.FC<Props> = (props) => {
 				height: `${props.layerHeight}px`,
 			}}
 			onPointerDown={handlePointerDown}
+			onPointerUp={endInteraction}
+			onPointerCancel={endInteraction}
+			onLostPointerCapture={endInteraction}
 		>
 			<div className="absolute h-full flex items-center text-nowrap pointer-events-none px-1">
 				{props.name}
