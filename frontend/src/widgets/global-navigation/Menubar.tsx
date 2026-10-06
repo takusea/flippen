@@ -217,7 +217,9 @@ const GlobalMenubar: React.FC<Props> = ({
 					/>
 					<MenubarCheckboxItem
 						label={
-							isOnionSkin ? t("menubar.hideOnionSkin") : t("menubar.showOnionSkin")
+							isOnionSkin
+								? t("menubar.hideOnionSkin")
+								: t("menubar.showOnionSkin")
 						}
 						shortcut={formatShortcut(shortcuts.toggleOnionSkin)}
 						checked={isOnionSkin}

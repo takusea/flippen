@@ -3,8 +3,8 @@ import {
 	Children,
 	cloneElement,
 	isValidElement,
-	useState,
 	type ReactNode,
+	useState,
 } from "react";
 import { useI18n } from "~/features/i18n/useI18n";
 import ProjectExportDialog from "~/features/project/ProjectExportDialog";
@@ -37,7 +37,9 @@ const GlobalNavigation: React.FC<Props> = (props: Props) => {
 		exportAs,
 	} = useProjectExport();
 	const [isOnionSkin, setIsOnionSkin] = useState(false);
-	const child = Children.only(props.children) as React.ReactElement<EditorProps>;
+	const child = Children.only(
+		props.children,
+	) as React.ReactElement<EditorProps>;
 
 	return (
 		<div className="grid grid-rows-[40px_1fr] w-svw h-svh bg-zinc-100 dark:bg-zinc-950">
