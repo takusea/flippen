@@ -3,11 +3,21 @@ use crate::action::draw_stroke_action::DrawStrokeAction;
 use crate::action::set_layer_lock_action::SetLayerLockAction;
 use crate::action::set_layer_visibility_action::SetLayerVisibilityAction;
 use crate::core::image::Image;
-use crate::core::tool::ToolPropertyValue;
+use crate::core::tool::{ToolId, ToolPropertyValue};
 use gloo::utils::format::JsValueSerdeExt;
 use uuid::Uuid;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
+
+fn parse_tool_id(current_tool: &str) -> Option<ToolId> {
+    match current_tool.parse::<ToolId>() {
+        Ok(tool_id) => Some(tool_id),
+        Err(_) => {
+            eprintln!("Unknown tool: {}.", current_tool);
+            None
+        }
+    }
+}
 
 #[wasm_bindgen]
 impl FlippenCore {
@@ -82,14 +92,9 @@ impl FlippenCore {
             }
         };
 
-        let tool_index = match current_tool {
-            "pen" => 0,
-            "eraser" => 1,
-            "fill" => 2,
-            _ => {
-                eprintln!("Unknown or invalid property: {}.", current_tool);
-                return;
-            }
+        let tool_id = match parse_tool_id(current_tool) {
+            Some(tool_id) => tool_id,
+            None => return,
         };
 
         let project = match &mut self.project {
@@ -105,9 +110,12 @@ impl FlippenCore {
             None => return,
         };
 
-        let tool = match self.tools.get_mut(tool_index) {
+        let tool = match self.tools.get_mut(tool_id) {
             Some(t) => t,
-            None => return,
+            None => {
+                eprintln!("Tool is not registered: {:?}.", tool_id);
+                return;
+            }
         };
 
         if color.len() != 4 {
@@ -160,28 +168,24 @@ impl FlippenCore {
     }
 
     pub fn get_tool_properties(&self, current_tool: &str) -> JsValue {
-        let tool_index = match current_tool {
-            "pen" => 0,
-            "eraser" => 1,
-            "fill" => 2,
-            _ => {
-                eprintln!("Unknown or invalid property: {}.", current_tool);
-                return JsValue::undefined();
-            }
+        let tool_id = match parse_tool_id(current_tool) {
+            Some(tool_id) => tool_id,
+            None => return JsValue::undefined(),
         };
 
-        JsValue::from_serde(&self.tools[tool_index].get_properties()).unwrap()
+        match self.tools.get(tool_id) {
+            Some(tool) => JsValue::from_serde(&tool.get_properties()).unwrap(),
+            None => {
+                eprintln!("Tool is not registered: {:?}.", tool_id);
+                JsValue::undefined()
+            }
+        }
     }
 
     pub fn set_tool_property(&mut self, current_tool: &str, name: &str, value: JsValue) {
-        let tool_index = match current_tool {
-            "pen" => 0,
-            "eraser" => 1,
-            "fill" => 2,
-            _ => {
-                eprintln!("Unknown or invalid property: {}.", current_tool);
-                return;
-            }
+        let tool_id = match parse_tool_id(current_tool) {
+            Some(tool_id) => tool_id,
+            None => return,
         };
 
         let tool_property: Result<ToolPropertyValue, JsValue> = {
@@ -220,7 +224,10 @@ impl FlippenCore {
         };
 
         if let Ok(prop) = tool_property {
-            self.tools[tool_index].set_property(name, prop);
+            match self.tools.get_mut(tool_id) {
+                Some(tool) => tool.set_property(name, prop),
+                None => eprintln!("Tool is not registered: {:?}.", tool_id),
+            }
         }
     }
 

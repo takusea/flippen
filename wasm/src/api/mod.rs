@@ -6,7 +6,7 @@ mod project;
 
 use crate::app::action_manager::ActionManager;
 use crate::app::project::Project;
-use crate::core::tool::Tool;
+use crate::core::tool::{ToolId, ToolRegistry};
 use crate::gpu::GpuRenderer;
 use crate::tool;
 use wasm_bindgen::prelude::wasm_bindgen;
@@ -14,7 +14,7 @@ use wasm_bindgen::prelude::wasm_bindgen;
 #[wasm_bindgen]
 pub struct FlippenCore {
     project: Option<Project>,
-    tools: Vec<Box<dyn Tool>>,
+    tools: ToolRegistry,
     action_manager: ActionManager,
     gpu_renderer: Option<GpuRenderer>,
 }
@@ -24,13 +24,23 @@ impl FlippenCore {
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
         console_error_panic_hook::set_once();
+        let mut tools = ToolRegistry::new();
+        tools.insert(
+            ToolId::Pen,
+            Box::new(tool::circle_brush_tool::CircleBrushTool { size: 5 }),
+        );
+        tools.insert(
+            ToolId::Eraser,
+            Box::new(tool::eraser_tool::EraserTool { size: 5 }),
+        );
+        tools.insert(
+            ToolId::Fill,
+            Box::new(tool::fill_tool::FillTool { tolerance: 500 }),
+        );
+
         Self {
             project: None,
-            tools: vec![
-                Box::new(tool::circle_brush_tool::CircleBrushTool { size: 5 }),
-                Box::new(tool::eraser_tool::EraserTool { size: 5 }),
-                Box::new(tool::fill_tool::FillTool { tolerance: 500 }),
-            ],
+            tools,
             action_manager: ActionManager::new(),
             gpu_renderer: None,
         }
