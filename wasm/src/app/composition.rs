@@ -1,18 +1,39 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::app::clip::Clip;
+use crate::app::clip::{Clip, ClipId};
 use crate::core::image::Image;
 use crate::gpu::GpuRenderer;
 
 const DEFAULT_LAYER_COUNT: usize = 100;
 
-#[derive(Serialize, Deserialize, Clone, Copy, Default)]
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[serde(transparent)]
+pub struct LayerId(Uuid);
+
+impl LayerId {
+    pub fn new() -> Self {
+        Self(Uuid::new_v4())
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Layer {
-    #[serde(default)]
-    pub hidden: bool,
-    #[serde(default)]
+    pub id: LayerId,
+    pub name: String,
+    pub visible: bool,
     pub locked: bool,
+}
+
+impl Layer {
+    pub(crate) fn new(index: usize) -> Self {
+        Self {
+            id: LayerId::new(),
+            name: format!("Layer {}", index + 1),
+            visible: true,
+            locked: false,
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize)]
@@ -25,16 +46,15 @@ impl Composition {
     pub fn new() -> Self {
         Self {
             clips: Vec::new(),
-            layers: vec![Layer::default(); DEFAULT_LAYER_COUNT],
+            layers: (0..DEFAULT_LAYER_COUNT).map(Layer::new).collect(),
         }
     }
 
     pub fn add_clip(&mut self, clip: Clip) {
-        self.ensure_layer(clip.metadata.layer_index);
         self.clips.push(clip);
     }
 
-    pub fn delete_clip(&mut self, clip_id: Uuid) -> Option<Clip> {
+    pub fn delete_clip(&mut self, clip_id: ClipId) -> Option<Clip> {
         if let Some(pos) = self
             .clips
             .iter()
@@ -46,11 +66,10 @@ impl Composition {
         }
     }
 
-    pub fn move_clip(&mut self, clip_id: Uuid, new_start: u32, new_layer_index: usize) {
-        self.ensure_layer(new_layer_index);
+    pub fn move_clip_to_layer(&mut self, clip_id: ClipId, new_start: u32, layer_id: LayerId) {
         if let Some(clip) = self.clips.iter_mut().find(|c| c.metadata.id == clip_id) {
             clip.metadata.start = new_start;
-            clip.metadata.layer_index = new_layer_index;
+            clip.metadata.layer_id = layer_id;
         }
     }
 
@@ -62,46 +81,78 @@ impl Composition {
         &self.layers
     }
 
-    pub fn get_clip(&self, clip_id: Uuid) -> Option<&Clip> {
+    pub fn get_clip(&self, clip_id: ClipId) -> Option<&Clip> {
         self.clips.iter().find(|clip| clip.metadata.id == clip_id)
     }
 
-    pub fn find_clip(&mut self, clip_id: Uuid) -> Option<&mut Clip> {
+    pub fn find_clip(&mut self, clip_id: ClipId) -> Option<&mut Clip> {
         self.clips
             .iter_mut()
             .find(|clip| clip.metadata.id == clip_id)
     }
 
-    pub fn ensure_layers(&mut self) {
-        let clip_layer_count = self
-            .clips
-            .iter()
-            .map(|clip| clip.metadata.layer_index + 1)
-            .max()
-            .unwrap_or_default();
-        self.layers
-            .resize(self.layers.len().max(clip_layer_count), Layer::default());
+    pub fn layer_id_at(&mut self, layer_index: usize) -> LayerId {
+        self.ensure_layer(layer_index);
+        self.layers[layer_index].id
+    }
+
+    pub fn layer_index(&self, layer_id: LayerId) -> Option<usize> {
+        self.layers.iter().position(|layer| layer.id == layer_id)
+    }
+
+    pub fn insert_layer(&mut self, layer_index: usize) -> LayerId {
+        let index = layer_index.min(self.layers.len());
+        let layer = Layer::new(index);
+        let layer_id = layer.id;
+        self.layers.insert(index, layer);
+        layer_id
+    }
+
+    pub fn ensure_layers(&mut self) -> Result<(), String> {
+        for (index, layer) in self.layers.iter().enumerate() {
+            if self.layers[..index]
+                .iter()
+                .any(|previous| previous.id == layer.id)
+            {
+                return Err(format!("Duplicate layer ID at index {index}"));
+            }
+        }
+        for clip in &self.clips {
+            if !self
+                .layers
+                .iter()
+                .any(|layer| layer.id == clip.metadata.layer_id)
+            {
+                return Err(format!(
+                    "Clip {} references an unknown layer",
+                    clip.metadata.id
+                ));
+            }
+        }
+        Ok(())
     }
 
     fn ensure_layer(&mut self, layer_index: usize) {
-        self.layers
-            .resize(self.layers.len().max(layer_index + 1), Layer::default());
+        while self.layers.len() <= layer_index {
+            self.layers.push(Layer::new(self.layers.len()));
+        }
     }
 
     pub fn is_layer_hidden(&self, layer_index: usize) -> bool {
         self.layers
             .get(layer_index)
-            .is_some_and(|layer| layer.hidden)
+            .is_some_and(|layer| !layer.visible)
     }
 
-    pub fn show_layer(&mut self, layer_index: usize) {
-        self.ensure_layer(layer_index);
-        self.layers[layer_index].hidden = false;
+    pub fn is_layer_hidden_by_id(&self, layer_id: LayerId) -> Option<bool> {
+        self.layer_index(layer_id)
+            .map(|index| self.is_layer_hidden(index))
     }
 
-    pub fn hide_layer(&mut self, layer_index: usize) {
-        self.ensure_layer(layer_index);
-        self.layers[layer_index].hidden = true;
+    pub fn set_layer_visible_by_id(&mut self, layer_id: LayerId, visible: bool) {
+        if let Some(layer) = self.layers.iter_mut().find(|layer| layer.id == layer_id) {
+            layer.visible = visible;
+        }
     }
 
     pub fn is_layer_locked(&self, layer_index: usize) -> bool {
@@ -110,14 +161,15 @@ impl Composition {
             .is_some_and(|layer| layer.locked)
     }
 
-    pub fn lock_layer(&mut self, layer_index: usize) {
-        self.ensure_layer(layer_index);
-        self.layers[layer_index].locked = true;
+    pub fn is_layer_locked_by_id(&self, layer_id: LayerId) -> Option<bool> {
+        self.layer_index(layer_id)
+            .map(|index| self.is_layer_locked(index))
     }
 
-    pub fn unlock_layer(&mut self, layer_index: usize) {
-        self.ensure_layer(layer_index);
-        self.layers[layer_index].locked = false;
+    pub fn set_layer_locked_by_id(&mut self, layer_id: LayerId, locked: bool) {
+        if let Some(layer) = self.layers.iter_mut().find(|layer| layer.id == layer_id) {
+            layer.locked = locked;
+        }
     }
 
     pub async fn render_frame_gpu(
@@ -132,9 +184,12 @@ impl Composition {
             .iter()
             .filter(|clip| clip.contains_frame(frame_index))
             .filter(|clip| !clip.metadata.hidden)
-            .filter(|clip| !self.is_layer_hidden(clip.metadata.layer_index))
+            .filter(|clip| {
+                self.layer_index(clip.metadata.layer_id)
+                    .is_some_and(|index| !self.is_layer_hidden(index))
+            })
             .collect();
-        clips.sort_by_key(|clip| clip.metadata.layer_index);
+        clips.sort_by_key(|clip| self.layer_index(clip.metadata.layer_id).unwrap());
         renderer.render_frame(&clips, width, height).await
     }
 }
@@ -142,26 +197,61 @@ impl Composition {
 #[cfg(test)]
 mod tests {
     use super::Composition;
+    use uuid::Uuid;
 
     #[test]
     fn layer_lock_state_serializes_and_round_trips() {
         let mut composition = Composition::new();
-        composition.lock_layer(2);
+        let layer_id = composition.layer_id_at(2);
+        composition.set_layer_locked_by_id(layer_id, true);
 
         let bytes = rmp_serde::to_vec(&composition).unwrap();
         let restored: Composition = rmp_serde::from_slice(&bytes).unwrap();
 
         assert!(restored.is_layer_locked(2));
 
-        composition.unlock_layer(2);
+        composition.set_layer_locked_by_id(layer_id, false);
         assert!(!composition.is_layer_locked(2));
     }
 
     #[test]
     fn ensuring_layer_expands_composition_layers() {
         let mut composition = Composition::new();
-        composition.ensure_layer(100);
+        composition.layer_id_at(100);
 
         assert_eq!(composition.get_layers().len(), 101);
+    }
+
+    #[test]
+    fn inserting_a_layer_preserves_clip_layer_identity() {
+        let mut composition = Composition::new();
+        let layer_id = composition.layer_id_at(2);
+        let clip = crate::app::clip::Clip {
+            metadata: crate::app::clip::ClipMetadata {
+                id: Uuid::new_v4(),
+                start: 0,
+                layer_id,
+                duration: 1,
+                hidden: false,
+                alpha_locked: false,
+                locked: false,
+                opacity: 1.0,
+                blend_mode: crate::app::clip::BlendMode::Normal,
+                name: "Clip".to_string(),
+            },
+            transform: Default::default(),
+            image: crate::core::image::Image::new(1, 1),
+            image_revision: 0,
+        };
+        composition.add_clip(clip);
+
+        composition.set_layer_visible_by_id(layer_id, false);
+        composition.set_layer_locked_by_id(layer_id, true);
+        composition.insert_layer(1);
+
+        assert_eq!(composition.clips[0].metadata.layer_id, layer_id);
+        assert_eq!(composition.layer_index(layer_id), Some(3));
+        assert_eq!(composition.is_layer_hidden_by_id(layer_id), Some(true));
+        assert_eq!(composition.is_layer_locked_by_id(layer_id), Some(true));
     }
 }

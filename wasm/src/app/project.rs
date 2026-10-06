@@ -30,7 +30,11 @@ impl Project {
     pub fn is_clip_locked(&self, clip_id: Uuid) -> bool {
         match self.get_clip(clip_id) {
             Some(clip) => {
-                clip.metadata.locked || self.composition.is_layer_locked(clip.metadata.layer_index)
+                clip.metadata.locked
+                    || self
+                        .composition
+                        .layer_index(clip.metadata.layer_id)
+                        .is_some_and(|index| self.composition.is_layer_locked(index))
             }
             None => false,
         }

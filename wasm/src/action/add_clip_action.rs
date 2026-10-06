@@ -4,6 +4,7 @@ use crate::app::action::Action;
 use crate::app::action::UndoableAction;
 use crate::app::clip::Clip;
 use crate::app::clip::ClipMetadata;
+use crate::app::composition::LayerId;
 use crate::app::project::Project;
 use crate::core::image::Image;
 use crate::core::transform::Transform;
@@ -11,6 +12,7 @@ use crate::core::transform::Transform;
 pub struct AddClipAction {
     start_frame: u32,
     layer_index: usize,
+    layer_id: Option<LayerId>,
     clip_id: Option<Uuid>,
     name: Option<String>,
 }
@@ -20,6 +22,7 @@ impl AddClipAction {
         Self {
             start_frame,
             layer_index,
+            layer_id: None,
             clip_id: None,
             name: None,
         }
@@ -29,6 +32,9 @@ impl AddClipAction {
 impl Action for AddClipAction {
     fn apply(&mut self, project: &mut Project) {
         let clip_id = *self.clip_id.get_or_insert_with(Uuid::new_v4);
+        let layer_id = *self
+            .layer_id
+            .get_or_insert_with(|| project.composition.layer_id_at(self.layer_index));
         let name = self
             .name
             .get_or_insert_with(|| format!("Clip {}", project.composition.clips.len() + 1))
@@ -38,7 +44,7 @@ impl Action for AddClipAction {
                 id: clip_id,
                 name,
                 start: self.start_frame,
-                layer_index: self.layer_index,
+                layer_id,
                 duration: 1,
                 hidden: false,
                 alpha_locked: false,
@@ -74,23 +80,35 @@ mod tests {
             end_frame: 1,
         });
 
+        let original_layer_id = project.composition.get_layers()[0].id;
+        let move_target_layer_id = project.composition.get_layers()[1].id;
         manager.do_action(Box::new(AddClipAction::new(0, 0)), &mut project);
         let clip_id = project.composition.clips[0].metadata.id;
-        manager.do_action(
-            Box::new(MoveClipAction::new(clip_id, 5, 0)),
-            &mut project,
-        );
+        manager.do_action(Box::new(MoveClipAction::new(clip_id, 5, 1)), &mut project);
 
         manager.undo(&mut project);
+        assert_eq!(
+            project.composition.clips[0].metadata.layer_id,
+            original_layer_id
+        );
         manager.undo(&mut project);
         assert!(project.composition.clips.is_empty());
 
+        project.composition.insert_layer(0);
         manager.redo(&mut project);
         assert_eq!(project.composition.clips[0].metadata.id, clip_id);
+        assert_eq!(
+            project.composition.clips[0].metadata.layer_id,
+            original_layer_id
+        );
         assert_eq!(project.composition.clips[0].metadata.start, 0);
 
         manager.redo(&mut project);
         assert_eq!(project.composition.clips[0].metadata.id, clip_id);
+        assert_eq!(
+            project.composition.clips[0].metadata.layer_id,
+            move_target_layer_id
+        );
         assert_eq!(project.composition.clips[0].metadata.start, 5);
     }
 }

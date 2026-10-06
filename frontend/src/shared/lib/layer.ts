@@ -1,4 +1,6 @@
 export type LayerState = {
-	hidden: boolean;
+	id: string;
+	name: string;
+	visible: boolean;
 	locked: boolean;
 };

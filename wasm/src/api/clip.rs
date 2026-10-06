@@ -7,13 +7,29 @@ use crate::action::move_clip_action::MoveClipAction;
 use crate::action::set_clip_name_action::SetClipNameAction;
 use crate::action::set_clip_properties_action::SetClipPropertiesAction;
 use crate::action::set_clip_transform_action::SetClipTransformAction;
-use crate::app::clip::{ClipMetadata, ClipProperties};
+use crate::app::clip::{BlendMode, ClipId, ClipProperties};
+use crate::app::composition::LayerId;
 use crate::core::transform::Transform;
 use gloo::utils::format::JsValueSerdeExt;
 use js_sys::Uint8ClampedArray;
 use uuid::Uuid;
 use wasm_bindgen::prelude::wasm_bindgen;
 use wasm_bindgen::JsValue;
+
+#[derive(serde::Serialize)]
+struct ClipMetadataView<'a> {
+    id: ClipId,
+    name: &'a str,
+    start: u32,
+    duration: u32,
+    layer_index: usize,
+    layer_id: LayerId,
+    hidden: bool,
+    alpha_locked: bool,
+    locked: bool,
+    opacity: f32,
+    blend_mode: BlendMode,
+}
 
 #[wasm_bindgen]
 impl FlippenCore {
@@ -25,11 +41,29 @@ impl FlippenCore {
             }
         };
 
-        let clip_metadatas: Vec<ClipMetadata> = project
+        let clip_metadatas: Vec<ClipMetadataView<'_>> = project
             .composition
             .get_clips()
             .iter()
-            .map(|clip| clip.metadata.clone())
+            .map(|clip| {
+                let metadata = &clip.metadata;
+                ClipMetadataView {
+                    id: metadata.id,
+                    name: &metadata.name,
+                    start: metadata.start,
+                    duration: metadata.duration,
+                    layer_index: project
+                        .composition
+                        .layer_index(metadata.layer_id)
+                        .expect("Clip references an unknown layer"),
+                    layer_id: metadata.layer_id,
+                    hidden: metadata.hidden,
+                    alpha_locked: metadata.alpha_locked,
+                    locked: metadata.locked,
+                    opacity: metadata.opacity,
+                    blend_mode: metadata.blend_mode,
+                }
+            })
             .collect();
         JsValue::from_serde(&clip_metadatas).unwrap()
     }

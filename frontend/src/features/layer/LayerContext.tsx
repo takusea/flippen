@@ -35,7 +35,7 @@ export const LayerProvider: React.FC<{ children: React.ReactNode }> = ({
 		<LayerContext
 			value={{
 				layers,
-				isLayerHidden: (layer) => layers[layer]?.hidden ?? false,
+				isLayerHidden: (layer) => layers[layer]?.visible === false,
 				isLayerLocked: (layer) => layers[layer]?.locked ?? false,
 				selectedLayer,
 				selectLayer,

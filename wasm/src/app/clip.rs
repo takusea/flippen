@@ -1,6 +1,9 @@
+use crate::app::composition::LayerId;
 use crate::core::{image::Image, transform::Transform};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+
+pub type ClipId = Uuid;
 
 fn default_opacity() -> f32 {
     1.0
@@ -53,9 +56,9 @@ impl Default for ClipProperties {
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct ClipMetadata {
-    pub id: Uuid,
+    pub id: ClipId,
     pub start: u32,
-    pub layer_index: usize,
+    pub layer_id: LayerId,
     pub duration: u32,
     #[serde(default)]
     pub hidden: bool,
@@ -130,6 +133,7 @@ impl Clip {
 #[cfg(test)]
 mod tests {
     use super::{BlendMode, Clip, ClipMetadata};
+    use crate::app::composition::LayerId;
     use crate::core::{image::Image, transform::Transform};
     use uuid::Uuid;
 
@@ -140,7 +144,7 @@ mod tests {
                 id: Uuid::new_v4(),
                 name: "Test clip".to_string(),
                 start: 3,
-                layer_index: 2,
+                layer_id: LayerId::new(),
                 duration: 4,
                 hidden: false,
                 alpha_locked: false,
@@ -171,37 +175,5 @@ mod tests {
         assert_eq!(restored.metadata.blend_mode, BlendMode::Multiply);
         assert_eq!(restored.transform.anchor, (0.25, 0.75));
         assert_eq!(restored.metadata.name, "Test clip");
-    }
-
-    #[test]
-    fn legacy_clip_metadata_defaults_to_a_name() {
-        #[derive(serde::Serialize)]
-        struct LegacyClipMetadata {
-            id: Uuid,
-            start: u32,
-            layer_index: usize,
-            duration: u32,
-            hidden: bool,
-            alpha_locked: bool,
-            locked: bool,
-            opacity: f32,
-            blend_mode: BlendMode,
-        }
-
-        let legacy = LegacyClipMetadata {
-            id: Uuid::new_v4(),
-            start: 3,
-            layer_index: 2,
-            duration: 4,
-            hidden: false,
-            alpha_locked: false,
-            locked: false,
-            opacity: 1.0,
-            blend_mode: BlendMode::Normal,
-        };
-        let bytes = rmp_serde::to_vec(&legacy).unwrap();
-        let restored: ClipMetadata = rmp_serde::from_slice(&bytes).unwrap();
-
-        assert_eq!(restored.name, "Clip");
     }
 }

@@ -4,6 +4,7 @@ export type ClipMetadata = {
 	start: number;
 	duration: number;
 	layer_index: number;
+	layer_id: string;
 	hidden: boolean;
 	alpha_locked: boolean;
 	locked: boolean;

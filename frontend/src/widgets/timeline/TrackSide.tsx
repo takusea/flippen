@@ -30,12 +30,11 @@ const TrackSide: React.FC<Props> = (props) => {
 			onWheel={props.onWheel}
 		>
 			{props.layers.map((layer, i) => {
-				const isHidden = layer.hidden;
+				const isHidden = !layer.visible;
 				const isLocked = layer.locked;
 				return (
 					<div
-						// biome-ignore lint/suspicious/noArrayIndexKey: Layer indices are stable identifiers.
-						key={`layer-${i}`}
+						key={layer.id}
 						className={`w-full overflow-hidden flex items-center justify-between gap-1 border-l-2 border-b border-zinc-500/25 bg-zinc-500/25 ${props.selectedLayer === i ? "border-l-teal-500" : "border-l-transparent"} ${isHidden ? "opacity-50" : ""}`}
 						style={{ height: `${props.layerHeight}px` }}
 					>

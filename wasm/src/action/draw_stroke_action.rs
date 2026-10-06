@@ -94,12 +94,14 @@ mod tests {
         let after = [7, 8, 9, 255];
         let mut image = Image::new(1, 1);
         image.data.copy_from_slice(&before);
+        let mut composition = Composition::new();
+        let layer_id = composition.layer_id_at(0);
         let clip = Clip {
             metadata: ClipMetadata {
                 id: clip_id,
                 name: "Test".to_string(),
                 start: 0,
-                layer_index: 0,
+                layer_id,
                 duration: 1,
                 hidden: false,
                 alpha_locked: false,
@@ -111,7 +113,6 @@ mod tests {
             image,
             image_revision: 0,
         };
-        let mut composition = Composition::new();
         composition.add_clip(clip);
         let mut project = Project {
             composition,
