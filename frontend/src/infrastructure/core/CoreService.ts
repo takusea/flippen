@@ -314,6 +314,7 @@ export class CoreService {
 					position: transform.position,
 					scale: transform.scale,
 					rotation: transform.rotation,
+					anchor: transform.anchor,
 				}),
 			true,
 		);
@@ -325,6 +326,7 @@ export class CoreService {
 				position: transform.position,
 				scale: transform.scale,
 				rotation: transform.rotation,
+				anchor: transform.anchor,
 			});
 			const nextTransform = core.get_clip_transform(id);
 			if (nextTransform === undefined) return;
