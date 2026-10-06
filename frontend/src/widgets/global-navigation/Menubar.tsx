@@ -4,12 +4,14 @@ import { useClip } from "~/features/clip/useClip";
 import { useUndoStack } from "~/features/history/useUndoStack";
 import LanguageSettingDialog from "~/features/i18n/LanguageSettingDialog";
 import { useI18n } from "~/features/i18n/useI18n";
+import { usePlayback } from "~/features/playback/usePlayback";
 import { useProject } from "~/features/project/useProject";
 import { useProjectDialogs } from "~/features/project/useProjectDialogs";
 import { useProjectExport } from "~/features/project/useProjectExport";
 import ShortcutSettingsDialog from "~/features/shortcuts/ShortcutSettingsDialog";
 import { formatShortcut } from "~/features/shortcuts/shortcutDefinitions";
 import { useShortcuts } from "~/features/shortcuts/useShortcuts";
+import MenubarCheckboxItem from "~/shared/ui/Menubar/MenubarCheckboxItem";
 import MenubarItem from "~/shared/ui/Menubar/MenubarItem";
 import MenubarMenu from "~/shared/ui/Menubar/MenubarMenu";
 import MenubarRoot from "~/shared/ui/Menubar/MenubarRoot";
@@ -18,9 +20,15 @@ import type { useCanvasView } from "~/widgets/canvas/useCanvasView";
 
 type Props = {
 	canvasView: ReturnType<typeof useCanvasView>;
+	isOnionSkin: boolean;
+	onIsOnionSkinChange: () => void;
 };
 
-const GlobalMenubar: React.FC<Props> = ({ canvasView }) => {
+const GlobalMenubar: React.FC<Props> = ({
+	canvasView,
+	isOnionSkin,
+	onIsOnionSkinChange,
+}) => {
 	const { t } = useI18n();
 	const [isLanguageSettingDialogOpen, setLanguageSettingDialogOpen] =
 		useState(false);
@@ -30,6 +38,7 @@ const GlobalMenubar: React.FC<Props> = ({ canvasView }) => {
 	const { shortcuts } = useShortcuts();
 	const undoStack = useUndoStack();
 	const clipContext = useClip();
+	const playbackContext = usePlayback();
 	const project = useProject();
 	const projectDialogs = useProjectDialogs();
 	const fitToView = () => {
@@ -72,6 +81,7 @@ const GlobalMenubar: React.FC<Props> = ({ canvasView }) => {
 	useHotkeys(shortcuts.flipVertical, toggleVerticalFlip);
 	useHotkeys(shortcuts.resetFlip, resetFlip);
 	useHotkeys(shortcuts.toggleGrid, toggleGrid);
+	useHotkeys(shortcuts.toggleOnionSkin, onIsOnionSkinChange);
 
 	return (
 		<>
@@ -195,14 +205,78 @@ const GlobalMenubar: React.FC<Props> = ({ canvasView }) => {
 						onSelect={resetFlip}
 					/>
 					<MenubarSeparator />
-					<MenubarItem
+					<MenubarCheckboxItem
 						label={
 							canvasView.isGridVisible
 								? t("menubar.hideGrid")
 								: t("menubar.showGrid")
 						}
 						shortcut={formatShortcut(shortcuts.toggleGrid)}
-						onSelect={toggleGrid}
+						checked={canvasView.isGridVisible}
+						onCheckedChange={toggleGrid}
+					/>
+					<MenubarCheckboxItem
+						label={
+							isOnionSkin ? t("menubar.hideOnionSkin") : t("menubar.showOnionSkin")
+						}
+						shortcut={formatShortcut(shortcuts.toggleOnionSkin)}
+						checked={isOnionSkin}
+						onCheckedChange={onIsOnionSkinChange}
+					/>
+				</MenubarMenu>
+				<MenubarMenu label={t("menubar.playback")}>
+					<MenubarItem
+						label={
+							playbackContext.isPlaying ? t("menubar.pause") : t("menubar.play")
+						}
+						shortcut={formatShortcut(shortcuts.togglePlayback)}
+						onSelect={() =>
+							playbackContext.isPlaying
+								? playbackContext.pause()
+								: playbackContext.play()
+						}
+					/>
+					<MenubarItem
+						label={t("menubar.stop")}
+						onSelect={playbackContext.stop}
+					/>
+					<MenubarSeparator />
+					<MenubarCheckboxItem
+						label={t("menubar.loop")}
+						shortcut={formatShortcut(shortcuts.toggleLoop)}
+						checked={playbackContext.isLoop}
+						onCheckedChange={() =>
+							playbackContext.setIsLoop(!playbackContext.isLoop)
+						}
+					/>
+					<MenubarSeparator />
+					<MenubarItem
+						label={t("menubar.firstFrame")}
+						shortcut={formatShortcut(shortcuts.firstFrame)}
+						onSelect={() =>
+							playbackContext.setCurrentFrame(playbackContext.startFrame)
+						}
+					/>
+					<MenubarItem
+						label={t("menubar.previousFrame")}
+						shortcut={formatShortcut(shortcuts.previousFrame)}
+						onSelect={() =>
+							playbackContext.setCurrentFrame(playbackContext.currentFrame - 1)
+						}
+					/>
+					<MenubarItem
+						label={t("menubar.nextFrame")}
+						shortcut={formatShortcut(shortcuts.nextFrame)}
+						onSelect={() =>
+							playbackContext.setCurrentFrame(playbackContext.currentFrame + 1)
+						}
+					/>
+					<MenubarItem
+						label={t("menubar.lastFrame")}
+						shortcut={formatShortcut(shortcuts.lastFrame)}
+						onSelect={() =>
+							playbackContext.setCurrentFrame(playbackContext.endFrame)
+						}
 					/>
 				</MenubarMenu>
 				<MenubarMenu label={t("menubar.settings")}>

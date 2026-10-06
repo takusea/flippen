@@ -1,5 +1,11 @@
 import { IconFileExport } from "@tabler/icons-react";
-import type { ReactNode } from "react";
+import {
+	Children,
+	cloneElement,
+	isValidElement,
+	useState,
+	type ReactNode,
+} from "react";
 import { useI18n } from "~/features/i18n/useI18n";
 import ProjectExportDialog from "~/features/project/ProjectExportDialog";
 import { useProject } from "~/features/project/useProject";
@@ -14,6 +20,11 @@ type Props = {
 	children: ReactNode;
 };
 
+type EditorProps = {
+	isOnionSkin?: boolean;
+	onIsOnionSkinChange?: () => void;
+};
+
 const GlobalNavigation: React.FC<Props> = (props: Props) => {
 	const { t } = useI18n();
 	const project = useProject();
@@ -25,6 +36,8 @@ const GlobalNavigation: React.FC<Props> = (props: Props) => {
 		progress: exportProgress,
 		exportAs,
 	} = useProjectExport();
+	const [isOnionSkin, setIsOnionSkin] = useState(false);
+	const child = Children.only(props.children) as React.ReactElement<EditorProps>;
 
 	return (
 		<div className="grid grid-rows-[40px_1fr] w-svw h-svh bg-zinc-100 dark:bg-zinc-950">
@@ -32,7 +45,11 @@ const GlobalNavigation: React.FC<Props> = (props: Props) => {
 				<div className="flex items-center justify-between w-full px-2 gap-2">
 					<div className="flex items-center gap-1">
 						<img src="/favicon.png" width={24} height={24} alt="" />
-						<GlobalMenubar canvasView={canvasView} />
+						<GlobalMenubar
+							canvasView={canvasView}
+							isOnionSkin={isOnionSkin}
+							onIsOnionSkinChange={() => setIsOnionSkin((prev) => !prev)}
+						/>
 					</div>
 					<Button
 						label={
@@ -56,7 +73,12 @@ const GlobalNavigation: React.FC<Props> = (props: Props) => {
 				</div>
 			</header>
 			<div className="relative z-0 overflow-hidden row-span-1 col-span-1 border-t border-zinc-500/25 bg-white dark:bg-zinc-900">
-				{props.children}
+				{isValidElement(child)
+					? cloneElement(child, {
+							isOnionSkin,
+							onIsOnionSkinChange: () => setIsOnionSkin((prev) => !prev),
+						})
+					: child}
 			</div>
 			<ProjectExportDialog
 				open={isDialogOpen}

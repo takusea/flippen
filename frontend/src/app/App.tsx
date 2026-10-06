@@ -16,7 +16,15 @@ const SPLITTER_HEIGHT = 6;
 const MIN_CANVAS_HEIGHT = 160;
 const MIN_TIMELINE_HEIGHT = 96;
 
-function App() {
+type Props = {
+	isOnionSkin?: boolean;
+	onIsOnionSkinChange?: () => void;
+};
+
+const App: React.FC<Props> = ({
+	isOnionSkin = false,
+	onIsOnionSkinChange = () => undefined,
+}) => {
 	const { t } = useI18n();
 	const canvasView = useCanvasView();
 	const toolContext = useTool();
@@ -26,7 +34,6 @@ function App() {
 		(clip) => clip.id === clipContext.selectedClipId,
 	);
 
-	const [isOnionSkin, setIsOnionSkin] = useState<boolean>(false);
 	const [timelineHeight, setTimelineHeight] = useState<number>(160);
 	const mainRef = useRef<HTMLElement>(null);
 	const maxTimelineHeight = Math.max(
@@ -62,7 +69,7 @@ function App() {
 				<div className="p-2 mx-auto mt-auto overflow-x-auto">
 					<Toolbar
 						isOnionSkin={isOnionSkin}
-						onIsOnionSkinChange={() => setIsOnionSkin((prev) => !prev)}
+						onIsOnionSkinChange={onIsOnionSkinChange}
 						canvasView={canvasView}
 					/>
 				</div>
