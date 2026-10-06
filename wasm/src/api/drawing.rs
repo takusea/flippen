@@ -1,5 +1,5 @@
 use super::FlippenCore;
-use crate::action::begin_tool_action::BeginToolAction;
+use crate::action::draw_stroke_action::DrawStrokeAction;
 use crate::action::set_layer_lock_action::SetLayerLockAction;
 use crate::action::set_layer_visibility_action::SetLayerVisibilityAction;
 use crate::core::image::Image;
@@ -26,10 +26,15 @@ impl FlippenCore {
         {
             return;
         }
-        let action = Box::new(BeginToolAction::new(clip_id));
+        let action = Box::new(DrawStrokeAction::new(clip_id));
         if let Some(project) = self.project.as_mut() {
             self.action_manager.do_action(action, project);
+            self.action_manager.begin_pixel_recording();
         }
+    }
+
+    pub fn end_draw(&mut self) {
+        self.action_manager.end_pixel_recording();
     }
 
     pub fn undo(&mut self) {
@@ -125,26 +130,25 @@ impl FlippenCore {
         };
 
         let alpha_locked = clip.metadata.alpha_locked;
-        let previous_pixels = alpha_locked.then(|| clip.image.data.clone());
+        let mut changes = Vec::new();
         let image = clip.get_image_mut();
         let color_array = [color[0], color[1], color[2], color[3]];
-        tool.apply(image, x, y, color_array, Some(pressure));
-        if let Some(previous_pixels) = previous_pixels {
-            for (pixel, previous) in image
-                .data
-                .chunks_exact_mut(4)
-                .zip(previous_pixels.chunks_exact(4))
-            {
-                if previous[3] == 0 {
-                    pixel.copy_from_slice(previous);
-                } else if pixel[3] == 0 {
-                    pixel.copy_from_slice(previous);
+        tool.apply(image, x, y, color_array, Some(pressure), &mut changes);
+        if alpha_locked {
+            for change in &mut changes {
+                let pixel = &mut image.data[change.index..change.index + 4];
+                if change.before[3] == 0 || pixel[3] == 0 {
+                    pixel.copy_from_slice(&change.before);
                 } else {
-                    pixel[3] = previous[3];
+                    pixel[3] = change.before[3];
                 }
+                change.after.copy_from_slice(pixel);
             }
         }
-        clip.mark_image_changed();
+        if !changes.is_empty() {
+            clip.mark_image_changed();
+        }
+        self.action_manager.record_pixel_changes(clip_id, changes);
     }
 
     pub fn get_tool_properties(&self, current_tool: &str) -> JsValue {

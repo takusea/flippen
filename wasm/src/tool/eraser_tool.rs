@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::core::{
     color::Color,
-    image::Image,
+    image::{Image, PixelChange},
     tool::{Tool, ToolPropertyValue},
 };
 
@@ -11,7 +11,15 @@ pub struct EraserTool {
 }
 
 impl Tool for EraserTool {
-    fn apply(&mut self, image: &mut Image, x: u32, y: u32, _color: Color, pressure: Option<f32>) {
+    fn apply(
+        &mut self,
+        image: &mut Image,
+        x: u32,
+        y: u32,
+        _color: Color,
+        pressure: Option<f32>,
+        changes: &mut Vec<PixelChange>,
+    ) {
         let pressure = pressure.unwrap_or(1.0);
         let radius = (self.size as f32 * pressure) as i32;
         let fw = image.width as i32;
@@ -26,7 +34,9 @@ impl Tool for EraserTool {
                         continue;
                     }
                     let idx = ((py * fw + px) * 4) as usize;
-                    image.data[idx + 3] = 0;
+                    let mut pixel: [u8; 4] = image.data[idx..idx + 4].try_into().unwrap();
+                    pixel[3] = 0;
+                    image.set_pixel(idx, pixel, changes);
                 }
             }
         }

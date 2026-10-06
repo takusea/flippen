@@ -2,7 +2,10 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-use crate::core::{color::Color, image::Image};
+use crate::core::{
+    color::Color,
+    image::{Image, PixelChange},
+};
 
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(untagged)]
@@ -15,7 +18,15 @@ pub enum ToolPropertyValue {
 }
 
 pub trait Tool {
-    fn apply(&mut self, image: &mut Image, x: u32, y: u32, color: Color, pressure: Option<f32>);
+    fn apply(
+        &mut self,
+        image: &mut Image,
+        x: u32,
+        y: u32,
+        color: Color,
+        pressure: Option<f32>,
+        changes: &mut Vec<PixelChange>,
+    );
     fn get_properties(&self) -> HashMap<&str, ToolPropertyValue>;
     fn set_property(&mut self, name: &str, value: ToolPropertyValue);
 }

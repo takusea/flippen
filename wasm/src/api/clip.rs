@@ -1,8 +1,8 @@
 use super::FlippenCore;
 use crate::action::add_clip_action::AddClipAction;
-use crate::action::begin_tool_action::BeginToolAction;
 use crate::action::change_clip_duration_action::ChangeClipDurationAction;
 use crate::action::delete_clip_action::DeleteClipAction;
+use crate::action::draw_stroke_action::DrawStrokeAction;
 use crate::action::move_clip_action::MoveClipAction;
 use crate::action::set_clip_name_action::SetClipNameAction;
 use crate::action::set_clip_properties_action::SetClipPropertiesAction;
@@ -101,8 +101,26 @@ impl FlippenCore {
             ));
         }
 
+        let changes: Vec<_> = clip
+            .image
+            .data
+            .chunks_exact(4)
+            .zip(pixels.chunks_exact(4))
+            .enumerate()
+            .filter_map(|(pixel_index, (before, after))| {
+                let before: [u8; 4] = before.try_into().unwrap();
+                let after: [u8; 4] = after.try_into().unwrap();
+                (before != after).then_some(crate::core::image::PixelChange {
+                    index: pixel_index * 4,
+                    before,
+                    after,
+                })
+            })
+            .collect();
         self.action_manager
-            .do_action(Box::new(BeginToolAction::new(clip_id)), project);
+            .do_action(Box::new(DrawStrokeAction::new(clip_id)), project);
+        self.action_manager
+            .record_pixel_changes_to_latest(clip_id, changes);
         let clip = project
             .composition
             .clips

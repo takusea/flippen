@@ -273,7 +273,7 @@ export class CoreService {
 	}
 
 	endDraw() {
-		return this.enqueue(() => undefined, true);
+		return this.enqueue((core) => core.end_draw(), true);
 	}
 
 	getToolProperties(tool: string) {

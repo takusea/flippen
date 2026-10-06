@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::core::{
     color::Color,
-    image::Image,
+    image::{Image, PixelChange},
     tool::{Tool, ToolPropertyValue},
 };
 
@@ -11,7 +11,15 @@ pub struct CircleBrushTool {
 }
 
 impl Tool for CircleBrushTool {
-    fn apply(&mut self, image: &mut Image, x: u32, y: u32, color: Color, pressure: Option<f32>) {
+    fn apply(
+        &mut self,
+        image: &mut Image,
+        x: u32,
+        y: u32,
+        color: Color,
+        pressure: Option<f32>,
+        changes: &mut Vec<PixelChange>,
+    ) {
         let pressure = pressure.unwrap_or(1.0);
         let diameter = (self.size as f32 * pressure.max(0.0)).max(1.0);
         let radius = (diameter - 1.0) / 2.0;
@@ -34,7 +42,7 @@ impl Tool for CircleBrushTool {
                 }
 
                 let idx = ((py * fw + px) * 4) as usize;
-                image.data[idx..idx + 4].copy_from_slice(&[cr, cg, cb, 255]);
+                image.set_pixel(idx, [cr, cg, cb, 255], changes);
             }
         }
     }

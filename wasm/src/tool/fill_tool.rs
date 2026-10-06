@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::core::{
     color::{color_distance, Color},
-    image::Image,
+    image::{Image, PixelChange},
     tool::{Tool, ToolPropertyValue},
 };
 
@@ -11,7 +11,15 @@ pub struct FillTool {
 }
 
 impl Tool for FillTool {
-    fn apply(&mut self, image: &mut Image, x: u32, y: u32, color: Color, _pressure: Option<f32>) {
+    fn apply(
+        &mut self,
+        image: &mut Image,
+        x: u32,
+        y: u32,
+        color: Color,
+        _pressure: Option<f32>,
+        changes: &mut Vec<PixelChange>,
+    ) {
         let idx = ((y as usize) * (image.width as usize) + (x as usize)) * 4;
         if idx + 3 >= image.data.len() {
             return;
@@ -47,7 +55,7 @@ impl Tool for FillTool {
                 continue;
             }
 
-            image.data[i..i + 4].copy_from_slice(&color);
+            image.set_pixel(i, color, changes);
 
             if cx > 0 {
                 stack.push((cx - 1, cy));
