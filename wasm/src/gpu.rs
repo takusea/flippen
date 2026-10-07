@@ -41,7 +41,7 @@ impl GpuRenderer {
 
         let (device, queue) = adapter
             .request_device(&wgpu::DeviceDescriptor {
-                label: Some("flippen-render-device"),
+                label: Some("render-device"),
                 required_features: wgpu::Features::empty(),
                 required_limits: wgpu::Limits::default(),
                 memory_hints: wgpu::MemoryHints::Performance,
@@ -51,11 +51,11 @@ impl GpuRenderer {
             .map_err(|error| format!("Could not create a GPU device: {error}"))?;
 
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("flippen-clip-shader"),
+            label: Some("clip-shader"),
             source: wgpu::ShaderSource::Wgsl(include_str!("gpu.wgsl").into()),
         });
         let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-            label: Some("flippen-clip-bind-group-layout"),
+            label: Some("clip-bind-group-layout"),
             entries: &[
                 wgpu::BindGroupLayoutEntry {
                     binding: 0,
@@ -99,12 +99,12 @@ impl GpuRenderer {
             ],
         });
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-            label: Some("flippen-render-pipeline-layout"),
+            label: Some("render-pipeline-layout"),
             bind_group_layouts: &[&bind_group_layout],
             push_constant_ranges: &[],
         });
         let pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: Some("flippen-render-pipeline"),
+            label: Some("render-pipeline"),
             layout: Some(&pipeline_layout),
             vertex: wgpu::VertexState {
                 module: &shader,
@@ -129,7 +129,7 @@ impl GpuRenderer {
             cache: None,
         });
         let sampler = device.create_sampler(&wgpu::SamplerDescriptor {
-            label: Some("flippen-clip-sampler"),
+            label: Some("clip-sampler"),
             address_mode_u: wgpu::AddressMode::ClampToEdge,
             address_mode_v: wgpu::AddressMode::ClampToEdge,
             mag_filter: wgpu::FilterMode::Nearest,
@@ -155,7 +155,7 @@ impl GpuRenderer {
     ) -> Result<Image, String> {
         let output_textures = [0, 1].map(|_| {
             self.device.create_texture(&wgpu::TextureDescriptor {
-                label: Some("flippen-frame-texture"),
+                label: Some("frame-texture"),
                 size: wgpu::Extent3d {
                     width,
                     height,
@@ -178,7 +178,7 @@ impl GpuRenderer {
         let padded_bytes_per_row = bytes_per_row.div_ceil(wgpu::COPY_BYTES_PER_ROW_ALIGNMENT)
             * wgpu::COPY_BYTES_PER_ROW_ALIGNMENT;
         let readback = self.device.create_buffer(&wgpu::BufferDescriptor {
-            label: Some("flippen-frame-readback"),
+            label: Some("frame-readback"),
             size: (padded_bytes_per_row * height) as u64,
             usage: wgpu::BufferUsages::COPY_DST | wgpu::BufferUsages::MAP_READ,
             mapped_at_creation: false,
@@ -195,7 +195,7 @@ impl GpuRenderer {
                 .entry(clip.metadata.id)
                 .or_insert_with(|| {
                     let texture = self.device.create_texture(&wgpu::TextureDescriptor {
-                        label: Some("flippen-clip-texture"),
+                        label: Some("clip-texture"),
                         size: wgpu::Extent3d {
                             width: image.width,
                             height: image.height,
@@ -219,7 +219,7 @@ impl GpuRenderer {
             if cached.width != image.width || cached.height != image.height {
                 *cached = CachedClipTexture {
                     texture: self.device.create_texture(&wgpu::TextureDescriptor {
-                        label: Some("flippen-clip-texture"),
+                        label: Some("clip-texture"),
                         size: wgpu::Extent3d {
                             width: image.width,
                             height: image.height,
@@ -273,11 +273,11 @@ impl GpuRenderer {
         let mut encoder = self
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                label: Some("flippen-frame-encoder"),
+                label: Some("frame-encoder"),
             });
         {
             let _pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-                label: Some("flippen-frame-clear"),
+                label: Some("frame-clear"),
                 color_attachments: &[Some(wgpu::RenderPassColorAttachment {
                     view: &output_views[0],
                     resolve_target: None,
@@ -322,14 +322,14 @@ impl GpuRenderer {
             let uniform_buffer =
                 self.device
                     .create_buffer_init(&wgpu::util::BufferInitDescriptor {
-                        label: Some("flippen-clip-uniforms"),
+                        label: Some("clip-uniforms"),
                         contents: bytemuck::bytes_of(&uniforms),
                         usage: wgpu::BufferUsages::UNIFORM,
                     });
             let source_index = clip_index % 2;
             let target_index = (clip_index + 1) % 2;
             let bind_group = self.device.create_bind_group(&wgpu::BindGroupDescriptor {
-                label: Some("flippen-clip-bind-group"),
+                label: Some("clip-bind-group"),
                 layout: &self.bind_group_layout,
                 entries: &[
                     wgpu::BindGroupEntry {
@@ -355,7 +355,7 @@ impl GpuRenderer {
                 ],
             });
             let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-                label: Some("flippen-frame-pass"),
+                label: Some("frame-pass"),
                 color_attachments: &[Some(wgpu::RenderPassColorAttachment {
                     view: &output_views[target_index],
                     resolve_target: None,
