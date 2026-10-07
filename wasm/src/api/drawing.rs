@@ -84,6 +84,27 @@ impl FlippenCore {
         color: &[u8],
         pressure: f32,
     ) {
+        let points = [x as f64, y as f64, pressure as f64];
+        self.apply_tool_points(clip_id_str, current_tool, &points, color);
+    }
+
+    pub fn apply_tool_points(
+        &mut self,
+        clip_id_str: String,
+        current_tool: &str,
+        points: &[f64],
+        color: &[u8],
+    ) {
+        if points.len() % 3 != 0 {
+            eprintln!("Point data must contain x, y, and pressure for each point.");
+            return;
+        }
+
+        if color.len() != 4 {
+            eprintln!("Color array must have exactly 4 elements.");
+            return;
+        }
+
         let clip_id = match Uuid::parse_str(&clip_id_str) {
             Ok(id) => id,
             Err(e) => {
@@ -98,7 +119,7 @@ impl FlippenCore {
         };
 
         let project = match &mut self.project {
-            Some(p) => p,
+            Some(project) => project,
             None => return,
         };
 
@@ -106,65 +127,70 @@ impl FlippenCore {
             return;
         }
         let clip = match project.get_clip_mut(clip_id) {
-            Some(c) => c,
+            Some(clip) => clip,
             None => return,
         };
 
         let tool = match self.tools.get_mut(tool_id) {
-            Some(t) => t,
+            Some(tool) => tool,
             None => {
                 eprintln!("Tool is not registered: {:?}.", tool_id);
                 return;
             }
         };
 
-        if color.len() != 4 {
-            eprintln!("Color array must have exactly 4 elements.");
-            return;
-        }
-
         let (width, height) = (clip.image.width, clip.image.height);
-        let (x, y) = match clip.transform.inverse_transform_point(
-            (x as f32, y as f32),
-            (width as f32 / 2.0, height as f32 / 2.0),
-        ) {
-            Some((x, y))
-                if x.is_finite()
-                    && y.is_finite()
-                    && x >= 0.0
-                    && y >= 0.0
-                    && x < width as f32
-                    && y < height as f32 =>
-            {
-                (x.floor() as u32, y.floor() as u32)
-            }
-            Some(_) => return,
-            None => {
-                eprintln!("Clip transform is not invertible.");
-                return;
-            }
-        };
-
         let alpha_locked = clip.metadata.alpha_locked;
-        let mut changes = Vec::new();
-        let image = clip.get_image_mut();
         let color_array = [color[0], color[1], color[2], color[3]];
-        tool.apply(image, x, y, color_array, Some(pressure), &mut changes);
-        if alpha_locked {
-            for change in &mut changes {
-                let pixel = &mut image.data[change.index..change.index + 4];
-                if change.before[3] == 0 || pixel[3] == 0 {
-                    pixel.copy_from_slice(&change.before);
-                } else {
-                    pixel[3] = change.before[3];
+
+        for point in points.chunks_exact(3) {
+            let (x, y) = match clip.transform.inverse_transform_point(
+                (point[0] as u32 as f32, point[1] as u32 as f32),
+                (width as f32 / 2.0, height as f32 / 2.0),
+            ) {
+                Some((x, y))
+                    if x.is_finite()
+                        && y.is_finite()
+                        && x >= 0.0
+                        && y >= 0.0
+                        && x < width as f32
+                        && y < height as f32 =>
+                {
+                    (x.floor() as u32, y.floor() as u32)
                 }
-                change.after.copy_from_slice(pixel);
+                Some(_) => continue,
+                None => {
+                    eprintln!("Clip transform is not invertible.");
+                    continue;
+                }
+            };
+
+            let mut changes = Vec::new();
+            let image = clip.get_image_mut();
+            tool.apply(
+                image,
+                x,
+                y,
+                color_array,
+                Some(point[2] as f32),
+                &mut changes,
+            );
+            if alpha_locked {
+                for change in &mut changes {
+                    let pixel = &mut image.data[change.index..change.index + 4];
+                    if change.before[3] == 0 || pixel[3] == 0 {
+                        pixel.copy_from_slice(&change.before);
+                    } else {
+                        pixel[3] = change.before[3];
+                    }
+                    change.after.copy_from_slice(pixel);
+                }
             }
+            if !changes.is_empty() {
+                clip.mark_image_changed();
+            }
+            self.action_manager.record_pixel_changes(clip_id, changes);
         }
-        if !changes.is_empty() {
-            clip.mark_image_changed();
-        }
-        self.action_manager.record_pixel_changes(clip_id, changes);
     }
 
     pub fn get_tool_properties(&self, current_tool: &str) -> JsValue {

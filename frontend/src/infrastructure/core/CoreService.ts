@@ -266,9 +266,18 @@ export class CoreService {
 		color: Uint8Array,
 	) {
 		return this.enqueue((core) => {
-			for (const point of points) {
-				core.apply_tool(clipId, tool, point.x, point.y, color, point.pressure);
+			if (points.length === 0) return;
+
+			const packedPoints = new Float64Array(points.length * 3);
+			for (let index = 0; index < points.length; index++) {
+				const point = points[index];
+				const offset = index * 3;
+				packedPoints[offset] = point.x;
+				packedPoints[offset + 1] = point.y;
+				packedPoints[offset + 2] = point.pressure;
 			}
+
+			core.apply_tool_points(clipId, tool, packedPoints, color);
 		});
 	}
 
