@@ -15,6 +15,7 @@
 	"shortcutSettings.pressKeys": "Press keys...",
 	"shortcutSettings.conflict": "This shortcut is already assigned.",
 	"shortcutSettings.reset": "Restore Defaults",
+	"about.title": "About Flippen",
 	"shortcut.newProject": "New Project",
 	"shortcut.openProject": "Open Project",
 	"shortcut.saveProject": "Save Project",

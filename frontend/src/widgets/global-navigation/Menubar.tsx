@@ -17,6 +17,7 @@ import MenubarMenu from "~/shared/ui/Menubar/MenubarMenu";
 import MenubarRoot from "~/shared/ui/Menubar/MenubarRoot";
 import MenubarSeparator from "~/shared/ui/Menubar/MenubarSeparator";
 import type { useCanvasView } from "~/widgets/canvas/useCanvasView";
+import AboutDialog from "./AboutDialog";
 
 type Props = {
 	canvasView: ReturnType<typeof useCanvasView>;
@@ -34,6 +35,8 @@ const GlobalMenubar: React.FC<Props> = ({
 		useState(false);
 	const [isShortcutSettingsDialogOpen, setShortcutSettingsDialogOpen] =
 		useState(false);
+	useState(false);
+	const [isAboutDialogOpen, setAboutDialogOpen] = useState(false);
 	const { setDialogOpen } = useProjectExport();
 	const { shortcuts } = useShortcuts();
 	const undoStack = useUndoStack();
@@ -292,7 +295,10 @@ const GlobalMenubar: React.FC<Props> = ({
 					/>
 				</MenubarMenu>
 				<MenubarMenu label={t("menubar.help")}>
-					<MenubarItem label={t("menubar.aboutFlippen")} />
+					<MenubarItem
+						label={t("menubar.aboutFlippen")}
+						onSelect={() => setAboutDialogOpen(true)}
+					/>
 				</MenubarMenu>
 			</MenubarRoot>
 			<LanguageSettingDialog
@@ -303,6 +309,7 @@ const GlobalMenubar: React.FC<Props> = ({
 				open={isShortcutSettingsDialogOpen}
 				onOpenChange={setShortcutSettingsDialogOpen}
 			/>
+			<AboutDialog open={isAboutDialogOpen} onOpenChange={setAboutDialogOpen} />
 		</>
 	);
 };
