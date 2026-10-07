@@ -11,7 +11,7 @@ const Select: React.FC<Props> = ({ children, placeholder, ...props }) => {
 	return (
 		<SelectPrimitive.Root {...props}>
 			<SelectPrimitive.Trigger
-				className="h-8 px-2 border border-zinc-500/25 bg-zinc-500/25 rounded flex gap-1 justify-between items-center not-disabled:cursor-pointer disabled:opacity-50"
+				className="h-8 px-2 border border-zinc-500/40 bg-white/50 dark:bg-zinc-800/50 hover:bg-zinc-200/50 dark:hover:bg-zinc-700/50 rounded-md flex gap-1 justify-between items-center not-disabled:cursor-pointer disabled:opacity-50"
 				aria-label={props.label}
 				id={props.id}
 			>
@@ -24,7 +24,7 @@ const Select: React.FC<Props> = ({ children, placeholder, ...props }) => {
 				<SelectPrimitive.Content
 					position="popper"
 					sideOffset={5}
-					className="overflow-hidden rounded-md p-2 border border-zinc-500/25 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl shadow w-(--radix-select-trigger-width) max-h-(--radix-select-content-available-height)"
+					className="overflow-hidden rounded-xl p-2 border border-zinc-500/40 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl shadow-lg w-(--radix-select-trigger-width) max-h-(--radix-select-content-available-height)"
 				>
 					<SelectPrimitive.ScrollUpButton className="flex h-6 cursor-default items-center justify-center">
 						<IconChevronUp />

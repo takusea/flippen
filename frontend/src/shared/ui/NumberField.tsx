@@ -135,7 +135,7 @@ const NumberField: React.FC<Props> = (props) => {
 
 	return (
 		<div
-			className={`relative h-8 border border-zinc-500/25 bg-zinc-500/25 rounded ${props.disabled ? "opacity-50" : cursor}`}
+			className={`relative h-8 border border-zinc-500/40 bg-white/50 dark:bg-zinc-800/50 rounded-md ${props.disabled ? "opacity-50" : cursor}`}
 			onPointerDown={handlePointerDown}
 			onPointerMove={handlePointerMove}
 			onPointerUp={handlePointerUp}

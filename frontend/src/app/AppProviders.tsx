@@ -1,3 +1,4 @@
+import { TooltipProvider } from "radix-ui/tooltip";
 import type { ReactNode } from "react";
 import { ClipProvider } from "~/features/clip/ClipContext";
 import { UndoStackProvider } from "~/features/history/UndoStackContext";
@@ -17,27 +18,29 @@ type Props = {
 
 function AppProviders({ children }: Props) {
 	return (
-		<I18nProvider>
-			<ShortcutsProvider>
-				<CoreProvider>
-					<ProjectProvider>
-						<ProjectDialogsProvider>
-							<PlaybackProvider>
-								<LayerProvider>
-									<ToolProvider>
-										<ClipProvider>
-											<UndoStackProvider>
-												<CanvasViewProvider>{children}</CanvasViewProvider>
-											</UndoStackProvider>
-										</ClipProvider>
-									</ToolProvider>
-								</LayerProvider>
-							</PlaybackProvider>
-						</ProjectDialogsProvider>
-					</ProjectProvider>
-				</CoreProvider>
-			</ShortcutsProvider>
-		</I18nProvider>
+		<TooltipProvider delayDuration={200}>
+			<I18nProvider>
+				<ShortcutsProvider>
+					<CoreProvider>
+						<ProjectProvider>
+							<ProjectDialogsProvider>
+								<PlaybackProvider>
+									<LayerProvider>
+										<ToolProvider>
+											<ClipProvider>
+												<UndoStackProvider>
+													<CanvasViewProvider>{children}</CanvasViewProvider>
+												</UndoStackProvider>
+											</ClipProvider>
+										</ToolProvider>
+									</LayerProvider>
+								</PlaybackProvider>
+							</ProjectDialogsProvider>
+						</ProjectProvider>
+					</CoreProvider>
+				</ShortcutsProvider>
+			</I18nProvider>
+		</TooltipProvider>
 	);
 }
 

@@ -34,7 +34,7 @@ const Splitter: React.FC<Props> = ({
 			aria-valuemax={max}
 			aria-valuenow={value}
 			tabIndex={0}
-			className={`z-10 touch-none border-y bg-white dark:bg-zinc-950 border-zinc-500/25 hover:bg-teal-500 focus-visible:outline-teal-500 ${
+			className={`z-10 touch-none border-y bg-white dark:bg-zinc-950 border-zinc-500/40 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50 ${
 				isHorizontal ? "h-full cursor-row-resize" : "w-full cursor-col-resize"
 			}`}
 			onPointerDown={(event) => {

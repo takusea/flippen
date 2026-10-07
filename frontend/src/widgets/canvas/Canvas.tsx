@@ -82,7 +82,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 				id="draw-canvas"
 				width={canvasWidth}
 				height={canvasHeight}
-				className="absolute inset-0 border border-zinc-500 [image-rendering:pixelated]"
+				className="absolute inset-0 border border-zinc-500/40 [image-rendering:pixelated]"
 				style={canvasTransform}
 				onPointerDown={canvasPointer.handlePointerDown}
 				onPointerMove={canvasPointer.handlePointerMove}

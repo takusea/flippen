@@ -37,7 +37,7 @@ const TextField: React.FC<Props> = (props) => {
 				onChange?.(event);
 			}}
 			onBlur={handleBlur}
-			className="h-8 px-2 border border-zinc-500/25 bg-zinc-500/25 rounded"
+			className="h-8 px-2 border border-zinc-500/40 bg-white/50 dark:bg-zinc-800/50 rounded-md"
 		/>
 	);
 };

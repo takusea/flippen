@@ -81,7 +81,7 @@ const Clip: React.FC<Props> = (props) => {
 	return (
 		<div
 			key={props.id}
-			className={`absolute grid grid-cols-[1fr_8px] items-stretch rounded border overflow-hidden ${props.isSelected ? "bg-teal-400/25 border-teal-400 border-2" : "bg-zinc-500/25 border-zinc-500/25"} ${props.isHidden ? "opacity-40" : ""} ${props.isLocked ? "cursor-not-allowed" : ""}`}
+			className={`absolute grid grid-cols-[1fr_8px] items-stretch rounded border overflow-hidden ${props.isSelected ? "bg-teal-500/25 border-teal-500" : "bg-zinc-500/25 border-zinc-500/40"} ${props.isHidden ? "opacity-40" : ""} ${props.isLocked ? "cursor-not-allowed" : ""}`}
 			style={{
 				left: `${props.startFrame * props.frameWidth}px`,
 				top: `${props.layerIndex * props.layerHeight}px`,

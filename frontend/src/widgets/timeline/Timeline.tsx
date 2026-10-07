@@ -136,13 +136,13 @@ const Timeline: React.FC = () => {
 	}
 
 	return (
-		<div className="h-full min-h-0 min-w-0 grid grid-rows-[24px_minmax(0,1fr)] grid-cols-[192px_minmax(0,1fr)]">
-			<div className="size-full flex items-center justify-between px-1 font-mono border-b border-r border-zinc-500/25">
+		<div className="h-full min-h-0 min-w-0 grid grid-rows-[24px_minmax(0,1fr)] grid-cols-[192px_minmax(0,1fr)] ">
+			<div className="size-full flex items-center justify-between px-1 font-mono border-b border-r border-zinc-500/40">
 				<span>{playbackContext.startFrame} - </span>
 				<span>{playbackContext.currentFrame}</span>
 				<span> - {playbackContext.endFrame}</span>
 			</div>
-			<div className="relative overflow-hidden border-b border-zinc-500/25">
+			<div className="relative overflow-hidden">
 				<TrackHeader
 					frameWidth={frameWidth}
 					totalFrames={playbackContext.maxFrameCount}
@@ -156,7 +156,7 @@ const Timeline: React.FC = () => {
 					onWheel={handleHorizontalZoom}
 				/>
 			</div>
-			<div className="relative overflow-hidden border-r border-zinc-500/25">
+			<div className="relative overflow-hidden border-r border-zinc-500/40">
 				<TrackSide
 					layers={layerContext.layers}
 					layerHeight={layerHeight}
@@ -170,16 +170,24 @@ const Timeline: React.FC = () => {
 				/>
 			</div>
 			<div
-				className="relative overflow-scroll row-start-2 col-start-2"
+				className="relative overflow-scroll row-start-2 col-start-2 bg-zinc-950/10"
 				onPointerDown={handlePointerDown}
 				onScroll={handleScroll}
 				ref={timelineViewportRef}
 			>
 				<div
-					className="absolute top-0 w-px bg-teal-400 z-50"
+					className="absolute top-0 w-px bg-teal-500 z-50"
 					style={{
 						height: `${layerHeight * layerCount}px`,
 						translate: `${playbackContext.currentFrame * frameWidth}px 0`,
+					}}
+				/>
+				<div
+					className="absolute top-0 pointer-events-none bg-white dark:bg-white/10"
+					style={{
+						left: `${playbackContext.startFrame * frameWidth}px`,
+						height: `${layerHeight * layerCount}px`,
+						width: `${(playbackContext.endFrame - playbackContext.startFrame + 1) * frameWidth}px`,
 					}}
 				/>
 				{[...Array(layerCount)].map((_, i) => (
@@ -193,22 +201,6 @@ const Timeline: React.FC = () => {
 						}}
 					/>
 				))}
-				<div
-					className="absolute top-0 pointer-events-none bg-zinc-950/20"
-					style={{
-						height: `${layerHeight * layerCount}px`,
-						width: `${playbackContext.startFrame * frameWidth}px`,
-					}}
-				/>
-				<div
-					className="absolute top-0 pointer-events-none bg-zinc-950/20"
-					style={{
-						left: `${(playbackContext.endFrame + 1) * frameWidth}px`,
-						height: `${layerHeight * layerCount}px`,
-						width: `${(playbackContext.maxFrameCount - playbackContext.endFrame - 1) * frameWidth}px`,
-					}}
-				/>
-
 				{clipContext.clips.map((clip) => (
 					<Clip
 						key={clip.id}

@@ -46,7 +46,13 @@ const GlobalNavigation: React.FC<Props> = (props: Props) => {
 			<header className="relative row-span-1 col-span-full flex items-center justify-between">
 				<div className="flex items-center justify-between w-full px-2 gap-2">
 					<div className="flex items-center gap-1">
-						<img src="/favicon.png" width={24} height={24} alt="" />
+						<img
+							src="/favicon.png"
+							width={16}
+							height={16}
+							alt=""
+							className="[image-rendering:pixelated]"
+						/>
 						<GlobalMenubar
 							canvasView={canvasView}
 							isOnionSkin={isOnionSkin}
@@ -65,16 +71,18 @@ const GlobalNavigation: React.FC<Props> = (props: Props) => {
 						onClick={() => setDialogOpen(true)}
 					/>
 				</div>
-				<div className="absolute inset-0 w-fit h-fit m-auto">
-					<Tooltip label={t("nav.projectSettings")} side="bottom">
-						<Button
-							label={project.settings?.title ?? t("nav.untitled")}
-							onClick={projectDialogs.openEditProjectSettingsDialog}
-						/>
-					</Tooltip>
-				</div>
+				{project.settings && (
+					<div className="absolute inset-0 w-fit h-fit m-auto">
+						<Tooltip label={t("nav.projectSettings")} side="bottom">
+							<Button
+								label={project.settings.title}
+								onClick={projectDialogs.openEditProjectSettingsDialog}
+							/>
+						</Tooltip>
+					</div>
+				)}
 			</header>
-			<div className="relative z-0 overflow-hidden row-span-1 col-span-1 border-t border-zinc-500/25 bg-white dark:bg-zinc-900">
+			<div className="relative z-0 overflow-hidden row-span-1 col-span-1 border-t border-zinc-500/40 bg-white dark:bg-zinc-900">
 				{isValidElement(child)
 					? cloneElement(child, {
 							isOnionSkin,

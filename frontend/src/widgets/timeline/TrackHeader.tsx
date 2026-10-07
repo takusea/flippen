@@ -105,7 +105,7 @@ const TrackHeader: React.FC<Props> = (props) => {
 
 	return (
 		<div
-			className="absolute h-full"
+			className="absolute h-full bg-zinc-950/10 border-b border-zinc-500/40"
 			style={{
 				translate: `-${props.scrollX}px 0`,
 				width: `${props.totalFrames * props.frameWidth}px`,
@@ -114,7 +114,7 @@ const TrackHeader: React.FC<Props> = (props) => {
 			onWheel={props.onWheel}
 		>
 			<div
-				className="absolute top-0 h-full bg-teal-400/15 pointer-events-none"
+				className="absolute top-0 h-full bg-white dark:bg-white/10 pointer-events-none"
 				style={{
 					left: `${props.startFrame * props.frameWidth}px`,
 					width: `${(props.endFrame - props.startFrame + 1) * props.frameWidth}px`,
@@ -132,8 +132,10 @@ const TrackHeader: React.FC<Props> = (props) => {
 				type="button"
 				aria-label={t("timeline.startFrame", { frame: props.startFrame })}
 				title={t("timeline.startFrame", { frame: props.startFrame })}
-				className="absolute top-0 z-10 h-full w-3 cursor-ew-resize touch-none border-l-2 border-teal-400 bg-teal-400/25"
-				style={{ left: `${props.startFrame * props.frameWidth}px` }}
+				className="absolute top-0 z-10 h-full cursor-ew-resize touch-none border-l-2 border-teal-500"
+				style={{
+					left: `${props.startFrame * props.frameWidth}px`,
+				}}
 				onPointerDown={(event) =>
 					handleRangePointerDown(event, props.startFrame)
 				}
@@ -144,8 +146,10 @@ const TrackHeader: React.FC<Props> = (props) => {
 				type="button"
 				aria-label={t("timeline.endFrame", { frame: props.endFrame })}
 				title={t("timeline.endFrame", { frame: props.endFrame })}
-				className="absolute top-0 z-10 h-full w-3 -translate-x-full cursor-ew-resize touch-none border-r-2 border-teal-500 bg-teal-500/25"
-				style={{ left: `${(props.endFrame + 1) * props.frameWidth}px` }}
+				className="absolute top-0 z-10 h-full -translate-x-full cursor-ew-resize touch-none border-r-2 border-teal-500"
+				style={{
+					left: `${(props.endFrame + 1) * props.frameWidth}px`,
+				}}
 				onPointerDown={(event) =>
 					handleRangePointerDown(event, props.endFrame + 1)
 				}

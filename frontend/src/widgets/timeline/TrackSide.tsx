@@ -35,7 +35,7 @@ const TrackSide: React.FC<Props> = (props) => {
 				return (
 					<div
 						key={layer.id}
-						className={`w-full overflow-hidden flex items-center justify-between gap-1 border-l-2 border-b border-zinc-500/25 bg-zinc-500/25 ${props.selectedLayerId === layer.id ? "border-l-teal-500" : "border-l-transparent"} ${isHidden ? "opacity-50" : ""}`}
+						className={`w-full overflow-hidden flex items-center justify-between gap-1 border-l-2 border-b border-zinc-500/40 ${props.selectedLayerId === layer.id ? "border-l-teal-500" : "border-l-transparent"} ${isHidden ? "opacity-50" : ""}`}
 						style={{ height: `${props.layerHeight}px` }}
 					>
 						<button
@@ -51,7 +51,6 @@ const TrackSide: React.FC<Props> = (props) => {
 							})}
 							icon={isHidden ? IconEyeOff : IconEye}
 							variant={isHidden ? "primary" : "default"}
-							size="small"
 							aria-pressed={isHidden}
 							onClick={() =>
 								isHidden
@@ -65,7 +64,6 @@ const TrackSide: React.FC<Props> = (props) => {
 								{ index: i },
 							)}
 							icon={isLocked ? IconLock : IconLockOpen}
-							size="small"
 							aria-pressed={isLocked}
 							variant={isLocked ? "primary" : "default"}
 							onClick={() => props.onLayerLockToggle(layer.id)}

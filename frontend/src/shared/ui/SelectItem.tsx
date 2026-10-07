@@ -9,7 +9,7 @@ const SelectItem: React.FC<Props> = forwardRef(
 		return (
 			<SelectPrimitive.Item
 				{...props}
-				className="flex items-center rounded h-8 p-2 px-8 data-disabled:opacity-50 data-disabled:pointer-events-none data-highlighted:bg-zinc-500/15"
+				className="flex items-center rounded-md h-8 p-2 px-8 data-disabled:opacity-50 data-disabled:pointer-events-none data-highlighted:bg-zinc-500/15 cursor-pointer"
 				ref={forwardedRef}
 			>
 				<SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>

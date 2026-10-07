@@ -90,50 +90,44 @@ const Toolbar: React.FC<Props> = (props) => {
 
 	return (
 		<div className="flex gap-2">
-			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/25 rounded-lg shadow-sm backdrop-blur-xl">
+			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/40 rounded-lg shadow-sm backdrop-blur-xl">
 				<IconButton
 					label={t("toolbar.undo")}
 					shortcut={formatShortcut(shortcuts.undo)}
 					icon={IconArrowBackUp}
-					size="small"
 					onClick={undo}
 				/>
 				<IconButton
 					label={t("toolbar.redo")}
 					shortcut={formatShortcut(shortcuts.redo)}
 					icon={IconArrowForwardUp}
-					size="small"
 					onClick={redo}
 				/>
 				<IconButton
 					label={t("toolbar.cut")}
 					shortcut={formatShortcut(shortcuts.cut)}
 					icon={IconScissors}
-					size="small"
 					onClick={clipContext.cut}
 				/>
 				<IconButton
 					label={t("toolbar.copy")}
 					shortcut={formatShortcut(shortcuts.copy)}
 					icon={IconCopy}
-					size="small"
 					onClick={clipContext.copy}
 				/>
 				<IconButton
 					label={t("toolbar.paste")}
 					shortcut={formatShortcut(shortcuts.paste)}
 					icon={IconClipboard}
-					size="small"
 					onClick={clipContext.paste}
 				/>
 			</div>
-			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/25 rounded-lg shadow-sm backdrop-blur-xl">
+			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/40 rounded-lg shadow-sm backdrop-blur-xl">
 				<IconButton
 					label={t("toolbar.play")}
 					shortcut={formatShortcut(shortcuts.togglePlayback)}
 					icon={playbackContext.isPlaying ? IconPlayerPause : IconPlayerPlay}
 					variant={playbackContext.isPlaying ? "primary" : "default"}
-					size="small"
 					onClick={() =>
 						playbackContext.isPlaying
 							? playbackContext.pause()
@@ -143,7 +137,6 @@ const Toolbar: React.FC<Props> = (props) => {
 				<IconButton
 					label={t("toolbar.stop")}
 					icon={IconPlayerStop}
-					size="small"
 					onClick={playbackContext.stop}
 				/>
 				<IconButton
@@ -151,7 +144,6 @@ const Toolbar: React.FC<Props> = (props) => {
 					shortcut={formatShortcut(shortcuts.toggleLoop)}
 					icon={IconRefresh}
 					variant={playbackContext.isLoop ? "primary" : "default"}
-					size="small"
 					onClick={() => playbackContext.setIsLoop(!playbackContext.isLoop)}
 				/>
 				<IconButton
@@ -159,16 +151,14 @@ const Toolbar: React.FC<Props> = (props) => {
 					shortcut={formatShortcut(shortcuts.toggleOnionSkin)}
 					icon={IconLayersDifference}
 					variant={props.isOnionSkin ? "primary" : "default"}
-					size="small"
 					onClick={props.onIsOnionSkinChange}
 				/>
 			</div>
-			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/25 rounded-lg shadow-sm backdrop-blur-xl">
+			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/40 rounded-lg shadow-sm backdrop-blur-xl">
 				<IconButton
 					label={t("toolbar.rewind")}
 					shortcut={formatShortcut(shortcuts.firstFrame)}
 					icon={IconPlayerSkipBack}
-					size="small"
 					onClick={() =>
 						playbackContext.setCurrentFrame(playbackContext.startFrame)
 					}
@@ -177,7 +167,6 @@ const Toolbar: React.FC<Props> = (props) => {
 					label={t("toolbar.prev")}
 					shortcut={formatShortcut(shortcuts.previousFrame)}
 					icon={IconPlayerTrackPrev}
-					size="small"
 					onClick={() =>
 						playbackContext.setCurrentFrame(playbackContext.currentFrame - 1)
 					}
@@ -186,7 +175,6 @@ const Toolbar: React.FC<Props> = (props) => {
 					label={t("toolbar.next")}
 					shortcut={formatShortcut(shortcuts.nextFrame)}
 					icon={IconPlayerTrackNext}
-					size="small"
 					onClick={() =>
 						playbackContext.setCurrentFrame(playbackContext.currentFrame + 1)
 					}
@@ -195,18 +183,16 @@ const Toolbar: React.FC<Props> = (props) => {
 					label={t("toolbar.forward")}
 					shortcut={formatShortcut(shortcuts.lastFrame)}
 					icon={IconPlayerSkipForward}
-					size="small"
 					onClick={() =>
 						playbackContext.setCurrentFrame(playbackContext.endFrame)
 					}
 				/>
 			</div>
-			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/25 rounded-lg shadow-sm backdrop-blur-xl">
+			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/40 rounded-lg shadow-sm backdrop-blur-xl">
 				<IconButton
 					label={t("toolbar.move")}
 					shortcut={formatShortcut(shortcuts.moveTool)}
 					icon={IconArrowsMove}
-					size="small"
 					variant={toolContext.tool === "move" ? "primary" : "default"}
 					onClick={() => toolContext.setTool("move")}
 				/>
@@ -214,7 +200,6 @@ const Toolbar: React.FC<Props> = (props) => {
 					label={t("toolbar.pen")}
 					shortcut={formatShortcut(shortcuts.penTool)}
 					icon={IconPencil}
-					size="small"
 					variant={toolContext.tool === "pen" ? "primary" : "default"}
 					onClick={() => toolContext.setTool("pen")}
 				/>
@@ -222,7 +207,6 @@ const Toolbar: React.FC<Props> = (props) => {
 					label={t("toolbar.eraser")}
 					shortcut={formatShortcut(shortcuts.eraserTool)}
 					icon={IconEraser}
-					size="small"
 					variant={toolContext.tool === "eraser" ? "primary" : "default"}
 					onClick={() => toolContext.setTool("eraser")}
 				/>
@@ -230,7 +214,6 @@ const Toolbar: React.FC<Props> = (props) => {
 					label={t("toolbar.fill")}
 					shortcut={formatShortcut(shortcuts.fillTool)}
 					icon={IconBucketDroplet}
-					size="small"
 					variant={toolContext.tool === "fill" ? "primary" : "default"}
 					onClick={() => toolContext.setTool("fill")}
 				/>
@@ -238,12 +221,11 @@ const Toolbar: React.FC<Props> = (props) => {
 					label={t("toolbar.select")}
 					shortcut={formatShortcut(shortcuts.selectTool)}
 					icon={IconLasso}
-					size="small"
 					variant={toolContext.tool === "select" ? "primary" : "default"}
 					onClick={() => toolContext.setTool("select")}
 				/>
 			</div>
-			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/25 rounded-lg shadow-sm backdrop-blur-xl">
+			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/40 rounded-lg shadow-sm backdrop-blur-xl">
 				<div className="w-16">
 					<NumberField
 						value={Number((props.canvasView.scale * 100).toFixed(2))}
@@ -257,11 +239,10 @@ const Toolbar: React.FC<Props> = (props) => {
 					label={t("toolbar.resetZoom")}
 					shortcut={formatShortcut(shortcuts.resetZoom)}
 					icon={IconZoom}
-					size="small"
 					onClick={() => props.canvasView.setScale(1)}
 				/>
 			</div>
-			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/25 rounded-lg shadow-sm backdrop-blur-xl">
+			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/40 rounded-lg shadow-sm backdrop-blur-xl">
 				<div className="w-16">
 					<NumberField
 						value={props.canvasView.rotation}
@@ -275,17 +256,15 @@ const Toolbar: React.FC<Props> = (props) => {
 					label={t("toolbar.resetRotate")}
 					shortcut={formatShortcut(shortcuts.resetRotation)}
 					icon={IconRotate}
-					size="small"
 					onClick={() => props.canvasView.setRotation(0)}
 				/>
 			</div>
-			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/25 rounded-lg shadow-sm backdrop-blur-xl">
+			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/40 rounded-lg shadow-sm backdrop-blur-xl">
 				<IconButton
 					label={t("toolbar.flipHorizontal")}
 					shortcut={formatShortcut(shortcuts.flipHorizontal)}
 					icon={IconFlipHorizontal}
 					variant={props.canvasView.isFlippedHorizontal ? "primary" : "default"}
-					size="small"
 					onClick={() =>
 						props.canvasView.setIsFlippedHorizontal((prev) => !prev)
 					}
@@ -295,7 +274,6 @@ const Toolbar: React.FC<Props> = (props) => {
 					shortcut={formatShortcut(shortcuts.flipVertical)}
 					icon={IconFlipVertical}
 					variant={props.canvasView.isFlippedVertical ? "primary" : "default"}
-					size="small"
 					onClick={() => props.canvasView.setIsFlippedVertical((prev) => !prev)}
 				/>
 			</div>

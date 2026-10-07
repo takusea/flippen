@@ -44,7 +44,6 @@ const ClipInspector: React.FC<Props> = (props) => {
 						label={
 							props.clip.hidden ? t("inspector.show") : t("inspector.hide")
 						}
-						size="small"
 						variant={props.clip.hidden ? "primary" : undefined}
 						aria-pressed={props.clip.hidden}
 						disabled={isLocked}
@@ -55,7 +54,6 @@ const ClipInspector: React.FC<Props> = (props) => {
 					<IconButton
 						icon={IconAlpha}
 						label={t("inspector.lockAlpha")}
-						size="small"
 						variant={props.clip.alpha_locked ? "primary" : undefined}
 						aria-pressed={props.clip.alpha_locked}
 						disabled={isLocked}
@@ -68,7 +66,6 @@ const ClipInspector: React.FC<Props> = (props) => {
 					<IconButton
 						icon={isLocked ? IconLock : IconLockOpen}
 						label={isLocked ? t("inspector.unlock") : t("inspector.lock")}
-						size="small"
 						variant={isLocked ? "primary" : undefined}
 						aria-pressed={isLocked}
 						onClick={() => props.onPropertiesChange({ locked: !isLocked })}
