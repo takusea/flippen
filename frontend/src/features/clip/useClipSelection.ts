@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { ClipMetadata } from "~/shared/lib/clip";
+import type { LayerId } from "~/shared/lib/layer";
 
 type SelectionRectangle = {
 	x: number;
@@ -16,16 +17,16 @@ type ProjectSettings = {
 type Options = {
 	clips: ClipMetadata[];
 	currentClip: ClipMetadata | undefined;
-	currentLayer: number;
+	currentLayerId: LayerId | null;
 	currentFrame: number;
-	selectLayer: (layer: number) => void;
+	selectLayer: (layerId: LayerId) => void;
 	projectSettings: ProjectSettings | undefined;
 };
 
 export const useClipSelection = ({
 	clips,
 	currentClip,
-	currentLayer,
+	currentLayerId,
 	currentFrame,
 	selectLayer,
 	projectSettings,
@@ -33,17 +34,17 @@ export const useClipSelection = ({
 	const [selectedClipId, setSelectedClipId] = useState<string>();
 	const [selection, setSelection] = useState<SelectionRectangle>();
 	const selectionContext = useRef({
-		layer: currentLayer,
+		layerId: currentLayerId,
 		frame: currentFrame,
 	});
 
 	const markClipSelected = (
 		id: string,
-		layer: number,
+		layerId: LayerId,
 		shouldSelectLayer = false,
 	) => {
-		selectionContext.current = { layer, frame: currentFrame };
-		if (shouldSelectLayer) selectLayer(layer);
+		selectionContext.current = { layerId, frame: currentFrame };
+		if (shouldSelectLayer) selectLayer(layerId);
 		setSelectedClipId(id);
 	};
 
@@ -52,10 +53,10 @@ export const useClipSelection = ({
 		setSelectedClipId(id);
 		if (clip != null) {
 			selectionContext.current = {
-				layer: clip.layer_index,
+				layerId: clip.layer_id,
 				frame: currentFrame,
 			};
-			selectLayer(clip.layer_index);
+			selectLayer(clip.layer_id);
 		}
 	};
 
@@ -71,10 +72,13 @@ export const useClipSelection = ({
 
 	useEffect(() => {
 		const playheadChanged =
-			selectionContext.current.layer !== currentLayer ||
+			selectionContext.current.layerId !== currentLayerId ||
 			selectionContext.current.frame !== currentFrame;
 		if (playheadChanged) setSelection(undefined);
-		selectionContext.current = { layer: currentLayer, frame: currentFrame };
+		selectionContext.current = {
+			layerId: currentLayerId,
+			frame: currentFrame,
+		};
 		if (
 			!playheadChanged &&
 			selectedClipId != null &&
@@ -83,7 +87,7 @@ export const useClipSelection = ({
 			return;
 		}
 		setSelectedClipId(currentClip?.id);
-	}, [clips, currentClip, currentFrame, currentLayer, selectedClipId]);
+	}, [clips, currentClip, currentFrame, currentLayerId, selectedClipId]);
 
 	return {
 		selectedClipId,

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useCore } from "~/infrastructure/core/useCore";
 import type { ClipMetadata } from "~/shared/lib/clip";
+import type { LayerId } from "~/shared/lib/layer";
 
 type ProjectSettings = {
 	width: number;
@@ -20,13 +21,13 @@ type Options = {
 	selection:
 		| { x: number; y: number; width: number; height: number }
 		| undefined;
-	selectedLayer: number;
+	selectedLayerId: LayerId | null;
 	currentFrame: number;
 	projectSettings: ProjectSettings | undefined;
-	isLayerLocked: (layer: number) => boolean;
+	isLayerLocked: (layerId: LayerId) => boolean;
 	onClipSelected: (
 		id: string,
-		layer: number,
+		layerId: LayerId,
 		shouldSelectLayer?: boolean,
 	) => void;
 };
@@ -34,7 +35,7 @@ type Options = {
 export const useClipboard = ({
 	currentClip,
 	selection,
-	selectedLayer,
+	selectedLayerId,
 	currentFrame,
 	projectSettings,
 	isLayerLocked,
@@ -100,7 +101,7 @@ export const useClipboard = ({
 		const image = await getClipboardImage();
 		if (
 			image == null ||
-			isLayerLocked(image.clip.layer_index) ||
+			isLayerLocked(image.clip.layer_id) ||
 			image.clip.locked
 		) {
 			return;
@@ -124,18 +125,19 @@ export const useClipboard = ({
 
 	const paste = async () => {
 		const settings = projectSettings;
-		if (clipboard == null || settings == null) return;
-		if (isLayerLocked(selectedLayer)) return;
+		if (clipboard == null || settings == null || selectedLayerId == null)
+			return;
+		if (isLayerLocked(selectedLayerId)) return;
 
 		let clip = currentClip;
 		if (clip == null) {
-			const nextClips = await core.addClip(currentFrame, selectedLayer);
+			const nextClips = await core.addClip(currentFrame, selectedLayerId);
 			clip = nextClips.find(
 				(candidate) =>
-					candidate.layer_index === selectedLayer &&
+					candidate.layer_id === selectedLayerId &&
 					candidate.start === currentFrame,
 			);
-			if (clip != null) onClipSelected(clip.id, selectedLayer);
+			if (clip != null) onClipSelected(clip.id, selectedLayerId);
 		}
 		if (clip == null || clip.locked) return;
 

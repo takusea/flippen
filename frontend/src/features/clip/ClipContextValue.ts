@@ -1,5 +1,6 @@
 import { createContext } from "react";
 import type { ClipMetadata, ClipProperties } from "~/shared/lib/clip";
+import type { LayerId } from "~/shared/lib/layer";
 import type { Transform } from "~/shared/lib/transform";
 
 export type ClipContextValue = {
@@ -19,9 +20,9 @@ export type ClipContextValue = {
 	cut: () => Promise<void>;
 	paste: () => Promise<void>;
 	selectAll: () => void;
-	addClip: (start: number, layer: number) => Promise<void>;
+	addClip: (start: number, layerId: LayerId) => Promise<void>;
 	deleteClip: (id: string) => Promise<void>;
-	moveClip: (id: string, start: number, layer: number) => Promise<void>;
+	moveClip: (id: string, start: number, layerId: LayerId) => Promise<void>;
 	changeClipDuration: (id: string, duration: number) => Promise<void>;
 	changeClipName: (id: string, name: string) => Promise<void>;
 	changeClipProperties: (
@@ -30,7 +31,10 @@ export type ClipContextValue = {
 	) => Promise<void>;
 	changeTransform: (id: string, transform: Transform) => Promise<void>;
 	syncTransform: () => Promise<void>;
-	ensureClipAt: (frame: number, layer: number) => Promise<string | undefined>;
+	ensureClipAt: (
+		frame: number,
+		layerId: LayerId | null,
+	) => Promise<string | undefined>;
 };
 
 export const ClipContext = createContext<ClipContextValue | null>(null);

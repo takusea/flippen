@@ -7,18 +7,16 @@ use crate::app::project::Project;
 pub struct MoveClipAction {
     clip_id: Uuid,
     start_frame: u32,
-    layer_index: usize,
-    layer_id: Option<LayerId>,
+    layer_id: LayerId,
     previous: Option<(u32, LayerId)>,
 }
 
 impl MoveClipAction {
-    pub fn new(clip_id: Uuid, start_frame: u32, layer_index: usize) -> Self {
+    pub fn new(clip_id: Uuid, start_frame: u32, layer_id: LayerId) -> Self {
         Self {
             clip_id,
             start_frame,
-            layer_index,
-            layer_id: None,
+            layer_id,
             previous: None,
         }
     }
@@ -42,12 +40,9 @@ impl Action for MoveClipAction {
                 .find(|clip| clip.metadata.id == self.clip_id)
                 .map(|clip| (clip.metadata.start, clip.metadata.layer_id));
         }
-        let layer_id = *self
-            .layer_id
-            .get_or_insert_with(|| project.composition.layer_id_at(self.layer_index));
         project
             .composition
-            .move_clip_to_layer(self.clip_id, self.start_frame, layer_id);
+            .move_clip_to_layer(self.clip_id, self.start_frame, self.layer_id);
     }
 }
 

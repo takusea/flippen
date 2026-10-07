@@ -2,6 +2,7 @@ use super::FlippenCore;
 use crate::action::draw_stroke_action::DrawStrokeAction;
 use crate::action::set_layer_lock_action::SetLayerLockAction;
 use crate::action::set_layer_visibility_action::SetLayerVisibilityAction;
+use crate::app::composition::LayerId;
 use crate::core::image::Image;
 use crate::core::tool::{ToolId, ToolPropertyValue};
 use gloo::utils::format::JsValueSerdeExt;
@@ -257,35 +258,53 @@ impl FlippenCore {
         }
     }
 
-    pub fn show_layer(&mut self, layer_index: usize) {
-        let action = Box::new(SetLayerVisibilityAction::new(layer_index, false));
-
-        if let Some(project) = self.project.as_mut() {
-            self.action_manager.do_action(action, project);
-        }
+    pub fn show_layer(&mut self, layer_id_str: String) -> Result<(), JsValue> {
+        self.set_layer_visibility(layer_id_str, false)
     }
 
-    pub fn hide_layer(&mut self, layer_index: usize) {
-        let action = Box::new(SetLayerVisibilityAction::new(layer_index, true));
-
-        if let Some(project) = self.project.as_mut() {
-            self.action_manager.do_action(action, project);
-        }
+    pub fn hide_layer(&mut self, layer_id_str: String) -> Result<(), JsValue> {
+        self.set_layer_visibility(layer_id_str, true)
     }
 
-    pub fn unlock_layer(&mut self, layer_index: usize) {
-        let action = Box::new(SetLayerLockAction::new(layer_index, false));
-
-        if let Some(project) = self.project.as_mut() {
-            self.action_manager.do_action(action, project);
-        }
+    pub fn unlock_layer(&mut self, layer_id_str: String) -> Result<(), JsValue> {
+        self.set_layer_lock(layer_id_str, false)
     }
 
-    pub fn lock_layer(&mut self, layer_index: usize) {
-        let action = Box::new(SetLayerLockAction::new(layer_index, true));
+    pub fn lock_layer(&mut self, layer_id_str: String) -> Result<(), JsValue> {
+        self.set_layer_lock(layer_id_str, true)
+    }
 
-        if let Some(project) = self.project.as_mut() {
-            self.action_manager.do_action(action, project);
+    fn set_layer_visibility(&mut self, layer_id_str: String, hidden: bool) -> Result<(), JsValue> {
+        let layer_id = layer_id_str
+            .parse::<LayerId>()
+            .map_err(|error| JsValue::from_str(&error.to_string()))?;
+        let project = self
+            .project
+            .as_mut()
+            .ok_or_else(|| JsValue::from_str("Project is not initialized"))?;
+        if project.composition.layer_index(layer_id).is_none() {
+            return Err(JsValue::from_str("Layer does not exist"));
         }
+        self.action_manager.do_action(
+            Box::new(SetLayerVisibilityAction::new(layer_id, hidden)),
+            project,
+        );
+        Ok(())
+    }
+
+    fn set_layer_lock(&mut self, layer_id_str: String, locked: bool) -> Result<(), JsValue> {
+        let layer_id = layer_id_str
+            .parse::<LayerId>()
+            .map_err(|error| JsValue::from_str(&error.to_string()))?;
+        let project = self
+            .project
+            .as_mut()
+            .ok_or_else(|| JsValue::from_str("Project is not initialized"))?;
+        if project.composition.layer_index(layer_id).is_none() {
+            return Err(JsValue::from_str("Layer does not exist"));
+        }
+        self.action_manager
+            .do_action(Box::new(SetLayerLockAction::new(layer_id, locked)), project);
+        Ok(())
     }
 }

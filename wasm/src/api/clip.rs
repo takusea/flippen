@@ -77,12 +77,20 @@ impl FlippenCore {
         JsValue::from_serde(project.composition.get_layers()).unwrap()
     }
 
-    pub fn add_clip(&mut self, start_frame: u32, layer_index: usize) {
-        let action = Box::new(AddClipAction::new(start_frame, layer_index));
-
-        if let Some(project) = self.project.as_mut() {
-            self.action_manager.do_action(action, project);
+    pub fn add_clip(&mut self, start_frame: u32, layer_id_str: String) -> Result<(), JsValue> {
+        let layer_id = layer_id_str
+            .parse::<LayerId>()
+            .map_err(|error| JsValue::from_str(&error.to_string()))?;
+        let project = self
+            .project
+            .as_mut()
+            .ok_or_else(|| JsValue::from_str("Project is not initialized"))?;
+        if project.composition.layer_index(layer_id).is_none() {
+            return Err(JsValue::from_str("Layer does not exist"));
         }
+        self.action_manager
+            .do_action(Box::new(AddClipAction::new(start_frame, layer_id)), project);
+        Ok(())
     }
 
     pub fn delete_clip(&mut self, clip_id_str: String) {
@@ -166,20 +174,29 @@ impl FlippenCore {
         Ok(())
     }
 
-    pub fn move_clip(&mut self, clip_id_str: String, start_frame: u32, layer_index: usize) {
+    pub fn move_clip(
+        &mut self,
+        clip_id_str: String,
+        start_frame: u32,
+        layer_id_str: String,
+    ) -> Result<(), JsValue> {
         let clip_id = match Uuid::parse_str(&clip_id_str) {
             Ok(id) => id,
-            Err(e) => {
-                eprintln!("Failed to parse clip_id: {:?}", e);
-                return;
-            }
+            Err(error) => return Err(JsValue::from_str(&error.to_string())),
         };
-
-        let action = Box::new(MoveClipAction::new(clip_id, start_frame, layer_index));
-
-        if let Some(project) = self.project.as_mut() {
-            self.action_manager.do_action(action, project);
+        let layer_id = layer_id_str
+            .parse::<LayerId>()
+            .map_err(|error| JsValue::from_str(&error.to_string()))?;
+        let project = self
+            .project
+            .as_mut()
+            .ok_or_else(|| JsValue::from_str("Project is not initialized"))?;
+        if project.composition.layer_index(layer_id).is_none() {
+            return Err(JsValue::from_str("Layer does not exist"));
         }
+        let action = Box::new(MoveClipAction::new(clip_id, start_frame, layer_id));
+        self.action_manager.do_action(action, project);
+        Ok(())
     }
 
     pub fn change_clip_duration(&mut self, clip_id_str: String, duration: u32) {

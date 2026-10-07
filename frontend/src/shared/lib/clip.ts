@@ -1,10 +1,12 @@
+import type { LayerId } from "./layer";
+
 export type ClipMetadata = {
 	id: string;
 	name: string;
 	start: number;
 	duration: number;
 	layer_index: number;
-	layer_id: string;
+	layer_id: LayerId;
 	hidden: boolean;
 	alpha_locked: boolean;
 	locked: boolean;

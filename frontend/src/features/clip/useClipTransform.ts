@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useCore } from "~/infrastructure/core/useCore";
 import type { ClipMetadata } from "~/shared/lib/clip";
+import type { LayerId } from "~/shared/lib/layer";
 import type { Transform } from "~/shared/lib/transform";
 
 type Options = {
 	clips: ClipMetadata[];
 	selectedClipId: string | undefined;
-	isLayerLocked: (layer: number) => boolean;
+	isLayerLocked: (layerId: LayerId) => boolean;
 	revision: number;
 };
 
@@ -39,7 +40,7 @@ export const useClipTransform = ({
 
 	const changeTransform = async (id: string, nextTransform: Transform) => {
 		const clip = clips.find((candidate) => candidate.id === id);
-		if (clip == null || isLayerLocked(clip.layer_index)) return;
+		if (clip == null || isLayerLocked(clip.layer_id)) return;
 		setTransform(await core.updateClipTransform(id, nextTransform));
 	};
 

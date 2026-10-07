@@ -94,7 +94,7 @@ export const useCanvasPointer = (
 
 		const clipId = await clipContext.ensureClipAt(
 			playbackContext.currentFrame,
-			layerContext.selectedLayer,
+			layerContext.selectedLayerId,
 		);
 		if (clipId == null) return;
 		await core.beginDraw(clipId);

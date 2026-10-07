@@ -61,7 +61,8 @@ mod tests {
             end_frame: 1,
         });
 
-        manager.do_action(Box::new(AddClipAction::new(0, 0)), &mut project);
+        let layer_id = project.composition.get_layers()[0].id;
+        manager.do_action(Box::new(AddClipAction::new(0, layer_id)), &mut project);
         let clip_id = project.composition.clips[0].metadata.id;
         manager.do_action(Box::new(DeleteClipAction::new(clip_id)), &mut project);
         assert!(project.composition.clips.is_empty());

@@ -19,13 +19,13 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 
 	const currentClip = useCurrentClip(
 		clips,
-		layerContext.selectedLayer,
+		layerContext.selectedLayerId,
 		playbackContext.currentFrame,
 	);
 	const selectionState = useClipSelection({
 		clips,
 		currentClip,
-		currentLayer: layerContext.selectedLayer,
+		currentLayerId: layerContext.selectedLayerId,
 		currentFrame: playbackContext.currentFrame,
 		selectLayer: layerContext.selectLayer,
 		projectSettings: projectContext.settings,
@@ -38,7 +38,7 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 	const clipboard = useClipboard({
 		currentClip,
 		selection: selectionState.selection,
-		selectedLayer: layerContext.selectedLayer,
+		selectedLayerId: layerContext.selectedLayerId,
 		currentFrame: playbackContext.currentFrame,
 		projectSettings: projectContext.settings,
 		isLayerLocked: layerContext.isLayerLocked,

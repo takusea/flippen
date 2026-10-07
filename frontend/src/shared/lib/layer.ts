@@ -4,3 +4,5 @@ export type LayerState = {
 	visible: boolean;
 	locked: boolean;
 };
+
+export type LayerId = LayerState["id"];

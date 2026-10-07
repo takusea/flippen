@@ -17,6 +17,14 @@ impl LayerId {
     }
 }
 
+impl std::str::FromStr for LayerId {
+    type Err = uuid::Error;
+
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        Uuid::parse_str(value).map(Self)
+    }
+}
+
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Layer {
     pub id: LayerId,

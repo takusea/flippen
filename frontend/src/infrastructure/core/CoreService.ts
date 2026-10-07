@@ -1,7 +1,7 @@
 import type { ProjectSettings } from "~/features/project/type";
 import init, { FlippenCore } from "~/infrastructure/wasm/flippen_wasm";
 import type { ClipMetadata, ClipProperties } from "~/shared/lib/clip";
-import type { LayerState } from "~/shared/lib/layer";
+import type { LayerId, LayerState } from "~/shared/lib/layer";
 import type { Transform } from "~/shared/lib/transform";
 
 type WasmOperation<T> = (core: FlippenCore) => T | PromiseLike<T>;
@@ -172,9 +172,9 @@ export class CoreService {
 		);
 	}
 
-	addClip(start: number, layer: number) {
+	addClip(start: number, layerId: LayerId) {
 		return this.enqueue((core) => {
-			core.add_clip(start, layer);
+			core.add_clip(start, layerId);
 			return (core.get_clips() as ClipMetadata[] | undefined) ?? [];
 		}, true);
 	}
@@ -194,8 +194,8 @@ export class CoreService {
 		);
 	}
 
-	moveClip(id: string, start: number, layer: number) {
-		return this.enqueue((core) => core.move_clip(id, start, layer), true);
+	moveClip(id: string, start: number, layerId: LayerId) {
+		return this.enqueue((core) => core.move_clip(id, start, layerId), true);
 	}
 
 	changeClipDuration(id: string, duration: number) {
@@ -223,20 +223,20 @@ export class CoreService {
 		);
 	}
 
-	showLayer(layer: number) {
-		return this.enqueue((core) => core.show_layer(layer), true);
+	showLayer(layerId: LayerId) {
+		return this.enqueue((core) => core.show_layer(layerId), true);
 	}
 
-	hideLayer(layer: number) {
-		return this.enqueue((core) => core.hide_layer(layer), true);
+	hideLayer(layerId: LayerId) {
+		return this.enqueue((core) => core.hide_layer(layerId), true);
 	}
 
-	unlockLayer(layer: number) {
-		return this.enqueue((core) => core.unlock_layer(layer), true);
+	unlockLayer(layerId: LayerId) {
+		return this.enqueue((core) => core.unlock_layer(layerId), true);
 	}
 
-	lockLayer(layer: number) {
-		return this.enqueue((core) => core.lock_layer(layer), true);
+	lockLayer(layerId: LayerId) {
+		return this.enqueue((core) => core.lock_layer(layerId), true);
 	}
 
 	undo() {

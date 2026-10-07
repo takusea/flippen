@@ -63,7 +63,9 @@ const Timeline: React.FC = () => {
 			(event.clientY - rect.top + scrollPosition.y) / layerHeight,
 		);
 
-		clipContext.addClip(startFrame, layerIndex);
+		const layerId = layerContext.layers[layerIndex]?.id;
+		if (layerId == null) return;
+		clipContext.addClip(startFrame, layerId);
 	}
 
 	function handleScroll(event: React.UIEvent<HTMLDivElement, UIEvent>) {
@@ -159,7 +161,7 @@ const Timeline: React.FC = () => {
 					layers={layerContext.layers}
 					layerHeight={layerHeight}
 					scrollY={scrollPosition.y}
-					selectedLayer={layerContext.selectedLayer}
+					selectedLayerId={layerContext.selectedLayerId}
 					onLayerSelect={layerContext.selectLayer}
 					onLayerShow={layerContext.showLayer}
 					onLayerHide={layerContext.hideLayer}
@@ -218,15 +220,13 @@ const Timeline: React.FC = () => {
 						duration={clip.duration}
 						layerIndex={clip.layer_index}
 						isSelected={clip.id === clipContext.selectedClipId}
-						isHidden={
-							clip.hidden || layerContext.isLayerHidden(clip.layer_index)
-						}
-						isLocked={
-							clip.locked || layerContext.isLayerLocked(clip.layer_index)
-						}
+						isHidden={clip.hidden || layerContext.isLayerHidden(clip.layer_id)}
+						isLocked={clip.locked || layerContext.isLayerLocked(clip.layer_id)}
 						onSelect={() => clipContext.selectClip(clip.id)}
 						onMove={(startFrame: number, layerIndex: number) => {
-							clipContext.moveClip(clip.id, startFrame, layerIndex);
+							const layerId = layerContext.layers[layerIndex]?.id;
+							if (layerId == null) return;
+							clipContext.moveClip(clip.id, startFrame, layerId);
 						}}
 						onDurationChange={(duration) =>
 							clipContext.changeClipDuration(clip.id, duration)

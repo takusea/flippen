@@ -79,15 +79,13 @@ const App: React.FC<Props> = ({
 					{selectedClip && clipContext.transform && (
 						<ClipInspector
 							clip={selectedClip}
-							isLayerLocked={layerContext.isLayerLocked(
-								selectedClip.layer_index,
-							)}
+							isLayerLocked={layerContext.isLayerLocked(selectedClip.layer_id)}
 							transform={clipContext.transform}
 							onStartChange={(start) =>
 								clipContext.moveClip(
 									selectedClip.id,
 									start,
-									selectedClip.layer_index,
+									selectedClip.layer_id,
 								)
 							}
 							onDurationChange={(duration) =>

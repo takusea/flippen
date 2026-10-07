@@ -5,18 +5,18 @@ import {
 	IconLockOpen,
 } from "@tabler/icons-react";
 import { useI18n } from "~/features/i18n/useI18n";
-import type { LayerState } from "~/shared/lib/layer";
+import type { LayerId, LayerState } from "~/shared/lib/layer";
 import IconButton from "~/shared/ui/IconButton";
 
 type Props = {
 	layers: LayerState[];
 	layerHeight: number;
 	scrollY: number;
-	selectedLayer: number;
-	onLayerSelect: (id: number) => void;
-	onLayerShow: (id: number) => void;
-	onLayerHide: (id: number) => void;
-	onLayerLockToggle: (id: number) => void;
+	selectedLayerId: LayerId | null;
+	onLayerSelect: (id: LayerId) => void;
+	onLayerShow: (id: LayerId) => void;
+	onLayerHide: (id: LayerId) => void;
+	onLayerLockToggle: (id: LayerId) => void;
 	onWheel: (event: React.WheelEvent<HTMLDivElement>) => void;
 };
 
@@ -35,13 +35,13 @@ const TrackSide: React.FC<Props> = (props) => {
 				return (
 					<div
 						key={layer.id}
-						className={`w-full overflow-hidden flex items-center justify-between gap-1 border-l-2 border-b border-zinc-500/25 bg-zinc-500/25 ${props.selectedLayer === i ? "border-l-teal-500" : "border-l-transparent"} ${isHidden ? "opacity-50" : ""}`}
+						className={`w-full overflow-hidden flex items-center justify-between gap-1 border-l-2 border-b border-zinc-500/25 bg-zinc-500/25 ${props.selectedLayerId === layer.id ? "border-l-teal-500" : "border-l-transparent"} ${isHidden ? "opacity-50" : ""}`}
 						style={{ height: `${props.layerHeight}px` }}
 					>
 						<button
 							type="button"
 							className="flex-1 h-full px-2 text-left"
-							onClick={() => props.onLayerSelect(i)}
+							onClick={() => props.onLayerSelect(layer.id)}
 						>
 							{t("timeline.layer", { index: i })}
 						</button>
@@ -54,7 +54,9 @@ const TrackSide: React.FC<Props> = (props) => {
 							size="small"
 							aria-pressed={isHidden}
 							onClick={() =>
-								isHidden ? props.onLayerShow(i) : props.onLayerHide(i)
+								isHidden
+									? props.onLayerShow(layer.id)
+									: props.onLayerHide(layer.id)
 							}
 						/>
 						<IconButton
@@ -66,7 +68,7 @@ const TrackSide: React.FC<Props> = (props) => {
 							size="small"
 							aria-pressed={isLocked}
 							variant={isLocked ? "primary" : "default"}
-							onClick={() => props.onLayerLockToggle(i)}
+							onClick={() => props.onLayerLockToggle(layer.id)}
 						/>
 					</div>
 				);

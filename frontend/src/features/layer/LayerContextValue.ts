@@ -1,15 +1,15 @@
 import { createContext } from "react";
-import type { LayerState } from "~/shared/lib/layer";
+import type { LayerId, LayerState } from "~/shared/lib/layer";
 
 export type LayerContextValue = {
 	layers: LayerState[];
-	isLayerHidden: (layer: number) => boolean;
-	isLayerLocked: (layer: number) => boolean;
-	selectedLayer: number;
-	selectLayer: (layer: number) => void;
-	showLayer: (layer: number) => void;
-	hideLayer: (layer: number) => void;
-	toggleLayerLock: (layer: number) => void;
+	isLayerHidden: (layerId: LayerId) => boolean;
+	isLayerLocked: (layerId: LayerId) => boolean;
+	selectedLayerId: LayerId | null;
+	selectLayer: (layerId: LayerId) => void;
+	showLayer: (layerId: LayerId) => void;
+	hideLayer: (layerId: LayerId) => void;
+	toggleLayerLock: (layerId: LayerId) => void;
 };
 
 export const LayerContext = createContext<LayerContextValue | null>(null);

@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useCore } from "~/infrastructure/core/useCore";
 import { useCoreSnapshot } from "~/infrastructure/core/useCoreSnapshot";
+import type { LayerId } from "~/shared/lib/layer";
 import { LayerContext } from "./LayerContextValue";
 
 export const LayerProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -9,35 +10,47 @@ export const LayerProvider: React.FC<{ children: React.ReactNode }> = ({
 	const core = useCore();
 
 	const { layers } = useCoreSnapshot();
-	const [selectedLayer, setSelectedLayer] = useState(0);
+	const [selectedLayerId, setSelectedLayerId] = useState<LayerId | null>(null);
 
-	const showLayer = async (layer: number) => {
-		await core.showLayer(layer);
-	};
-
-	const selectLayer = (layer: number) => {
-		setSelectedLayer(layer);
-	};
-
-	const hideLayer = async (layer: number) => {
-		await core.hideLayer(layer);
-	};
-
-	const toggleLayerLock = async (layer: number) => {
-		if (layers[layer]?.locked) {
-			await core.unlockLayer(layer);
+	useEffect(() => {
+		if (
+			selectedLayerId != null &&
+			layers.some((layer) => layer.id === selectedLayerId)
+		) {
 			return;
 		}
-		await core.lockLayer(layer);
+		setSelectedLayerId(layers[0]?.id ?? null);
+	}, [layers, selectedLayerId]);
+
+	const showLayer = async (layerId: LayerId) => {
+		await core.showLayer(layerId);
+	};
+
+	const selectLayer = (layerId: LayerId) => {
+		setSelectedLayerId(layerId);
+	};
+
+	const hideLayer = async (layerId: LayerId) => {
+		await core.hideLayer(layerId);
+	};
+
+	const toggleLayerLock = async (layerId: LayerId) => {
+		if (layers.find((layer) => layer.id === layerId)?.locked) {
+			await core.unlockLayer(layerId);
+			return;
+		}
+		await core.lockLayer(layerId);
 	};
 
 	return (
 		<LayerContext
 			value={{
 				layers,
-				isLayerHidden: (layer) => layers[layer]?.visible === false,
-				isLayerLocked: (layer) => layers[layer]?.locked ?? false,
-				selectedLayer,
+				isLayerHidden: (layerId) =>
+					layers.find((layer) => layer.id === layerId)?.visible === false,
+				isLayerLocked: (layerId) =>
+					layers.find((layer) => layer.id === layerId)?.locked ?? false,
+				selectedLayerId,
 				selectLayer,
 				showLayer,
 				hideLayer,

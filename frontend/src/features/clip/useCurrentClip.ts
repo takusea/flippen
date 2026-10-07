@@ -3,16 +3,18 @@ import type { ClipMetadata } from "~/shared/lib/clip";
 
 export const useCurrentClip = (
 	clips: ClipMetadata[],
-	layer: number,
+	layerId: string | null,
 	frame: number,
 ) =>
 	useMemo(
 		() =>
-			clips.find(
-				(clip) =>
-					clip.layer_index === layer &&
-					clip.start <= frame &&
-					frame < clip.start + clip.duration,
-			),
-		[clips, frame, layer],
+			layerId == null
+				? undefined
+				: clips.find(
+						(clip) =>
+							clip.layer_id === layerId &&
+							clip.start <= frame &&
+							frame < clip.start + clip.duration,
+					),
+		[clips, frame, layerId],
 	);
