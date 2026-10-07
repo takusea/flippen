@@ -9,7 +9,7 @@ type Props = React.ComponentProps<typeof Menubar.CheckboxItem> & {
 const MenubarCheckboxItem: React.FC<Props> = (props) => {
 	return (
 		<Menubar.CheckboxItem
-			className="relative grid grid-cols-[24px_auto_auto] gap-1 pl-1 pr-2 h-8 items-center rounded-md cursor-pointer hover:not-disabled:bg-zinc-500/15 data-highlighted:bg-zinc-500/15 disabled:opacity-50 disabled:cursor-not-allowed"
+			className="relative grid grid-cols-[24px_auto_auto] gap-1 pl-1 pr-2 h-8 items-center rounded-md cursor-pointer hover:not-disabled:bg-zinc-500/20 data-highlighted:bg-zinc-500/15 disabled:opacity-50 disabled:cursor-not-allowed"
 			{...props}
 		>
 			<div>

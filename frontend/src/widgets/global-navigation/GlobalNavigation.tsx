@@ -42,7 +42,7 @@ const GlobalNavigation: React.FC<Props> = (props: Props) => {
 	) as React.ReactElement<EditorProps>;
 
 	return (
-		<div className="grid grid-rows-[40px_1fr] w-svw h-svh bg-zinc-100 dark:bg-zinc-950">
+		<div className="grid grid-rows-[40px_1fr] w-svw h-svh">
 			<header className="relative row-span-1 col-span-full flex items-center justify-between">
 				<div className="flex items-center justify-between w-full px-2 gap-2">
 					<div className="flex items-center gap-1">

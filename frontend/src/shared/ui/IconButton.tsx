@@ -23,7 +23,7 @@ const IconButton: React.FC<Props> = ({
 		if (variant === "primary") {
 			return "text-white bg-teal-500 hover:not-disabled:bg-teal-600";
 		}
-		return "hover:not-disabled:bg-zinc-500/15";
+		return "hover:not-disabled:bg-zinc-500/20";
 	};
 
 	return (
