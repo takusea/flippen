@@ -10,7 +10,7 @@ type Props = {
 
 export const ProjectDialogsProvider = ({ children }: Props) => {
 	const [isCreateProjectDialogOpen, setIsCreateProjectDialogOpen] =
-		useState(true);
+		useState(false);
 	const [isEditProjectSettingsDialogOpen, setIsEditProjectSettingsDialogOpen] =
 		useState(false);
 

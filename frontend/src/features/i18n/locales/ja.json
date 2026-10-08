@@ -51,6 +51,8 @@
 	"shortcut.selectTool": "選択ツール",
 	"shortcut.deleteClip": "クリップを削除",
 	"common.cancel": "キャンセル",
+	"app.newProject": "新しいプロジェクト",
+	"app.openProject": "プロジェクトを開く",
 	"app.resizeTimeline": "タイムラインのサイズを変更",
 	"nav.export": "エクスポート",
 	"nav.exportProgress": "エクスポート中 {completed}/{total}",

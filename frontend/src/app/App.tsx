@@ -1,9 +1,13 @@
+import { IconFilePlus, IconFolderOpen } from "@tabler/icons-react";
 import { useRef, useState } from "react";
 import { useClip } from "~/features/clip/useClip";
 import { useI18n } from "~/features/i18n/useI18n";
 import { useLayer } from "~/features/layer/useLayer";
+import { useProject } from "~/features/project/useProject";
+import { useProjectDialogs } from "~/features/project/useProjectDialogs";
 import { useTool } from "~/features/tool/useTool";
 import { useCore } from "~/infrastructure/core/useCore";
+import Button from "~/shared/ui/Button";
 import Splitter from "~/shared/ui/Splitter";
 import DrawCanvas from "~/widgets/canvas/Canvas";
 import { useCanvasView } from "~/widgets/canvas/useCanvasView";
@@ -30,8 +34,10 @@ const App: React.FC<Props> = ({
 	const canvasView = useCanvasView();
 	const toolContext = useTool();
 	const core = useCore();
+	const project = useProject();
 	const clipContext = useClip();
 	const layerContext = useLayer();
+	const projectDialogs = useProjectDialogs();
 	const selectedClip = clipContext.clips.find(
 		(clip) => clip.id === clipContext.selectedClipId,
 	);
@@ -54,7 +60,24 @@ const App: React.FC<Props> = ({
 			}}
 		>
 			<div className="relative w-full h-full grid grid-cols-[auto_1fr_auto] grid-rows-[1fr]">
-				<DrawCanvas isOnionSkin={isOnionSkin} canvasView={canvasView} />
+				{project.settings ? (
+					<DrawCanvas isOnionSkin={isOnionSkin} canvasView={canvasView} />
+				) : (
+					<div className="absolute grid place-content-center w-full h-full gap-2">
+						<Button
+							label={t("app.newProject")}
+							icon={IconFilePlus}
+							size="large"
+							onClick={projectDialogs.openCreateProjectDialog}
+						/>
+						<Button
+							label={t("app.openProject")}
+							icon={IconFolderOpen}
+							size="large"
+							onClick={() => project.open()}
+						/>
+					</div>
+				)}
 				<div className="h-full w-60 p-2 flex flex-col gap-2 overflow-y-auto">
 					<ToolInspector
 						properties={toolContext.properties}

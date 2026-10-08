@@ -51,6 +51,8 @@
 	"shortcut.selectTool": "Select Tool",
 	"shortcut.deleteClip": "Delete Clip",
 	"common.cancel": "Cancel",
+	"app.newProject": "New Project",
+	"app.openProject": "Open Project",
 	"app.resizeTimeline": "Resize Timeline",
 	"nav.export": "Export",
 	"nav.exportProgress": "Exporting {completed}/{total}",
