@@ -31,11 +31,11 @@ const Button: React.FC<Props> = (props) => {
 	return (
 		<button
 			type="button"
-			className={`flex items-center justify-center gap-1 rounded-md font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${padding(props.size)} ${color(props.variant)}`}
+			className={`grid grid-cols-[auto_1fr] items-center justify-center gap-1 rounded-md font-semibold cursor-pointer text-nowrap disabled:opacity-50 disabled:cursor-not-allowed ${padding(props.size)} ${color(props.variant)}`}
 			{...props}
 		>
 			{props.icon && <props.icon />}
-			{props.label}
+			<div className="overflow-hidden text-ellipsis">{props.label}</div>
 		</button>
 	);
 };

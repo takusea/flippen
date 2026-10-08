@@ -7,7 +7,7 @@ type Props = React.ComponentProps<typeof Menubar.Menu> & {
 const MenubarMenu: React.FC<Props> = (props) => {
 	return (
 		<Menubar.Menu {...props}>
-			<Menubar.Trigger className="flex items-center justify-between rounded-md h-8 px-2 font-medium cursor-pointer data-[state=open]:bg-zinc-500/15 hover:not-disabled:bg-zinc-500/20 disabled:opacity-50 disabled:cursor-not-allowed">
+			<Menubar.Trigger className="flex items-center justify-between rounded-md h-8 px-2 font-medium cursor-pointer text-nowrap data-[state=open]:bg-zinc-500/15 hover:not-disabled:bg-zinc-500/20 disabled:opacity-50 disabled:cursor-not-allowed">
 				{props.label}
 			</Menubar.Trigger>
 			<Menubar.Portal>

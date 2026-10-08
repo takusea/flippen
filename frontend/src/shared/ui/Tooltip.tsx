@@ -26,7 +26,7 @@ const Tooltip: React.FC<Props> = ({
 						<span>{label}</span>
 						{shortcut && <span className="opacity-50">{shortcut}</span>}
 					</span>
-					<TooltipPrimitive.Arrow className="fill-white/90 dark:fill-zinc-950/90 -mt-px" />
+					<TooltipPrimitive.Arrow className="fill-white/90 dark:fill-zinc-950/90 -mt-px border-zinc-500/40 drop-shadow-[0_1px_0] drop-shadow-zinc-500" />
 				</TooltipPrimitive.Content>
 			</TooltipPrimitive.Portal>
 		</TooltipPrimitive.Root>

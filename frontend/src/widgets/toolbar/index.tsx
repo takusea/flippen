@@ -90,7 +90,7 @@ const Toolbar: React.FC<Props> = (props) => {
 
 	return (
 		<div className="flex gap-2">
-			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/40 rounded-lg shadow-sm backdrop-blur-xl">
+			<div className="flex gap-1 p-2 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/40 rounded-xl shadow-sm backdrop-blur-xl">
 				<IconButton
 					label={t("toolbar.undo")}
 					shortcut={formatShortcut(shortcuts.undo)}
@@ -122,7 +122,7 @@ const Toolbar: React.FC<Props> = (props) => {
 					onClick={clipContext.paste}
 				/>
 			</div>
-			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/40 rounded-lg shadow-sm backdrop-blur-xl">
+			<div className="flex gap-1 p-2 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/40 rounded-xl shadow-sm backdrop-blur-xl">
 				<IconButton
 					label={t("toolbar.play")}
 					shortcut={formatShortcut(shortcuts.togglePlayback)}
@@ -154,7 +154,7 @@ const Toolbar: React.FC<Props> = (props) => {
 					onClick={props.onIsOnionSkinChange}
 				/>
 			</div>
-			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/40 rounded-lg shadow-sm backdrop-blur-xl">
+			<div className="flex gap-1 p-2 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/40 rounded-xl shadow-sm backdrop-blur-xl">
 				<IconButton
 					label={t("toolbar.rewind")}
 					shortcut={formatShortcut(shortcuts.firstFrame)}
@@ -188,7 +188,7 @@ const Toolbar: React.FC<Props> = (props) => {
 					}
 				/>
 			</div>
-			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/40 rounded-lg shadow-sm backdrop-blur-xl">
+			<div className="flex gap-1 p-2 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/40 rounded-xl shadow-sm backdrop-blur-xl">
 				<IconButton
 					label={t("toolbar.move")}
 					shortcut={formatShortcut(shortcuts.moveTool)}
@@ -225,7 +225,7 @@ const Toolbar: React.FC<Props> = (props) => {
 					onClick={() => toolContext.setTool("select")}
 				/>
 			</div>
-			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/40 rounded-lg shadow-sm backdrop-blur-xl">
+			<div className="flex gap-1 p-2 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/40 rounded-xl shadow-sm backdrop-blur-xl">
 				<div className="w-16">
 					<NumberField
 						value={Number((props.canvasView.scale * 100).toFixed(2))}
@@ -242,7 +242,7 @@ const Toolbar: React.FC<Props> = (props) => {
 					onClick={() => props.canvasView.setScale(1)}
 				/>
 			</div>
-			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/40 rounded-lg shadow-sm backdrop-blur-xl">
+			<div className="flex gap-1 p-2 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/40 rounded-xl shadow-sm backdrop-blur-xl">
 				<div className="w-16">
 					<NumberField
 						value={props.canvasView.rotation}
@@ -259,7 +259,7 @@ const Toolbar: React.FC<Props> = (props) => {
 					onClick={() => props.canvasView.setRotation(0)}
 				/>
 			</div>
-			<div className="flex gap-1 p-1 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/40 rounded-lg shadow-sm backdrop-blur-xl">
+			<div className="flex gap-1 p-2 border bg-white/90 dark:bg-zinc-950/90 border-zinc-500/40 rounded-xl shadow-sm backdrop-blur-xl">
 				<IconButton
 					label={t("toolbar.flipHorizontal")}
 					shortcut={formatShortcut(shortcuts.flipHorizontal)}
