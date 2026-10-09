@@ -19,7 +19,6 @@ const Tooltip: React.FC<Props> = ({
 			<TooltipPrimitive.Portal>
 				<TooltipPrimitive.Content
 					className="z-50 select-none rounded-md p-2 leading-none border border-zinc-500/40 bg-white/90 dark:bg-zinc-950/90 shadow-md backdrop-blur-xl"
-					sideOffset={5}
 					side={side}
 				>
 					<span className="flex items-center gap-2">
