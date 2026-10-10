@@ -39,6 +39,7 @@
 	"shortcut.toggleGrid": "グリッドの表示切り替え",
 	"shortcut.toggleOnionSkin": "オニオンスキンの切り替え",
 	"shortcut.togglePlayback": "再生 / 一時停止",
+	"shortcut.stop": "停止",
 	"shortcut.toggleLoop": "ループの切り替え",
 	"shortcut.firstFrame": "最初のフレームへ移動",
 	"shortcut.previousFrame": "前のフレーム",

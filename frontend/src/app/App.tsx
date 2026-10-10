@@ -93,6 +93,7 @@ const App: React.FC<Props> = ({
 						<Button
 							label={t("app.newProject")}
 							icon={IconFilePlus}
+							variant="primary"
 							size="large"
 							onClick={projectDialogs.openCreateProjectDialog}
 						/>

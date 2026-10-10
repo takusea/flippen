@@ -67,6 +67,7 @@ const Toolbar: React.FC<Props> = (props) => {
 			? playbackContext.pause()
 			: playbackContext.play(),
 	);
+	useHotkeys(shortcuts.stop, () => playbackContext.stop());
 	useHotkeys(shortcuts.toggleOnionSkin, props.onIsOnionSkinChange);
 	useHotkeys(shortcuts.toggleLoop, () =>
 		playbackContext.setIsLoop(!playbackContext.isLoop),
@@ -91,6 +92,45 @@ const Toolbar: React.FC<Props> = (props) => {
 
 	return (
 		<div className="flex gap-2">
+			<Card size="small">
+				<div className="flex gap-1">
+					<IconButton
+						label={t("toolbar.pen")}
+						shortcut={formatShortcut(shortcuts.penTool)}
+						icon={IconPencil}
+						variant={toolContext.tool === "pen" ? "primary" : "default"}
+						onClick={() => toolContext.setTool("pen")}
+					/>
+					<IconButton
+						label={t("toolbar.eraser")}
+						shortcut={formatShortcut(shortcuts.eraserTool)}
+						icon={IconEraser}
+						variant={toolContext.tool === "eraser" ? "primary" : "default"}
+						onClick={() => toolContext.setTool("eraser")}
+					/>
+					<IconButton
+						label={t("toolbar.fill")}
+						shortcut={formatShortcut(shortcuts.fillTool)}
+						icon={IconBucketDroplet}
+						variant={toolContext.tool === "fill" ? "primary" : "default"}
+						onClick={() => toolContext.setTool("fill")}
+					/>
+					<IconButton
+						label={t("toolbar.select")}
+						shortcut={formatShortcut(shortcuts.selectTool)}
+						icon={IconLasso}
+						variant={toolContext.tool === "select" ? "primary" : "default"}
+						onClick={() => toolContext.setTool("select")}
+					/>
+					<IconButton
+						label={t("toolbar.move")}
+						shortcut={formatShortcut(shortcuts.moveTool)}
+						icon={IconArrowsMove}
+						variant={toolContext.tool === "move" ? "primary" : "default"}
+						onClick={() => toolContext.setTool("move")}
+					/>
+				</div>
+			</Card>
 			<Card size="small">
 				<div className="flex gap-1">
 					<IconButton
@@ -140,6 +180,7 @@ const Toolbar: React.FC<Props> = (props) => {
 					/>
 					<IconButton
 						label={t("toolbar.stop")}
+						shortcut={formatShortcut(shortcuts.stop)}
 						icon={IconPlayerStop}
 						onClick={playbackContext.stop}
 					/>
@@ -192,45 +233,6 @@ const Toolbar: React.FC<Props> = (props) => {
 						onClick={() =>
 							playbackContext.setCurrentFrame(playbackContext.endFrame)
 						}
-					/>
-				</div>
-			</Card>
-			<Card size="small">
-				<div className="flex gap-1">
-					<IconButton
-						label={t("toolbar.move")}
-						shortcut={formatShortcut(shortcuts.moveTool)}
-						icon={IconArrowsMove}
-						variant={toolContext.tool === "move" ? "primary" : "default"}
-						onClick={() => toolContext.setTool("move")}
-					/>
-					<IconButton
-						label={t("toolbar.pen")}
-						shortcut={formatShortcut(shortcuts.penTool)}
-						icon={IconPencil}
-						variant={toolContext.tool === "pen" ? "primary" : "default"}
-						onClick={() => toolContext.setTool("pen")}
-					/>
-					<IconButton
-						label={t("toolbar.eraser")}
-						shortcut={formatShortcut(shortcuts.eraserTool)}
-						icon={IconEraser}
-						variant={toolContext.tool === "eraser" ? "primary" : "default"}
-						onClick={() => toolContext.setTool("eraser")}
-					/>
-					<IconButton
-						label={t("toolbar.fill")}
-						shortcut={formatShortcut(shortcuts.fillTool)}
-						icon={IconBucketDroplet}
-						variant={toolContext.tool === "fill" ? "primary" : "default"}
-						onClick={() => toolContext.setTool("fill")}
-					/>
-					<IconButton
-						label={t("toolbar.select")}
-						shortcut={formatShortcut(shortcuts.selectTool)}
-						icon={IconLasso}
-						variant={toolContext.tool === "select" ? "primary" : "default"}
-						onClick={() => toolContext.setTool("select")}
 					/>
 				</div>
 			</Card>

@@ -264,6 +264,7 @@ const GlobalMenubar: React.FC<Props> = ({
 					/>
 					<MenubarItem
 						label={t("menubar.stop")}
+						shortcut={formatShortcut(shortcuts.stop)}
 						onSelect={playbackContext.stop}
 					/>
 					<MenubarSeparator />
