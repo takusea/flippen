@@ -1,3 +1,4 @@
+import { useDocumentTitle } from "usehooks-ts";
 import { useCore } from "~/infrastructure/core/useCore";
 import { useCoreSnapshot } from "~/infrastructure/core/useCoreSnapshot";
 import { ProjectContext } from "./ProjectContextValue";
@@ -17,6 +18,8 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
 	const updateSettings = (newSettings: ProjectSettings) => {
 		return core.setProjectSettings(newSettings);
 	};
+
+	useDocumentTitle(settings ? `${settings.title} - Flippen` : "Flippen");
 
 	const open = () => {
 		const input = document.createElement("input");
