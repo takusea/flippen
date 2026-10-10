@@ -162,12 +162,17 @@ export const useCanvasPointer = (
 		}
 
 		event.currentTarget.setPointerCapture(event.pointerId);
-		const drawStates = event.nativeEvent
-			.getCoalescedEvents()
-			.map((pointerEvent) => ({
-				...getPointerPosition(pointerEvent.clientX, pointerEvent.clientY),
-				pressure: getPointerPressure(pointerEvent),
-			}));
+		const drawStates = event.nativeEvent.getCoalescedEvents
+			? event.nativeEvent.getCoalescedEvents().map((pointerEvent) => ({
+					...getPointerPosition(pointerEvent.clientX, pointerEvent.clientY),
+					pressure: getPointerPressure(pointerEvent),
+				}))
+			: [
+					{
+						...getPointerPosition(event.clientX, event.clientY),
+						pressure: getPointerPressure(event),
+					},
+				];
 		canvasDraw.drawMultiple(drawStates);
 		render(canvas, isOnionSkin);
 	};
