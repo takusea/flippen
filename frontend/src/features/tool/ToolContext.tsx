@@ -9,7 +9,7 @@ export const ToolProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
 	const core = useCore();
 
-	const [tool, setTool] = useState<ToolKind>("move");
+	const [tool, setTool] = useState<ToolKind>("pen");
 	const [properties, setProperties] = useState<{ [key: string]: unknown }>({});
 	const [color, setColor] = useState<HSVAColor>({
 		h: 0,
