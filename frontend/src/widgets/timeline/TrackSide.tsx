@@ -35,7 +35,7 @@ const TrackSide: React.FC<Props> = (props) => {
 				return (
 					<div
 						key={layer.id}
-						className={`w-full overflow-hidden flex items-center justify-between gap-1 border-l-2 border-b border-zinc-500/40 ${props.selectedLayerId === layer.id ? "border-l-teal-500" : "border-l-transparent"} ${isHidden ? "opacity-50" : ""}`}
+						className={`w-full overflow-hidden flex items-center justify-between gap-1 border-l-2 border-b border-zinc-500/40 ${props.selectedLayerId === layer.id ? "border-l-primary" : "border-l-transparent"} ${isHidden ? "opacity-50" : ""}`}
 						style={{ height: `${props.layerHeight}px` }}
 					>
 						<button

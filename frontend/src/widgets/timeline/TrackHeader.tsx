@@ -132,7 +132,7 @@ const TrackHeader: React.FC<Props> = (props) => {
 				type="button"
 				aria-label={t("timeline.startFrame", { frame: props.startFrame })}
 				title={t("timeline.startFrame", { frame: props.startFrame })}
-				className="absolute top-0 z-10 h-full cursor-ew-resize touch-none border-l-2 border-teal-500"
+				className="absolute top-0 z-10 h-full cursor-ew-resize touch-none border-l-2 border-primary"
 				style={{
 					left: `${props.startFrame * props.frameWidth}px`,
 				}}
@@ -146,7 +146,7 @@ const TrackHeader: React.FC<Props> = (props) => {
 				type="button"
 				aria-label={t("timeline.endFrame", { frame: props.endFrame })}
 				title={t("timeline.endFrame", { frame: props.endFrame })}
-				className="absolute top-0 z-10 h-full -translate-x-full cursor-ew-resize touch-none border-r-2 border-teal-500"
+				className="absolute top-0 z-10 h-full -translate-x-full cursor-ew-resize touch-none border-r-2 border-primary"
 				style={{
 					left: `${(props.endFrame + 1) * props.frameWidth}px`,
 				}}
@@ -157,7 +157,7 @@ const TrackHeader: React.FC<Props> = (props) => {
 				onKeyDown={(event) => handleRangeKeyDown(event, false)}
 			></button>
 			<div
-				className="absolute h-full flex items-center px-1 border-b-2 border-teal-500 font-mono pointer-events-none"
+				className="absolute h-full flex items-center px-1 border-b-2 border-primary font-mono pointer-events-none"
 				style={{
 					translate: `${props.currentFrame * props.frameWidth}px 0`,
 					width: `${props.frameWidth}px`,

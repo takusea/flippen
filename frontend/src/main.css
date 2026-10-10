@@ -1,6 +1,12 @@
 @import "tailwindcss";
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
-html {
+@theme {
+	--color-primary: oklch(72.126% 0.13582 var(--hue));
+}
+
+:root {
+	--hue: attr(data-accent-color);
 	overscroll-behavior-y: none;
 }
 

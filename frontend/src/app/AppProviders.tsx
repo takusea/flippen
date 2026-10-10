@@ -1,5 +1,6 @@
 import { TooltipProvider } from "radix-ui/tooltip";
 import type { ReactNode } from "react";
+import { AppearanceProvider } from "~/features/appearance/AppearanceContext";
 import { ClipProvider } from "~/features/clip/ClipContext";
 import { UndoStackProvider } from "~/features/history/UndoStackContext";
 import { I18nProvider } from "~/features/i18n/I18nContext";
@@ -21,23 +22,25 @@ function AppProviders({ children }: Props) {
 		<TooltipProvider delayDuration={200}>
 			<I18nProvider>
 				<ShortcutsProvider>
-					<CoreProvider>
-						<ProjectProvider>
-							<ProjectDialogsProvider>
-								<PlaybackProvider>
-									<LayerProvider>
-										<ToolProvider>
-											<ClipProvider>
-												<UndoStackProvider>
-													<CanvasViewProvider>{children}</CanvasViewProvider>
-												</UndoStackProvider>
-											</ClipProvider>
-										</ToolProvider>
-									</LayerProvider>
-								</PlaybackProvider>
-							</ProjectDialogsProvider>
-						</ProjectProvider>
-					</CoreProvider>
+					<AppearanceProvider>
+						<CoreProvider>
+							<ProjectProvider>
+								<ProjectDialogsProvider>
+									<PlaybackProvider>
+										<LayerProvider>
+											<ToolProvider>
+												<ClipProvider>
+													<UndoStackProvider>
+														<CanvasViewProvider>{children}</CanvasViewProvider>
+													</UndoStackProvider>
+												</ClipProvider>
+											</ToolProvider>
+										</LayerProvider>
+									</PlaybackProvider>
+								</ProjectDialogsProvider>
+							</ProjectProvider>
+						</CoreProvider>
+					</AppearanceProvider>
 				</ShortcutsProvider>
 			</I18nProvider>
 		</TooltipProvider>

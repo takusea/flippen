@@ -176,7 +176,7 @@ const Timeline: React.FC = () => {
 				ref={timelineViewportRef}
 			>
 				<div
-					className="absolute top-0 w-px bg-teal-500 z-50"
+					className="absolute top-0 w-px bg-primary z-50"
 					style={{
 						height: `${layerHeight * layerCount}px`,
 						translate: `${playbackContext.currentFrame * frameWidth}px 0`,

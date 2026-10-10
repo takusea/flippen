@@ -2,6 +2,7 @@ import { IconMenu2, IconX } from "@tabler/icons-react";
 import { type RefObject, useRef, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useMediaQuery, useOnClickOutside, useToggle } from "usehooks-ts";
+import AppearanceSettingsDialog from "~/features/appearance/AppearanceSettingDialog";
 import { useClip } from "~/features/clip/useClip";
 import { useUndoStack } from "~/features/history/useUndoStack";
 import LanguageSettingDialog from "~/features/i18n/LanguageSettingDialog";
@@ -39,7 +40,8 @@ const GlobalMenubar: React.FC<Props> = ({
 		useState(false);
 	const [isShortcutSettingsDialogOpen, setShortcutSettingsDialogOpen] =
 		useState(false);
-	useState(false);
+	const [isAppearanceSettingsDialogOpen, setAppearanceSettingsDialogOpen] =
+		useState(false);
 	const [isAboutDialogOpen, setAboutDialogOpen] = useState(false);
 	const { setDialogOpen } = useProjectExport();
 	const { shortcuts } = useShortcuts();
@@ -308,6 +310,10 @@ const GlobalMenubar: React.FC<Props> = ({
 				</MenubarMenu>
 				<MenubarMenu label={t("menubar.settings")}>
 					<MenubarItem
+						label={t("menubar.appearanceSettings")}
+						onSelect={() => setAppearanceSettingsDialogOpen(true)}
+					/>
+					<MenubarItem
 						label={t("menubar.shortcutSettings")}
 						onSelect={() => setShortcutSettingsDialogOpen(true)}
 					/>
@@ -323,6 +329,10 @@ const GlobalMenubar: React.FC<Props> = ({
 					/>
 				</MenubarMenu>
 			</MenubarRoot>
+			<AppearanceSettingsDialog
+				open={isAppearanceSettingsDialogOpen}
+				onOpenChange={setAppearanceSettingsDialogOpen}
+			/>
 			<LanguageSettingDialog
 				open={isLanguageSettingDialogOpen}
 				onOpenChange={setLanguageSettingDialogOpen}

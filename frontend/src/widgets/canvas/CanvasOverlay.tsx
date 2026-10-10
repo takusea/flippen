@@ -30,7 +30,7 @@ export const CanvasOverlay: React.FC<Props> = ({
 		>
 			{selection != null && (
 				<div
-					className="absolute border border-dashed border-teal-500 bg-teal-500/10"
+					className="absolute border border-dashed border-primary bg-primary/10"
 					style={{
 						left: selection.x,
 						top: selection.y,

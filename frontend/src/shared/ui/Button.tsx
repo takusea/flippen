@@ -23,7 +23,7 @@ const Button: React.FC<Props> = (props) => {
 
 	const color = (variant: Variant | undefined) => {
 		if (variant === "primary") {
-			return "text-white bg-teal-500 hover:not-disabled:bg-teal-600";
+			return "text-white bg-primary hover:not-disabled:bg-primary";
 		}
 		return "hover:not-disabled:bg-zinc-500/20";
 	};

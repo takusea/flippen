@@ -1,0 +1,69 @@
+import { useEffect } from "react";
+import { useLocalStorage, useTernaryDarkMode } from "usehooks-ts";
+import { Dialog, DialogContent } from "~/shared/ui/Dialog";
+import RadioGroup from "~/shared/ui/RadioGroup";
+import RadioGroupItem from "~/shared/ui/RadioGroupItem";
+import Slider from "~/shared/ui/Slider";
+import { useI18n } from "../i18n/useI18n";
+import { useAppearance } from "./useAppearance";
+
+type Props = {
+	open: boolean;
+	onOpenChange: (open: boolean) => void;
+};
+
+const AppearanceSettingsDialog: React.FC<Props> = ({ open, onOpenChange }) => {
+	const { t } = useI18n();
+	const appearance = useAppearance();
+
+	return (
+		<Dialog open={open} onOpenChange={onOpenChange}>
+			<DialogContent
+				title={t("appearanceSettings.title")}
+				cancelText={t("common.close")}
+			>
+				<div className="flex flex-col gap-2">
+					<label htmlFor="language-setting-select">
+						{t("appearanceSettings.theme")}
+					</label>
+					<RadioGroup
+						value={appearance.ternaryDarkMode}
+						onValueChange={(value) => {
+							if (value === "system" || value === "light" || value === "dark") {
+								appearance.setTernaryDarkMode(value);
+							}
+						}}
+					>
+						<RadioGroupItem
+							value="system"
+							label={t("appearanceSettings.themeSystem")}
+							id="themeSystem"
+						/>
+						<RadioGroupItem
+							value="light"
+							label={t("appearanceSettings.themeLight")}
+							id="themeLight"
+						/>
+						<RadioGroupItem
+							value="dark"
+							label={t("appearanceSettings.themeDark")}
+							id="themeDark"
+						/>
+					</RadioGroup>
+					<label htmlFor="accent-color">{t("appearanceSettings.accent")}</label>
+					<Slider
+						id="accent-color"
+						min={0}
+						max={360}
+						value={[appearance.accentColor]}
+						onValueChange={(value) => {
+							appearance.setAccentColor(value[0]);
+						}}
+					/>
+				</div>
+			</DialogContent>
+		</Dialog>
+	);
+};
+
+export default AppearanceSettingsDialog;
