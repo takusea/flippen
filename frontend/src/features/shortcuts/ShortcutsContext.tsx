@@ -1,4 +1,5 @@
-import { createContext, type ReactNode, useEffect, useState } from "react";
+import { createContext, type ReactNode } from "react";
+import { useLocalStorage } from "usehooks-ts";
 import {
 	defaultShortcuts,
 	type ShortcutId,
@@ -17,32 +18,13 @@ export const ShortcutsContext = createContext<ShortcutsContextValue | null>(
 	null,
 );
 
-const getInitialShortcuts = (): Shortcuts => {
-	const stored = localStorage.getItem(STORAGE_KEY);
-	if (stored == null) return defaultShortcuts;
-
-	const parsed: unknown = JSON.parse(stored);
-	if (typeof parsed !== "object" || parsed == null) return defaultShortcuts;
-
-	return Object.fromEntries(
-		Object.keys(defaultShortcuts).map((id) => {
-			const value = (parsed as Record<string, unknown>)[id];
-			return [
-				id,
-				typeof value === "string" ? value : defaultShortcuts[id as ShortcutId],
-			];
-		}),
-	) as Shortcuts;
-};
-
 export const ShortcutsProvider: React.FC<{ children: ReactNode }> = ({
 	children,
 }) => {
-	const [shortcuts, setShortcuts] = useState<Shortcuts>(getInitialShortcuts);
-
-	useEffect(() => {
-		localStorage.setItem(STORAGE_KEY, JSON.stringify(shortcuts));
-	}, [shortcuts]);
+	const [shortcuts, setShortcuts] = useLocalStorage<Shortcuts>(
+		STORAGE_KEY,
+		defaultShortcuts,
+	);
 
 	const setShortcut = (id: ShortcutId, shortcut: string) => {
 		setShortcuts((current) => ({ ...current, [id]: shortcut }));

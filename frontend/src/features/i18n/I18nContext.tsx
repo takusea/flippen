@@ -4,10 +4,12 @@ import {
 	type ReactNode,
 	type SetStateAction,
 	useEffect,
-	useState,
 } from "react";
+import { useLocalStorage } from "usehooks-ts";
 import enMessages from "./locales/en.json";
 import jaMessages from "./locales/ja.json";
+
+const STORAGE_KEY = "flippen.language";
 
 const messages = { en: enMessages, ja: jaMessages };
 
@@ -28,7 +30,10 @@ const getInitialLocale = (): Locale =>
 export const I18nProvider: React.FC<{ children: ReactNode }> = ({
 	children,
 }) => {
-	const [locale, setLocale] = useState<Locale>(getInitialLocale);
+	const [locale, setLocale] = useLocalStorage<Locale>(
+		STORAGE_KEY,
+		getInitialLocale,
+	);
 
 	useEffect(() => {
 		document.documentElement.lang = locale;
