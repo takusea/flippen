@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { IconMenu2, IconX } from "@tabler/icons-react";
+import { type RefObject, useRef, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
+import { useMediaQuery, useOnClickOutside, useToggle } from "usehooks-ts";
 import { useClip } from "~/features/clip/useClip";
 import { useUndoStack } from "~/features/history/useUndoStack";
 import LanguageSettingDialog from "~/features/i18n/LanguageSettingDialog";
@@ -11,6 +13,8 @@ import { useProjectExport } from "~/features/project/useProjectExport";
 import ShortcutSettingsDialog from "~/features/shortcuts/ShortcutSettingsDialog";
 import { formatShortcut } from "~/features/shortcuts/shortcutDefinitions";
 import { useShortcuts } from "~/features/shortcuts/useShortcuts";
+import Card from "~/shared/ui/Card";
+import IconButton from "~/shared/ui/IconButton";
 import MenubarCheckboxItem from "~/shared/ui/Menubar/MenubarCheckboxItem";
 import MenubarItem from "~/shared/ui/Menubar/MenubarItem";
 import MenubarMenu from "~/shared/ui/Menubar/MenubarMenu";
@@ -86,7 +90,24 @@ const GlobalMenubar: React.FC<Props> = ({
 	useHotkeys(shortcuts.toggleGrid, toggleGrid);
 	useHotkeys(shortcuts.toggleOnionSkin, onIsOnionSkinChange);
 
-	return (
+	const isDesktop: boolean = useMediaQuery("(min-width: 720px)");
+
+	const [isMenubarOpen, toggleMenubarOpen] = useToggle(false);
+
+	const menubarRef = useRef<HTMLDivElement>(null);
+
+	useOnClickOutside(menubarRef as RefObject<HTMLDivElement>, (event) => {
+		if (
+			(event.target instanceof HTMLElement &&
+				event.target.closest("[data-radix-menu-content]")) ||
+			isDesktop
+		) {
+			return;
+		}
+		toggleMenubarOpen();
+	});
+
+	const menubar = (
 		<>
 			<MenubarRoot>
 				<MenubarMenu label={t("menubar.file")}>
@@ -311,6 +332,28 @@ const GlobalMenubar: React.FC<Props> = ({
 			/>
 			<AboutDialog open={isAboutDialogOpen} onOpenChange={setAboutDialogOpen} />
 		</>
+	);
+
+	return isDesktop ? (
+		menubar
+	) : (
+		<div>
+			<IconButton
+				label={t("menubar.open")}
+				icon={isMenubarOpen ? IconX : IconMenu2}
+				onClick={() => toggleMenubarOpen()}
+			/>
+			{isMenubarOpen && (
+				<div
+					className="fixed top-12 left-0 right-0 z-10 max-w-fit"
+					ref={menubarRef}
+				>
+					<Card size="small">
+						<div className="overflow-scroll">{menubar}</div>
+					</Card>
+				</div>
+			)}
+		</div>
 	);
 };
 

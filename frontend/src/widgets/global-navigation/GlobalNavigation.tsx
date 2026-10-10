@@ -6,12 +6,14 @@ import {
 	type ReactNode,
 	useState,
 } from "react";
+import { useMediaQuery } from "usehooks-ts";
 import { useI18n } from "~/features/i18n/useI18n";
 import ProjectExportDialog from "~/features/project/ProjectExportDialog";
 import { useProject } from "~/features/project/useProject";
 import { useProjectDialogs } from "~/features/project/useProjectDialogs";
 import { useProjectExport } from "~/features/project/useProjectExport";
 import Button from "~/shared/ui/Button";
+import IconButton from "~/shared/ui/IconButton";
 import Tooltip from "~/shared/ui/Tooltip";
 import { useCanvasView } from "~/widgets/canvas/useCanvasView";
 import GlobalMenubar from "./Menubar";
@@ -26,6 +28,7 @@ type EditorProps = {
 };
 
 const GlobalNavigation: React.FC<Props> = (props: Props) => {
+	const isDesktop: boolean = useMediaQuery("(min-width: 720px)");
 	const { t } = useI18n();
 	const project = useProject();
 	const projectDialogs = useProjectDialogs();
@@ -41,25 +44,28 @@ const GlobalNavigation: React.FC<Props> = (props: Props) => {
 		props.children,
 	) as React.ReactElement<EditorProps>;
 
+	const ExportButton = isDesktop ? Button : IconButton;
+
 	return (
-		<div className="grid grid-rows-[40px_1fr] w-svw h-svh">
-			<header className="relative row-span-1 col-span-full flex items-center justify-between">
-				<div className="flex items-center justify-between w-full px-2 gap-2">
-					<div className="flex items-center gap-1">
-						<img
-							src="/favicon.png"
-							width={16}
-							height={16}
-							alt=""
-							className="[image-rendering:pixelated]"
-						/>
-						<GlobalMenubar
-							canvasView={canvasView}
-							isOnionSkin={isOnionSkin}
-							onIsOnionSkinChange={() => setIsOnionSkin((prev) => !prev)}
-						/>
-					</div>
-					<Button
+		<div className="grid grid-rows-[48px_1fr] w-svw h-svh">
+			<header className="relative grid grid-cols-[1fr_auto_1fr] items-center w-full px-2 gap-1">
+				<GlobalMenubar
+					canvasView={canvasView}
+					isOnionSkin={isOnionSkin}
+					onIsOnionSkinChange={() => setIsOnionSkin((prev) => !prev)}
+				/>
+				<div className="flex justify-center">
+					{project.settings && (
+						<Tooltip label={t("nav.projectSettings")} side="bottom">
+							<Button
+								label={project.settings.title}
+								onClick={projectDialogs.openEditProjectSettingsDialog}
+							/>
+						</Tooltip>
+					)}
+				</div>
+				<div className="flex justify-end min-w-max">
+					<ExportButton
 						label={
 							exportProgress
 								? t("nav.exportProgress", exportProgress)
@@ -71,16 +77,6 @@ const GlobalNavigation: React.FC<Props> = (props: Props) => {
 						onClick={() => setDialogOpen(true)}
 					/>
 				</div>
-				{project.settings && (
-					<div className="absolute inset-0 w-fit h-fit m-auto">
-						<Tooltip label={t("nav.projectSettings")} side="bottom">
-							<Button
-								label={project.settings.title}
-								onClick={projectDialogs.openEditProjectSettingsDialog}
-							/>
-						</Tooltip>
-					</div>
-				)}
 			</header>
 			<div className="relative z-0 overflow-hidden row-span-1 col-span-1 border-t border-zinc-500/40 bg-white dark:bg-zinc-900">
 				{isValidElement(child)

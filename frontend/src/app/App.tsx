@@ -1,5 +1,11 @@
-import { IconFilePlus, IconFolderOpen } from "@tabler/icons-react";
-import { useRef, useState } from "react";
+import {
+	IconAdjustmentsHorizontal,
+	IconFilePlus,
+	IconFolderOpen,
+	IconTools,
+} from "@tabler/icons-react";
+import { type RefObject, useRef, useState } from "react";
+import { useMediaQuery, useOnClickOutside, useToggle } from "usehooks-ts";
 import { useClip } from "~/features/clip/useClip";
 import { useI18n } from "~/features/i18n/useI18n";
 import { useLayer } from "~/features/layer/useLayer";
@@ -8,6 +14,8 @@ import { useProjectDialogs } from "~/features/project/useProjectDialogs";
 import { useTool } from "~/features/tool/useTool";
 import { useCore } from "~/infrastructure/core/useCore";
 import Button from "~/shared/ui/Button";
+import Card from "~/shared/ui/Card";
+import IconButton from "~/shared/ui/IconButton";
 import Splitter from "~/shared/ui/Splitter";
 import DrawCanvas from "~/widgets/canvas/Canvas";
 import { useCanvasView } from "~/widgets/canvas/useCanvasView";
@@ -30,6 +38,9 @@ const App: React.FC<Props> = ({
 	isOnionSkin = false,
 	onIsOnionSkinChange = () => undefined,
 }) => {
+	const isDesktop: boolean = useMediaQuery("(min-width: 720px)");
+	const [isToolInspectorOpen, toggleIsToolInspectorOpen] = useToggle(false);
+	const [isClipInspectorOpen, toggleIsClipInspectorOpen] = useToggle(false);
 	const { t } = useI18n();
 	const canvasView = useCanvasView();
 	const toolContext = useTool();
@@ -51,6 +62,21 @@ const App: React.FC<Props> = ({
 			SPLITTER_HEIGHT,
 	);
 
+	const toolInspectorRef = useRef<HTMLDivElement>(null);
+	const clipInspectorRef = useRef<HTMLDivElement>(null);
+
+	useOnClickOutside(toolInspectorRef as RefObject<HTMLDivElement>, () => {
+		if (!isDesktop) {
+			toggleIsToolInspectorOpen();
+		}
+	});
+
+	useOnClickOutside(clipInspectorRef as RefObject<HTMLDivElement>, () => {
+		if (!isDesktop) {
+			toggleIsClipInspectorOpen();
+		}
+	});
+
 	return (
 		<main
 			ref={mainRef}
@@ -59,7 +85,7 @@ const App: React.FC<Props> = ({
 				gridTemplateRows: `minmax(0, 1fr) ${SPLITTER_HEIGHT}px ${timelineHeight}px`,
 			}}
 		>
-			<div className="relative w-full h-full grid grid-cols-[auto_1fr_auto] grid-rows-[1fr]">
+			<div className="relative w-full h-full">
 				{project.settings ? (
 					<DrawCanvas isOnionSkin={isOnionSkin} canvasView={canvasView} />
 				) : (
@@ -78,66 +104,106 @@ const App: React.FC<Props> = ({
 						/>
 					</div>
 				)}
-				<div className="h-full w-60 p-2 flex flex-col gap-2 overflow-y-auto">
-					<ToolInspector
-						properties={toolContext.properties}
-						onPropertyChange={(key, value) => {
-							toolContext.setProperty(key, value);
-						}}
-					/>
-					<ColorInspector
-						currentColor={toolContext.color}
-						colorHistory={toolContext.colorHistory}
-						onCurrentColorChange={toolContext.setColor}
-					/>
-				</div>
-				<div className="p-2 mx-auto mt-auto overflow-x-auto">
-					<Toolbar
-						isOnionSkin={isOnionSkin}
-						onIsOnionSkinChange={onIsOnionSkinChange}
-						canvasView={canvasView}
-					/>
-				</div>
-				<div className="h-full w-60 p-2 flex flex-col gap-2 overflow-y-auto">
-					{selectedClip && clipContext.transform && (
-						<ClipInspector
-							clip={selectedClip}
-							isLayerLocked={layerContext.isLayerLocked(selectedClip.layer_id)}
-							transform={clipContext.transform}
-							onStartChange={(start) =>
-								clipContext.moveClip(
-									selectedClip.id,
-									start,
-									selectedClip.layer_id,
-								)
-							}
-							onDurationChange={(duration) =>
-								clipContext.changeClipDuration(selectedClip.id, duration)
-							}
-							onNameChange={(name) =>
-								clipContext.changeClipName(selectedClip.id, name)
-							}
-							onPropertiesChange={(properties) =>
-								clipContext.changeClipProperties(selectedClip.id, {
-									hidden: selectedClip.hidden,
-									alpha_locked: selectedClip.alpha_locked,
-									locked: selectedClip.locked,
-									opacity: selectedClip.opacity,
-									blend_mode: selectedClip.blend_mode,
-									...properties,
-								})
-							}
-							onTransformChange={(transform) => {
-								clipContext.changeTransform(selectedClip.id, transform);
-							}}
-							onInteractionStart={() => {
-								void core.beginActionGroup();
-							}}
-							onInteractionEnd={() => {
-								void core.endActionGroup();
+				{!isDesktop && (
+					<>
+						{!isToolInspectorOpen && (
+							<div className="absolute left-2 bottom-16">
+								<Card size="small">
+									<IconButton
+										label="a"
+										icon={IconTools}
+										onClick={() => toggleIsToolInspectorOpen()}
+									/>
+								</Card>
+							</div>
+						)}
+						{selectedClip && clipContext.transform && !isClipInspectorOpen && (
+							<div className="absolute right-2 bottom-16">
+								<Card size="small">
+									<IconButton
+										label="a"
+										icon={IconAdjustmentsHorizontal}
+										onClick={() => toggleIsClipInspectorOpen()}
+									/>
+								</Card>
+							</div>
+						)}
+					</>
+				)}
+				{(isDesktop || isToolInspectorOpen) && (
+					<div
+						className="absolute left-0 h-full w-60 p-2 pb-16 flex flex-col gap-2 overflow-y-auto"
+						ref={toolInspectorRef}
+					>
+						<ToolInspector
+							properties={toolContext.properties}
+							onPropertyChange={(key, value) => {
+								toolContext.setProperty(key, value);
 							}}
 						/>
+						<ColorInspector
+							currentColor={toolContext.color}
+							colorHistory={toolContext.colorHistory}
+							onCurrentColorChange={toolContext.setColor}
+						/>
+					</div>
+				)}
+				{selectedClip &&
+					clipContext.transform &&
+					(isDesktop || isClipInspectorOpen) && (
+						<div
+							className="absolute right-0 h-full w-60 p-2 pb-16 flex flex-col gap-2 overflow-y-auto"
+							ref={clipInspectorRef}
+						>
+							<ClipInspector
+								clip={selectedClip}
+								isLayerLocked={layerContext.isLayerLocked(
+									selectedClip.layer_id,
+								)}
+								transform={clipContext.transform}
+								onStartChange={(start) =>
+									clipContext.moveClip(
+										selectedClip.id,
+										start,
+										selectedClip.layer_id,
+									)
+								}
+								onDurationChange={(duration) =>
+									clipContext.changeClipDuration(selectedClip.id, duration)
+								}
+								onNameChange={(name) =>
+									clipContext.changeClipName(selectedClip.id, name)
+								}
+								onPropertiesChange={(properties) =>
+									clipContext.changeClipProperties(selectedClip.id, {
+										hidden: selectedClip.hidden,
+										alpha_locked: selectedClip.alpha_locked,
+										locked: selectedClip.locked,
+										opacity: selectedClip.opacity,
+										blend_mode: selectedClip.blend_mode,
+										...properties,
+									})
+								}
+								onTransformChange={(transform) => {
+									clipContext.changeTransform(selectedClip.id, transform);
+								}}
+								onInteractionStart={() => {
+									void core.beginActionGroup();
+								}}
+								onInteractionEnd={() => {
+									void core.endActionGroup();
+								}}
+							/>
+						</div>
 					)}
+				<div className="absolute bottom-0 left-0 right-0 overflow-x-auto">
+					<div className="mx-auto p-2 w-fit">
+						<Toolbar
+							isOnionSkin={isOnionSkin}
+							onIsOnionSkinChange={onIsOnionSkinChange}
+							canvasView={canvasView}
+						/>
+					</div>
 				</div>
 			</div>
 			<Splitter
