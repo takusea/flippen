@@ -1,7 +1,5 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { IconX } from "@tabler/icons-react";
 import Button from "./Button";
-import IconButton from "./IconButton";
 
 type Props = React.ComponentProps<typeof DialogPrimitive.Root> & {
 	title: string;
@@ -21,9 +19,6 @@ export const DialogContent: React.FC<Props> = (props) => {
 					<DialogPrimitive.Title className="text-lg font-medium mb-4">
 						{props.title}
 					</DialogPrimitive.Title>
-					<DialogPrimitive.Close asChild>
-						<IconButton label="ダイアログを閉じる" icon={IconX} />
-					</DialogPrimitive.Close>
 				</div>
 				{props.description && (
 					<DialogPrimitive.Description>
