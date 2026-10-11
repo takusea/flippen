@@ -30,7 +30,7 @@ fn vertex_main(@builtin(vertex_index) index: u32) -> VertexOutput {
 fn fragment_main(input: VertexOutput) -> @location(0) vec4<f32> {
     let output_pixel = vec3<f32>(input.position.xy, 1.0);
     let source_pixel = uniforms.inverse_transform * output_pixel;
-    let source_uv = (source_pixel.xy + vec2<f32>(0.5, 0.5)) / uniforms.image_size;
+    let source_uv = source_pixel.xy / uniforms.image_size;
     let destination_uv = input.position.xy / uniforms.output_size;
     let destination = textureSample(destination_texture, clip_sampler, destination_uv);
 
