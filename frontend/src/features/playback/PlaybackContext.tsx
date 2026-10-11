@@ -71,6 +71,9 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({
 		return core.renderFrame(frameIndex);
 	};
 
+	const renderFrameToCanvas = (frameIndex: number, canvas: HTMLCanvasElement) =>
+		core.renderFrameToCanvas(frameIndex, canvas);
+
 	return (
 		<PlaybackContext
 			value={{
@@ -86,6 +89,7 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({
 				pause,
 				stop,
 				renderFrame,
+				renderFrameToCanvas,
 			}}
 		>
 			{children}

@@ -61,7 +61,11 @@ const DrawCanvas: React.FC<Props> = (props) => {
 		playbackContext.currentFrame,
 	]);
 
-	if (projectContext.settings == null) {
+	if (
+		projectContext.settings == null ||
+		canvasWidth == null ||
+		canvasHeight == null
+	) {
 		return;
 	}
 
@@ -70,13 +74,41 @@ const DrawCanvas: React.FC<Props> = (props) => {
 		translate: `${props.canvasView.position.x}px ${props.canvasView.position.y}px`,
 		rotate: `${props.canvasView.rotation}deg`,
 	};
-
+	const flipX = props.canvasView.isFlippedHorizontal ? -1 : 1;
+	const flipY = props.canvasView.isFlippedVertical ? -1 : 1;
+	const angle = (props.canvasView.rotation * Math.PI) / 180;
+	const cos = Math.cos(angle);
+	const sin = Math.sin(angle);
+	const centerX = canvasWidth / 2 + props.canvasView.position.x;
+	const centerY = canvasHeight / 2 + props.canvasView.position.y;
+	const transformedPoint = (x: number, y: number) => {
+		const localX = (x - canvasWidth / 2) * props.canvasView.scale * flipX;
+		const localY = (y - canvasHeight / 2) * props.canvasView.scale * flipY;
+		return {
+			x: centerX + localX * cos - localY * sin,
+			y: centerY + localX * sin + localY * cos,
+		};
+	};
+	const canvasCorners = [
+		transformedPoint(0, 0),
+		transformedPoint(canvasWidth, 0),
+		transformedPoint(canvasWidth, canvasHeight),
+		transformedPoint(0, canvasHeight),
+	];
+	const canvasClipPath = `polygon(${canvasCorners.map(({ x, y }) => `${x}px ${y}px`).join(", ")})`;
 	return (
 		<div
-			className="absolute inset-0 bg-[url(/transparent.png)]"
+			className="absolute inset-0"
 			onPointerMove={canvasNavigation.handleContainerPointerMove}
 			onWheel={canvasNavigation.handleWheel}
 		>
+			<div
+				aria-hidden="true"
+				className="pointer-events-none absolute inset-0 bg-[url(/transparent.png)]"
+				style={{
+					clipPath: canvasClipPath,
+				}}
+			/>
 			<canvas
 				ref={canvasRef}
 				id="draw-canvas"
@@ -88,6 +120,15 @@ const DrawCanvas: React.FC<Props> = (props) => {
 				onPointerMove={canvasPointer.handlePointerMove}
 				onPointerUp={canvasPointer.handlePointerUp}
 				onPointerCancel={canvasPointer.handlePointerUp}
+			/>
+			<canvas
+				ref={canvasRender.onionCanvasRef}
+				width={canvasWidth}
+				height={canvasHeight}
+				className="pointer-events-none absolute inset-0 border border-transparent [image-rendering:pixelated]"
+				style={canvasTransform}
+				tabIndex={-1}
+				aria-hidden="true"
 			/>
 			<CanvasOverlay
 				width={projectContext.settings.width}

@@ -347,6 +347,10 @@ export class CoreService {
 		return this.enqueue((core) => core.render_frame(frame));
 	}
 
+	renderFrameToCanvas(frame: number, canvas: HTMLCanvasElement) {
+		return this.enqueue((core) => core.render_frame_to_canvas(frame, canvas));
+	}
+
 	runOperation<T>(operation: WasmOperation<T>, notify = false) {
 		return this.enqueue(operation, notify);
 	}

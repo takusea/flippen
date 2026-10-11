@@ -200,6 +200,27 @@ impl Composition {
         clips.sort_by_key(|clip| self.layer_index(clip.metadata.layer_id).unwrap());
         renderer.render_frame(&clips, width, height).await
     }
+
+    pub async fn render_frame_gpu_to_canvas(
+        &self,
+        renderer: &mut GpuRenderer,
+        frame_index: u32,
+        width: u32,
+        height: u32,
+    ) -> Result<(), String> {
+        let mut clips: Vec<&Clip> = self
+            .clips
+            .iter()
+            .filter(|clip| clip.contains_frame(frame_index))
+            .filter(|clip| !clip.metadata.hidden)
+            .filter(|clip| {
+                self.layer_index(clip.metadata.layer_id)
+                    .is_some_and(|index| !self.is_layer_hidden(index))
+            })
+            .collect();
+        clips.sort_by_key(|clip| self.layer_index(clip.metadata.layer_id).unwrap());
+        renderer.render_frame_to_canvas(&clips, width, height).await
+    }
 }
 
 #[cfg(test)]

@@ -3,80 +3,58 @@ import { usePlayback } from "~/features/playback/usePlayback";
 
 export const useCanvasRender = () => {
 	const playbackContext = usePlayback();
-	const renderRequestRef = useRef(0);
 	const frameRequestRef = useRef<number | null>(null);
-
-	const renderNow = async (
-		canvas: HTMLCanvasElement,
-		isOnionSkinEnabled: boolean,
-	) => {
-		const ctx = canvas.getContext("2d");
-		if (ctx == null) return;
-
-		const requestId = ++renderRequestRef.current;
-		const frame = playbackContext.currentFrame;
-		const renderCanvas = document.createElement("canvas");
-		renderCanvas.width = canvas.width;
-		renderCanvas.height = canvas.height;
-		const renderContext = renderCanvas.getContext("2d");
-		if (renderContext == null) return;
-
-		const putFrame = (image: Uint8ClampedArray, alpha: number) => {
-			const imageData = new ImageData(
-				image as unknown as Uint8ClampedArray<ArrayBuffer>,
-				canvas.width,
-				canvas.height,
-			);
-			const frameCanvas = document.createElement("canvas");
-			frameCanvas.width = canvas.width;
-			frameCanvas.height = canvas.height;
-			const frameContext = frameCanvas.getContext("2d");
-			if (frameContext == null) return;
-			frameContext.putImageData(imageData, 0, 0);
-			renderContext.globalAlpha = alpha;
-			renderContext.drawImage(frameCanvas, 0, 0);
-			renderContext.globalAlpha = 1.0;
-		};
-
-		if (isOnionSkinEnabled && !playbackContext.isPlaying) {
-			const isFirstFrame = frame === playbackContext.startFrame;
-			if (!isFirstFrame) {
-				const prevFrame = await playbackContext.renderFrame(frame - 1);
-				if (requestId !== renderRequestRef.current) return;
-				if (prevFrame != null) {
-					putFrame(prevFrame, 0.25);
-				}
-			}
-
-			const isLastFrame = frame === playbackContext.endFrame;
-			if (!isLastFrame) {
-				const nextFrame = await playbackContext.renderFrame(frame + 1);
-				if (requestId !== renderRequestRef.current) return;
-				if (nextFrame != null) {
-					putFrame(nextFrame, 0.25);
-				}
-			}
-		}
-
-		const currentFrame = await playbackContext.renderFrame(frame);
-		if (requestId !== renderRequestRef.current) return;
-		if (currentFrame != null) {
-			putFrame(currentFrame, 1.0);
-		}
-
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		ctx.drawImage(renderCanvas, 0, 0);
-	};
-
-	const render = (canvas: HTMLCanvasElement, isOnionSkinEnabled: boolean) => {
+	const onionCanvasRef = useRef<HTMLCanvasElement | null>(null);
+	const requestIdRef = useRef(0);
+	const render = (canvas: HTMLCanvasElement, _isOnionSkinEnabled: boolean) => {
+		const requestId = ++requestIdRef.current;
 		if (frameRequestRef.current != null) {
 			cancelAnimationFrame(frameRequestRef.current);
 		}
 		frameRequestRef.current = requestAnimationFrame(() => {
 			frameRequestRef.current = null;
-			void renderNow(canvas, isOnionSkinEnabled);
+			void (async () => {
+				const onionCanvas = onionCanvasRef.current;
+				const onionContext = onionCanvas?.getContext("2d");
+				if (onionCanvas != null && onionContext != null) {
+					onionContext.clearRect(0, 0, onionCanvas.width, onionCanvas.height);
+					if (_isOnionSkinEnabled && !playbackContext.isPlaying) {
+						const frames = [
+							playbackContext.currentFrame > playbackContext.startFrame
+								? playbackContext.currentFrame - 1
+								: undefined,
+							playbackContext.currentFrame < playbackContext.endFrame
+								? playbackContext.currentFrame + 1
+								: undefined,
+						];
+						for (const frame of frames) {
+							if (frame == null) continue;
+							const pixels = await playbackContext.renderFrame(frame);
+							if (requestId !== requestIdRef.current) return;
+							if (pixels == null) continue;
+							const image = new ImageData(
+								pixels as Uint8ClampedArray<ArrayBuffer>,
+								canvas.width,
+								canvas.height,
+							);
+							const frameCanvas = document.createElement("canvas");
+							frameCanvas.width = canvas.width;
+							frameCanvas.height = canvas.height;
+							frameCanvas.getContext("2d")?.putImageData(image, 0, 0);
+							onionContext.globalAlpha = 0.25;
+							onionContext.drawImage(frameCanvas, 0, 0);
+							onionContext.globalAlpha = 1;
+						}
+					}
+				}
+				if (requestId !== requestIdRef.current) return;
+				await playbackContext.renderFrameToCanvas(
+					playbackContext.currentFrame,
+					canvas,
+				);
+			})();
 		});
 	};
 
-	return { render };
+	return { render, onionCanvasRef };
 };

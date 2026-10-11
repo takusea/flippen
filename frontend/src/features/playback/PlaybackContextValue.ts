@@ -16,6 +16,10 @@ export type PlaybackContextValue = {
 	stop: () => void;
 
 	renderFrame: (frame: number) => Promise<Uint8ClampedArray | undefined>;
+	renderFrameToCanvas: (
+		frame: number,
+		canvas: HTMLCanvasElement,
+	) => Promise<boolean>;
 };
 
 export const PlaybackContext = createContext<PlaybackContextValue | null>(null);

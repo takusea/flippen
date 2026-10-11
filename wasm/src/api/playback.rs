@@ -2,6 +2,7 @@ use super::FlippenCore;
 use crate::gpu::GpuRenderer;
 use js_sys::Uint8ClampedArray;
 use wasm_bindgen::prelude::wasm_bindgen;
+use web_sys::HtmlCanvasElement;
 
 #[wasm_bindgen]
 impl FlippenCore {
@@ -11,7 +12,7 @@ impl FlippenCore {
             None => return None,
         };
         if self.gpu_renderer.is_none() {
-            match GpuRenderer::new().await {
+            match GpuRenderer::new(None).await {
                 Ok(renderer) => {
                     self.gpu_renderer = Some(renderer);
                 }
@@ -40,5 +41,48 @@ impl FlippenCore {
         };
 
         Some(Uint8ClampedArray::from(&image.data[..]))
+    }
+
+    pub async fn render_frame_to_canvas(
+        &mut self,
+        frame_index: u32,
+        canvas: HtmlCanvasElement,
+    ) -> bool {
+        let (width, height) = match self.project.as_ref() {
+            Some(project) => (project.settings.width, project.settings.height),
+            None => return false,
+        };
+        if self
+            .gpu_renderer
+            .as_ref()
+            .is_none_or(|renderer| !renderer.has_canvas())
+        {
+            match GpuRenderer::new(Some(canvas)).await {
+                Ok(renderer) => self.gpu_renderer = Some(renderer),
+                Err(error) => {
+                    web_sys::console::error_1(
+                        &format!("WebGPU canvas initialization failed: {error}").into(),
+                    );
+                    return false;
+                }
+            }
+        }
+        let Some(renderer) = self.gpu_renderer.as_mut() else {
+            return false;
+        };
+        let Some(project) = self.project.as_ref() else {
+            return false;
+        };
+        match project
+            .composition
+            .render_frame_gpu_to_canvas(renderer, frame_index, width, height)
+            .await
+        {
+            Ok(()) => true,
+            Err(error) => {
+                web_sys::console::error_1(&format!("GPU canvas rendering failed: {error}").into());
+                false
+            }
+        }
     }
 }

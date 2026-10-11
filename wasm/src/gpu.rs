@@ -1,7 +1,9 @@
 use crate::app::clip::{BlendMode, Clip};
 use crate::core::image::Image;
 use bytemuck::{Pod, Zeroable};
+use js_sys::{Function, Object, Reflect};
 use std::collections::{HashMap, HashSet};
+use wasm_bindgen::{JsCast, JsValue};
 use wgpu::util::DeviceExt;
 
 #[repr(C)]
@@ -28,14 +30,32 @@ pub struct GpuRenderer {
     pipeline: wgpu::RenderPipeline,
     bind_group_layout: wgpu::BindGroupLayout,
     sampler: wgpu::Sampler,
+    surface: Option<wgpu::Surface<'static>>,
+    canvas: Option<web_sys::HtmlCanvasElement>,
+    surface_config: Option<wgpu::SurfaceConfiguration>,
     clip_textures: HashMap<uuid::Uuid, CachedClipTexture>,
 }
 
 impl GpuRenderer {
-    pub async fn new() -> Result<Self, String> {
-        let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor::default());
+    pub fn has_canvas(&self) -> bool {
+        self.surface.is_some()
+    }
+
+    pub async fn new(canvas: Option<web_sys::HtmlCanvasElement>) -> Result<Self, String> {
+        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::new_without_display_handle());
+        let surface = canvas
+            .as_ref()
+            .map(|canvas| {
+                instance
+                    .create_surface(wgpu::SurfaceTarget::Canvas(canvas.clone()))
+                    .map_err(|error| format!("Could not create WebGPU canvas surface: {error}"))
+            })
+            .transpose()?;
         let adapter = instance
-            .request_adapter(&wgpu::RequestAdapterOptions::default())
+            .request_adapter(&wgpu::RequestAdapterOptions {
+                compatible_surface: surface.as_ref(),
+                ..Default::default()
+            })
             .await
             .map_err(|error| format!("Could not acquire a GPU adapter: {error}"))?;
 
@@ -44,11 +64,40 @@ impl GpuRenderer {
                 label: Some("render-device"),
                 required_features: wgpu::Features::empty(),
                 required_limits: wgpu::Limits::default(),
+                experimental_features: wgpu::ExperimentalFeatures::disabled(),
                 memory_hints: wgpu::MemoryHints::Performance,
                 trace: wgpu::Trace::Off,
             })
             .await
             .map_err(|error| format!("Could not create a GPU device: {error}"))?;
+
+        let surface_config = if let Some(surface) = surface.as_ref() {
+            let caps = surface.get_capabilities(&adapter);
+            let format = caps
+                .formats
+                .iter()
+                .copied()
+                .find(|f| *f == wgpu::TextureFormat::Rgba8Unorm)
+                .ok_or_else(|| "WebGPU canvas does not support Rgba8Unorm".to_string())?;
+            let config = wgpu::SurfaceConfiguration {
+                usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
+                format,
+                color_space: wgpu::SurfaceColorSpace::Auto,
+                width: 1,
+                height: 1,
+                present_mode: caps.present_modes[0],
+                // wgpu 30.0.1 accepts premultiplied canvas alpha but reports
+                // only Opaque in its WebGPU surface capabilities.
+                alpha_mode: wgpu::CompositeAlphaMode::Opaque,
+                view_formats: vec![],
+                desired_maximum_frame_latency: 2,
+            };
+            surface.configure(&device, &config);
+            configure_canvas_premultiplied(canvas.as_ref().unwrap(), &device, format)?;
+            Some(config)
+        } else {
+            None
+        };
 
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("clip-shader"),
@@ -100,8 +149,8 @@ impl GpuRenderer {
         });
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: Some("render-pipeline-layout"),
-            bind_group_layouts: &[&bind_group_layout],
-            push_constant_ranges: &[],
+            bind_group_layouts: &[Some(&bind_group_layout)],
+            immediate_size: 0,
         });
         let pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             label: Some("render-pipeline"),
@@ -125,7 +174,7 @@ impl GpuRenderer {
             primitive: wgpu::PrimitiveState::default(),
             depth_stencil: None,
             multisample: wgpu::MultisampleState::default(),
-            multiview: None,
+            multiview_mask: None,
             cache: None,
         });
         let sampler = device.create_sampler(&wgpu::SamplerDescriptor {
@@ -143,6 +192,9 @@ impl GpuRenderer {
             pipeline,
             bind_group_layout,
             sampler,
+            surface,
+            canvas,
+            surface_config,
             clip_textures: HashMap::new(),
         })
     }
@@ -153,6 +205,57 @@ impl GpuRenderer {
         width: u32,
         height: u32,
     ) -> Result<Image, String> {
+        self.render_frame_inner(clips, width, height, false).await
+    }
+
+    pub async fn render_frame_to_canvas(
+        &mut self,
+        clips: &[&Clip],
+        width: u32,
+        height: u32,
+    ) -> Result<(), String> {
+        if self.surface.is_none() {
+            return Err("WebGPU canvas is not initialized".into());
+        }
+        self.render_frame_inner(clips, width, height, true)
+            .await
+            .map(|_| ())
+    }
+
+    async fn render_frame_inner(
+        &mut self,
+        clips: &[&Clip],
+        width: u32,
+        height: u32,
+        to_canvas: bool,
+    ) -> Result<Image, String> {
+        let surface_texture = if to_canvas {
+            let config = self
+                .surface_config
+                .as_mut()
+                .ok_or("WebGPU canvas is not initialized")?;
+            if config.width != width || config.height != height {
+                config.width = width;
+                config.height = height;
+                self.surface
+                    .as_ref()
+                    .unwrap()
+                    .configure(&self.device, config);
+                configure_canvas_premultiplied(
+                    self.canvas.as_ref().unwrap(),
+                    &self.device,
+                    config.format,
+                )?;
+            }
+            let current = self.surface.as_ref().unwrap().get_current_texture();
+            Some(match current {
+                wgpu::CurrentSurfaceTexture::Success(texture)
+                | wgpu::CurrentSurfaceTexture::Suboptimal(texture) => texture,
+                other => return Err(format!("Could not acquire canvas texture: {other:?}")),
+            })
+        } else {
+            None
+        };
         let output_textures = [0, 1].map(|_| {
             self.device.create_texture(&wgpu::TextureDescriptor {
                 label: Some("frame-texture"),
@@ -177,12 +280,19 @@ impl GpuRenderer {
         let bytes_per_row = width * 4;
         let padded_bytes_per_row = bytes_per_row.div_ceil(wgpu::COPY_BYTES_PER_ROW_ALIGNMENT)
             * wgpu::COPY_BYTES_PER_ROW_ALIGNMENT;
-        let readback = self.device.create_buffer(&wgpu::BufferDescriptor {
-            label: Some("frame-readback"),
-            size: (padded_bytes_per_row * height) as u64,
-            usage: wgpu::BufferUsages::COPY_DST | wgpu::BufferUsages::MAP_READ,
-            mapped_at_creation: false,
-        });
+        let readback = if to_canvas {
+            None
+        } else {
+            Some(self.device.create_buffer(&wgpu::BufferDescriptor {
+                label: Some("frame-readback"),
+                size: (padded_bytes_per_row * height) as u64,
+                usage: wgpu::BufferUsages::COPY_DST | wgpu::BufferUsages::MAP_READ,
+                mapped_at_creation: false,
+            }))
+        };
+        let surface_view = surface_texture
+            .as_ref()
+            .map(|texture| texture.texture.create_view(&Default::default()));
 
         let active_clip_ids: HashSet<_> = clips.iter().map(|clip| clip.metadata.id).collect();
         self.clip_textures
@@ -281,6 +391,7 @@ impl GpuRenderer {
                 color_attachments: &[Some(wgpu::RenderPassColorAttachment {
                     view: &output_views[0],
                     resolve_target: None,
+                    depth_slice: None,
                     ops: wgpu::Operations {
                         load: wgpu::LoadOp::Clear(wgpu::Color::TRANSPARENT),
                         store: wgpu::StoreOp::Store,
@@ -289,6 +400,7 @@ impl GpuRenderer {
                 depth_stencil_attachment: None,
                 timestamp_writes: None,
                 occlusion_query_set: None,
+                multiview_mask: None,
             });
         }
 
@@ -328,6 +440,7 @@ impl GpuRenderer {
                     });
             let source_index = clip_index % 2;
             let target_index = (clip_index + 1) % 2;
+            let final_canvas_pass = to_canvas && clip_index + 1 == clips.len();
             let bind_group = self.device.create_bind_group(&wgpu::BindGroupDescriptor {
                 label: Some("clip-bind-group"),
                 layout: &self.bind_group_layout,
@@ -357,8 +470,13 @@ impl GpuRenderer {
             let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 label: Some("frame-pass"),
                 color_attachments: &[Some(wgpu::RenderPassColorAttachment {
-                    view: &output_views[target_index],
+                    view: if final_canvas_pass {
+                        surface_view.as_ref().unwrap()
+                    } else {
+                        &output_views[target_index]
+                    },
                     resolve_target: None,
+                    depth_slice: None,
                     ops: wgpu::Operations {
                         load: wgpu::LoadOp::Clear(wgpu::Color::TRANSPARENT),
                         store: wgpu::StoreOp::Store,
@@ -367,43 +485,78 @@ impl GpuRenderer {
                 depth_stencil_attachment: None,
                 timestamp_writes: None,
                 occlusion_query_set: None,
+                multiview_mask: None,
             });
             pass.set_pipeline(&self.pipeline);
             pass.set_bind_group(0, &bind_group, &[]);
             pass.draw(0..3, 0..1);
         }
+        if to_canvas && clips.is_empty() {
+            let _pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+                label: Some("canvas-transparent-clear"),
+                color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                    view: surface_view.as_ref().unwrap(),
+                    resolve_target: None,
+                    depth_slice: None,
+                    ops: wgpu::Operations {
+                        load: wgpu::LoadOp::Clear(wgpu::Color::TRANSPARENT),
+                        store: wgpu::StoreOp::Store,
+                    },
+                })],
+                depth_stencil_attachment: None,
+                timestamp_writes: None,
+                occlusion_query_set: None,
+                multiview_mask: None,
+            });
+        }
         let final_texture = &output_textures[clips.len() % 2];
-        encoder.copy_texture_to_buffer(
-            final_texture.as_image_copy(),
-            wgpu::TexelCopyBufferInfo {
-                buffer: &readback,
-                layout: wgpu::TexelCopyBufferLayout {
-                    offset: 0,
-                    bytes_per_row: Some(padded_bytes_per_row),
-                    rows_per_image: Some(height),
+        if !to_canvas {
+            encoder.copy_texture_to_buffer(
+                final_texture.as_image_copy(),
+                wgpu::TexelCopyBufferInfo {
+                    buffer: readback.as_ref().unwrap(),
+                    layout: wgpu::TexelCopyBufferLayout {
+                        offset: 0,
+                        bytes_per_row: Some(padded_bytes_per_row),
+                        rows_per_image: Some(height),
+                    },
                 },
-            },
-            wgpu::Extent3d {
-                width,
-                height,
-                depth_or_array_layers: 1,
-            },
-        );
+                wgpu::Extent3d {
+                    width,
+                    height,
+                    depth_or_array_layers: 1,
+                },
+            );
+        }
         self.queue.submit(Some(encoder.finish()));
 
+        if let Some(texture) = surface_texture {
+            self.queue.present(texture);
+        }
+        if to_canvas {
+            return Ok(Image {
+                data: vec![],
+                width,
+                height,
+            });
+        }
+
+        let readback = readback.unwrap();
         let slice = readback.slice(..);
         let (sender, receiver) = futures_channel::oneshot::channel();
         slice.map_async(wgpu::MapMode::Read, move |result| {
             let _ = sender.send(result);
         });
         self.device
-            .poll(wgpu::PollType::Wait)
+            .poll(wgpu::PollType::wait_indefinitely())
             .map_err(|error| format!("Could not wait for GPU frame: {error}"))?;
         receiver
             .await
             .map_err(|_| "GPU mapping callback was dropped".to_string())?
             .map_err(|error| format!("Could not map GPU frame: {error}"))?;
-        let mapped = slice.get_mapped_range();
+        let mapped = slice
+            .get_mapped_range()
+            .map_err(|error| format!("Could not access mapped GPU frame: {error}"))?;
         let mut data = vec![0; (width * height * 4) as usize];
         for row in 0..height as usize {
             let source_start = row * padded_bytes_per_row as usize;
@@ -430,4 +583,54 @@ impl GpuRenderer {
             height,
         })
     }
+}
+
+fn configure_canvas_premultiplied(
+    canvas: &web_sys::HtmlCanvasElement,
+    device: &wgpu::Device,
+    format: wgpu::TextureFormat,
+) -> Result<(), String> {
+    let get_context = Reflect::get(canvas.as_ref(), &JsValue::from_str("getContext"))
+        .map_err(|_| "Could not access canvas.getContext".to_string())?
+        .dyn_into::<Function>()
+        .map_err(|_| "canvas.getContext is not callable".to_string())?;
+    let context = get_context
+        .call1(canvas.as_ref(), &JsValue::from_str("webgpu"))
+        .map_err(|_| "Could not acquire the WebGPU canvas context".to_string())?;
+    if context.is_null() || context.is_undefined() {
+        return Err("WebGPU canvas context is unavailable".to_string());
+    }
+
+    let configuration = Object::new();
+    let webgpu_device = device
+        .as_webgpu()
+        .ok_or_else(|| "Renderer is not using the browser WebGPU backend".to_string())?;
+    let raw_device: &JsValue = webgpu_device.as_ref();
+    Reflect::set(&configuration, &JsValue::from_str("device"), raw_device)
+        .map_err(|_| "Could not set the WebGPU canvas device".to_string())?;
+    let format_name = match format {
+        wgpu::TextureFormat::Rgba8Unorm => "rgba8unorm",
+        wgpu::TextureFormat::Bgra8Unorm => "bgra8unorm",
+        _ => return Err("Unsupported WebGPU canvas texture format".to_string()),
+    };
+    Reflect::set(
+        &configuration,
+        &JsValue::from_str("format"),
+        &JsValue::from_str(format_name),
+    )
+    .map_err(|_| "Could not set the WebGPU canvas format".to_string())?;
+    Reflect::set(
+        &configuration,
+        &JsValue::from_str("alphaMode"),
+        &JsValue::from_str("premultiplied"),
+    )
+    .map_err(|_| "Could not set premultiplied canvas alpha".to_string())?;
+    let configure = Reflect::get(&context, &JsValue::from_str("configure"))
+        .map_err(|_| "Could not access WebGPU context.configure".to_string())?
+        .dyn_into::<Function>()
+        .map_err(|_| "WebGPU context.configure is not callable".to_string())?;
+    configure
+        .call1(&context, configuration.as_ref())
+        .map_err(|_| "Could not configure premultiplied WebGPU canvas alpha".to_string())?;
+    Ok(())
 }

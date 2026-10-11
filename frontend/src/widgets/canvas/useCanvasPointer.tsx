@@ -112,7 +112,9 @@ export const useCanvasPointer = (
 		render(canvasRef.current, isOnionSkin);
 	};
 
-	const handlePointerMove = (event: React.PointerEvent<HTMLCanvasElement>) => {
+	const handlePointerMove = async (
+		event: React.PointerEvent<HTMLCanvasElement>,
+	) => {
 		const canvas = canvasRef.current;
 		if (canvas == null) return;
 		if (selection.moveSelection(event)) return;
@@ -139,10 +141,12 @@ export const useCanvasPointer = (
 
 		if (event.buttons & 2) {
 			const { x, y } = getPointerPosition(event.clientX, event.clientY);
-			const ctx = canvas.getContext("2d");
-			if (ctx == null) return;
-
-			const data = ctx.getImageData(x, y, 1, 1).data;
+			const image = await playbackContext.renderFrame(
+				playbackContext.currentFrame,
+			);
+			if (image == null) return;
+			const pixelIndex = (Math.floor(y) * canvas.width + Math.floor(x)) * 4;
+			const data = image.subarray(pixelIndex, pixelIndex + 4);
 			toolContext.setColor(
 				rgbaToHsva({
 					r: data[0],

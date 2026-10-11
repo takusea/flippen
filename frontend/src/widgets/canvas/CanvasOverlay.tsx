@@ -43,7 +43,7 @@ export const CanvasOverlay: React.FC<Props> = ({
 		{isGridVisible && (
 			<div
 				aria-hidden="true"
-				className="pointer-events-none absolute inset-0"
+				className="pointer-events-none absolute inset-0 [image-rendering:pixelated]"
 				style={{
 					width,
 					height,
