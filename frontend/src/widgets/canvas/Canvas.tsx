@@ -117,7 +117,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 				id="draw-canvas"
 				width={canvasWidth}
 				height={canvasHeight}
-				className="absolute inset-0 border border-zinc-500/40 [image-rendering:pixelated]"
+				className="absolute inset-0 outline outline-zinc-500/40 [image-rendering:pixelated]"
 				style={canvasTransform}
 				onPointerDown={canvasPointer.handlePointerDown}
 				onPointerMove={canvasPointer.handlePointerMove}
@@ -128,7 +128,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 				ref={canvasRender.onionCanvasRef}
 				width={canvasWidth}
 				height={canvasHeight}
-				className="pointer-events-none absolute inset-0 border border-transparent [image-rendering:pixelated]"
+				className="pointer-events-none absolute inset-0 [image-rendering:pixelated]"
 				style={canvasTransform}
 				tabIndex={-1}
 				aria-hidden="true"
