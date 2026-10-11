@@ -49,10 +49,10 @@ const ColorPicker: React.FC<Props> = (props) => {
 		<div className="flex flex-col gap-1">
 			<div
 				style={{ "--hue": props.currentColor.h } as React.CSSProperties}
-				className="relative w-full h-auto aspect-square p-[20%]"
+				className="relative w-full h-auto aspect-square p-[20%] touch-none"
 			>
 				<div
-					className="absolute inset-0 rounded-full [background-image:conic-gradient(in_hsl,hsl(60_100%_50%),hsl(180_100%_50%),hsl(300_100%_50%),hsl(420_100%_50%))] [mask-image:radial-gradient(transparent,transparent_60%,white_61%,white)]"
+					className="absolute inset-0 rounded-full bg-[conic-gradient(in_hsl,hsl(60_100%_50%),hsl(180_100%_50%),hsl(300_100%_50%),hsl(420_100%_50%))] mask-[radial-gradient(transparent,transparent_60%,white_61%,white)]"
 					onPointerMove={handleHueMove}
 				>
 					<div
@@ -64,7 +64,7 @@ const ColorPicker: React.FC<Props> = (props) => {
 					/>
 				</div>
 				<div
-					className="relative w-full h-full [background-image:linear-gradient(to_bottom,#fff0_0%,#000_100%),linear-gradient(to_right,#fff_0%,hsl(var(--hue)_100%_50%)_100%)]"
+					className="relative w-full h-full bg-[linear-gradient(to_bottom,#fff0_0%,#000_100%),linear-gradient(to_right,#fff_0%,hsl(var(--hue)_100%_50%)_100%)]"
 					onPointerMove={handleSLMove}
 				>
 					<div
