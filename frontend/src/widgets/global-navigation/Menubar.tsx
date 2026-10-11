@@ -1,17 +1,12 @@
 import { IconMenu2, IconX } from "@tabler/icons-react";
-import { type RefObject, useRef, useState } from "react";
+import { type RefObject, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useMediaQuery, useOnClickOutside, useToggle } from "usehooks-ts";
-import AppearanceSettingsDialog from "~/features/appearance/AppearanceSettingDialog";
 import { useClip } from "~/features/clip/useClip";
 import { useUndoStack } from "~/features/history/useUndoStack";
-import LanguageSettingDialog from "~/features/i18n/LanguageSettingDialog";
 import { useI18n } from "~/features/i18n/useI18n";
 import { usePlayback } from "~/features/playback/usePlayback";
 import { useProject } from "~/features/project/useProject";
-import { useProjectDialogs } from "~/features/project/useProjectDialogs";
-import { useProjectExport } from "~/features/project/useProjectExport";
-import ShortcutSettingsDialog from "~/features/shortcuts/ShortcutSettingsDialog";
 import { formatShortcut } from "~/features/shortcuts/shortcutDefinitions";
 import { useShortcuts } from "~/features/shortcuts/useShortcuts";
 import Card from "~/shared/ui/Card";
@@ -22,7 +17,7 @@ import MenubarMenu from "~/shared/ui/Menubar/MenubarMenu";
 import MenubarRoot from "~/shared/ui/Menubar/MenubarRoot";
 import MenubarSeparator from "~/shared/ui/Menubar/MenubarSeparator";
 import type { useCanvasView } from "~/widgets/canvas/useCanvasView";
-import AboutDialog from "./AboutDialog";
+import { useDialogs } from "~/widgets/dialogs/useDialogs";
 
 type Props = {
 	canvasView: ReturnType<typeof useCanvasView>;
@@ -36,20 +31,12 @@ const GlobalMenubar: React.FC<Props> = ({
 	onIsOnionSkinChange,
 }) => {
 	const { t } = useI18n();
-	const [isLanguageSettingDialogOpen, setLanguageSettingDialogOpen] =
-		useState(false);
-	const [isShortcutSettingsDialogOpen, setShortcutSettingsDialogOpen] =
-		useState(false);
-	const [isAppearanceSettingsDialogOpen, setAppearanceSettingsDialogOpen] =
-		useState(false);
-	const [isAboutDialogOpen, setAboutDialogOpen] = useState(false);
-	const { setDialogOpen } = useProjectExport();
 	const { shortcuts } = useShortcuts();
 	const undoStack = useUndoStack();
 	const clipContext = useClip();
 	const playbackContext = usePlayback();
 	const project = useProject();
-	const projectDialogs = useProjectDialogs();
+	const dialogs = useDialogs();
 	const fitToView = () => {
 		if (project.settings == null) {
 			return;
@@ -76,7 +63,7 @@ const GlobalMenubar: React.FC<Props> = ({
 		canvasView.setIsFlippedVertical(false);
 	};
 
-	useHotkeys(shortcuts.newProject, projectDialogs.openCreateProjectDialog);
+	useHotkeys(shortcuts.newProject, () => dialogs.open("createProject"));
 	useHotkeys(shortcuts.openProject, () => project.open());
 	useHotkeys(shortcuts.saveProject, () => project.save());
 	useHotkeys(shortcuts.zoomIn, () => canvasView.zoom(1));
@@ -116,7 +103,7 @@ const GlobalMenubar: React.FC<Props> = ({
 					<MenubarItem
 						label={t("menubar.new")}
 						shortcut={formatShortcut(shortcuts.newProject)}
-						onSelect={projectDialogs.openCreateProjectDialog}
+						onSelect={() => dialogs.open("createProject")}
 					/>
 					<MenubarItem
 						label={t("menubar.open")}
@@ -133,12 +120,12 @@ const GlobalMenubar: React.FC<Props> = ({
 					<MenubarItem
 						label={t("menubar.export")}
 						disabled={project.settings == null}
-						onSelect={() => setDialogOpen(true)}
+						onSelect={() => dialogs.open("exportProject")}
 					/>
 					<MenubarSeparator />
 					<MenubarItem
 						label={t("menubar.projectSettings")}
-						onSelect={projectDialogs.openEditProjectSettingsDialog}
+						onSelect={() => dialogs.open("editProjectSettings")}
 					/>
 					<MenubarSeparator />
 					<MenubarItem label={t("menubar.close")} />
@@ -311,37 +298,24 @@ const GlobalMenubar: React.FC<Props> = ({
 				<MenubarMenu label={t("menubar.settings")}>
 					<MenubarItem
 						label={t("menubar.appearanceSettings")}
-						onSelect={() => setAppearanceSettingsDialogOpen(true)}
+						onSelect={() => dialogs.open("appearanceSettings")}
 					/>
 					<MenubarItem
 						label={t("menubar.shortcutSettings")}
-						onSelect={() => setShortcutSettingsDialogOpen(true)}
+						onSelect={() => dialogs.open("shortcutSettings")}
 					/>
 					<MenubarItem
 						label={t("menubar.languageSettings")}
-						onSelect={() => setLanguageSettingDialogOpen(true)}
+						onSelect={() => dialogs.open("languageSettings")}
 					/>
 				</MenubarMenu>
 				<MenubarMenu label={t("menubar.help")}>
 					<MenubarItem
 						label={t("menubar.aboutFlippen")}
-						onSelect={() => setAboutDialogOpen(true)}
+						onSelect={() => dialogs.open("about")}
 					/>
 				</MenubarMenu>
 			</MenubarRoot>
-			<AppearanceSettingsDialog
-				open={isAppearanceSettingsDialogOpen}
-				onOpenChange={setAppearanceSettingsDialogOpen}
-			/>
-			<LanguageSettingDialog
-				open={isLanguageSettingDialogOpen}
-				onOpenChange={setLanguageSettingDialogOpen}
-			/>
-			<ShortcutSettingsDialog
-				open={isShortcutSettingsDialogOpen}
-				onOpenChange={setShortcutSettingsDialogOpen}
-			/>
-			<AboutDialog open={isAboutDialogOpen} onOpenChange={setAboutDialogOpen} />
 		</>
 	);
 

@@ -3,21 +3,20 @@ import { useI18n } from "~/features/i18n/useI18n";
 import { Dialog, DialogContent } from "~/shared/ui/Dialog";
 import Select from "~/shared/ui/Select";
 import SelectItem from "~/shared/ui/SelectItem";
+import { useDialogs } from "~/widgets/dialogs/useDialogs";
 import type { ProjectExportFormat } from "./projectExport";
 import { isProjectExportFormat, projectExporters } from "./projectExporters";
+import { useProjectExport } from "./useProjectExport";
 
 type Props = {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	onExport: (format: ProjectExportFormat) => void;
 };
 
-const ProjectExportDialog: React.FC<Props> = ({
-	open,
-	onOpenChange,
-	onExport,
-}) => {
+const ProjectExportDialog: React.FC<Props> = ({ open, onOpenChange }) => {
 	const { t } = useI18n();
+	const dialogs = useDialogs();
+	const { exportAs } = useProjectExport();
 	const [format, setFormat] = useState<ProjectExportFormat>("gif");
 
 	return (
@@ -26,7 +25,10 @@ const ProjectExportDialog: React.FC<Props> = ({
 				title={t("projectExport.title")}
 				cancelText={t("common.cancel")}
 				submitText={t("nav.export")}
-				onSubmit={() => onExport(format)}
+				onSubmit={() => {
+					dialogs.close();
+					void exportAs(format);
+				}}
 			>
 				<div className="flex flex-col gap-2">
 					<label htmlFor="project-export-format">

@@ -9,7 +9,6 @@ export const useProjectExport = () => {
 	const { t } = useI18n();
 	const project = useProject();
 	const playback = usePlayback();
-	const [isDialogOpen, setDialogOpen] = useState(false);
 	const [progress, setProgress] = useState<
 		{ completed: number; total: number } | undefined
 	>();
@@ -19,7 +18,6 @@ export const useProjectExport = () => {
 		if (settings == null || progress != null) return;
 
 		const exporter = getProjectExporter(format);
-		setDialogOpen(false);
 		setProgress({
 			completed: 0,
 			total: settings.endFrame - settings.startFrame + 1,
@@ -51,10 +49,5 @@ export const useProjectExport = () => {
 		}
 	};
 
-	return {
-		isDialogOpen,
-		setDialogOpen,
-		progress,
-		exportAs,
-	};
+	return { progress, exportAs };
 };

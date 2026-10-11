@@ -8,14 +8,13 @@ import {
 } from "react";
 import { useMediaQuery } from "usehooks-ts";
 import { useI18n } from "~/features/i18n/useI18n";
-import ProjectExportDialog from "~/features/project/ProjectExportDialog";
 import { useProject } from "~/features/project/useProject";
-import { useProjectDialogs } from "~/features/project/useProjectDialogs";
 import { useProjectExport } from "~/features/project/useProjectExport";
 import Button from "~/shared/ui/Button";
 import IconButton from "~/shared/ui/IconButton";
 import Tooltip from "~/shared/ui/Tooltip";
 import { useCanvasView } from "~/widgets/canvas/useCanvasView";
+import { useDialogs } from "~/widgets/dialogs/useDialogs";
 import GlobalMenubar from "./Menubar";
 
 type Props = {
@@ -31,14 +30,10 @@ const GlobalNavigation: React.FC<Props> = (props: Props) => {
 	const isDesktop: boolean = useMediaQuery("(min-width: 720px)");
 	const { t } = useI18n();
 	const project = useProject();
-	const projectDialogs = useProjectDialogs();
+	const dialogs = useDialogs();
 	const canvasView = useCanvasView();
-	const {
-		isDialogOpen,
-		setDialogOpen,
-		progress: exportProgress,
-		exportAs,
-	} = useProjectExport();
+	const { open } = dialogs;
+	const { progress: exportProgress } = useProjectExport();
 	const [isOnionSkin, setIsOnionSkin] = useState(false);
 	const child = Children.only(
 		props.children,
@@ -59,7 +54,7 @@ const GlobalNavigation: React.FC<Props> = (props: Props) => {
 						<Tooltip label={t("nav.projectSettings")} side="bottom">
 							<Button
 								label={project.settings.title}
-								onClick={projectDialogs.openEditProjectSettingsDialog}
+								onClick={() => open("editProjectSettings")}
 							/>
 						</Tooltip>
 					)}
@@ -74,7 +69,7 @@ const GlobalNavigation: React.FC<Props> = (props: Props) => {
 						icon={IconFileExport}
 						variant="primary"
 						disabled={project.settings == null || exportProgress != null}
-						onClick={() => setDialogOpen(true)}
+						onClick={() => open("exportProject")}
 					/>
 				</div>
 			</header>
@@ -86,11 +81,6 @@ const GlobalNavigation: React.FC<Props> = (props: Props) => {
 						})
 					: child}
 			</div>
-			<ProjectExportDialog
-				open={isDialogOpen}
-				onOpenChange={setDialogOpen}
-				onExport={(format) => void exportAs(format)}
-			/>
 		</div>
 	);
 };

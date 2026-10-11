@@ -1,11 +1,16 @@
 import { useState } from "react";
 import { useI18n } from "~/features/i18n/useI18n";
-import { DialogContent } from "~/shared/ui/Dialog";
+import { Dialog, DialogContent } from "~/shared/ui/Dialog";
 import ProjectSettingsForm from "./ProjectSettingsForm";
 import { DEFAULT_END_FRAME, DEFAULT_START_FRAME } from "./type";
 import { useProject } from "./useProject";
 
-const EditProjectSettingsDialog = () => {
+type Props = {
+	open: boolean;
+	onOpenChange: (open: boolean) => void;
+};
+
+const EditProjectSettingsDialog: React.FC<Props> = ({ open, onOpenChange }) => {
 	const { t } = useI18n();
 	const project = useProject();
 
@@ -21,17 +26,19 @@ const EditProjectSettingsDialog = () => {
 	);
 
 	return (
-		<DialogContent
-			title={t("project.settings")}
-			cancelText={t("common.cancel")}
-			submitText={t("project.apply")}
-			onSubmit={() => project.updateSettings(projectSettings)}
-		>
-			<ProjectSettingsForm
-				projectSettings={projectSettings}
-				onProjectSettingsChanged={setProjectSettings}
-			/>
-		</DialogContent>
+		<Dialog open={open} onOpenChange={onOpenChange}>
+			<DialogContent
+				title={t("project.settings")}
+				cancelText={t("common.cancel")}
+				submitText={t("project.apply")}
+				onSubmit={() => project.updateSettings(projectSettings)}
+			>
+				<ProjectSettingsForm
+					projectSettings={projectSettings}
+					onProjectSettingsChanged={setProjectSettings}
+				/>
+			</DialogContent>
+		</Dialog>
 	);
 };
 

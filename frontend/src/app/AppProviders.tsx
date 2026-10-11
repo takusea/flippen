@@ -7,11 +7,11 @@ import { I18nProvider } from "~/features/i18n/I18nContext";
 import { LayerProvider } from "~/features/layer/LayerContext";
 import { PlaybackProvider } from "~/features/playback/PlaybackContext";
 import { ProjectProvider } from "~/features/project/ProjectContext";
-import { ProjectDialogsProvider } from "~/features/project/ProjectDialogsContext";
 import { ShortcutsProvider } from "~/features/shortcuts/ShortcutsContext";
 import { ToolProvider } from "~/features/tool/ToolContext";
 import { CoreProvider } from "~/infrastructure/core/CoreContext";
 import { CanvasViewProvider } from "~/widgets/canvas/useCanvasView";
+import { DialogsProvider } from "~/widgets/dialogs/DialogsProvider";
 
 type Props = {
 	children: ReactNode;
@@ -25,19 +25,19 @@ function AppProviders({ children }: Props) {
 					<AppearanceProvider>
 						<CoreProvider>
 							<ProjectProvider>
-								<ProjectDialogsProvider>
-									<PlaybackProvider>
-										<LayerProvider>
-											<ToolProvider>
-												<ClipProvider>
-													<UndoStackProvider>
+								<PlaybackProvider>
+									<LayerProvider>
+										<ToolProvider>
+											<ClipProvider>
+												<UndoStackProvider>
+													<DialogsProvider>
 														<CanvasViewProvider>{children}</CanvasViewProvider>
-													</UndoStackProvider>
-												</ClipProvider>
-											</ToolProvider>
-										</LayerProvider>
-									</PlaybackProvider>
-								</ProjectDialogsProvider>
+													</DialogsProvider>
+												</UndoStackProvider>
+											</ClipProvider>
+										</ToolProvider>
+									</LayerProvider>
+								</PlaybackProvider>
 							</ProjectProvider>
 						</CoreProvider>
 					</AppearanceProvider>

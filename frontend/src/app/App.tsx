@@ -10,7 +10,6 @@ import { useClip } from "~/features/clip/useClip";
 import { useI18n } from "~/features/i18n/useI18n";
 import { useLayer } from "~/features/layer/useLayer";
 import { useProject } from "~/features/project/useProject";
-import { useProjectDialogs } from "~/features/project/useProjectDialogs";
 import { useTool } from "~/features/tool/useTool";
 import { useCore } from "~/infrastructure/core/useCore";
 import Button from "~/shared/ui/Button";
@@ -19,6 +18,7 @@ import IconButton from "~/shared/ui/IconButton";
 import Splitter from "~/shared/ui/Splitter";
 import DrawCanvas from "~/widgets/canvas/Canvas";
 import { useCanvasView } from "~/widgets/canvas/useCanvasView";
+import { useDialogs } from "~/widgets/dialogs/useDialogs";
 import ClipInspector from "~/widgets/inspector/ClipInspector";
 import ColorInspector from "~/widgets/inspector/ColorInspector";
 import ToolInspector from "~/widgets/inspector/ToolInspector";
@@ -48,7 +48,7 @@ const App: React.FC<Props> = ({
 	const project = useProject();
 	const clipContext = useClip();
 	const layerContext = useLayer();
-	const projectDialogs = useProjectDialogs();
+	const dialogs = useDialogs();
 	const selectedClip = clipContext.clips.find(
 		(clip) => clip.id === clipContext.selectedClipId,
 	);
@@ -95,7 +95,7 @@ const App: React.FC<Props> = ({
 							icon={IconFilePlus}
 							variant="primary"
 							size="large"
-							onClick={projectDialogs.openCreateProjectDialog}
+							onClick={() => dialogs.open("createProject")}
 						/>
 						<Button
 							label={t("app.openProject")}
