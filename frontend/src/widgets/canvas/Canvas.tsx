@@ -99,7 +99,10 @@ const DrawCanvas: React.FC<Props> = (props) => {
 	return (
 		<div
 			className="absolute inset-0"
+			onPointerDown={canvasNavigation.handleContainerPointerDown}
 			onPointerMove={canvasNavigation.handleContainerPointerMove}
+			onPointerUp={canvasNavigation.handleContainerPointerUp}
+			onPointerCancel={canvasNavigation.handleContainerPointerCancel}
 			onWheel={canvasNavigation.handleWheel}
 		>
 			<div

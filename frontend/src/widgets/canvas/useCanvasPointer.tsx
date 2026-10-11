@@ -24,6 +24,8 @@ export const useCanvasPointer = (
 	const layerContext = useLayer();
 	const toolContext = useTool();
 	const canvasDraw = useCanvasDraw();
+	const touchPointerIdsRef = useRef(new Set<number>());
+	const isMultiTouchRef = useRef(false);
 	const moveDragRef = useRef<{
 		startX: number;
 		startY: number;
@@ -65,6 +67,17 @@ export const useCanvasPointer = (
 	const handlePointerDown = async (
 		event: React.PointerEvent<HTMLCanvasElement>,
 	) => {
+		if (event.pointerType === "touch") {
+			touchPointerIdsRef.current.add(event.pointerId);
+			if (touchPointerIdsRef.current.size >= 2) {
+				isMultiTouchRef.current = true;
+				if (canvasDraw.drawState.isDrawing) {
+					canvasDraw.finishDraw();
+					void core.endDraw();
+				}
+				return;
+			}
+		}
 		if (canvasRef.current == null) return;
 		if (!(event.buttons & 1) || event.shiftKey) return;
 
@@ -97,7 +110,12 @@ export const useCanvasPointer = (
 			layerContext.selectedLayerId,
 		);
 		if (clipId == null) return;
+		if (event.pointerType === "touch" && isMultiTouchRef.current) return;
 		await core.beginDraw(clipId);
+		if (event.pointerType === "touch" && isMultiTouchRef.current) {
+			void core.endDraw();
+			return;
+		}
 
 		const { x, y } = getPointerPosition(event.clientX, event.clientY);
 		const drawState = {
@@ -115,6 +133,12 @@ export const useCanvasPointer = (
 	const handlePointerMove = async (
 		event: React.PointerEvent<HTMLCanvasElement>,
 	) => {
+		if (
+			event.pointerType === "touch" &&
+			(isMultiTouchRef.current || touchPointerIdsRef.current.size >= 2)
+		) {
+			return;
+		}
 		const canvas = canvasRef.current;
 		if (canvas == null) return;
 		if (selection.moveSelection(event)) return;
@@ -182,6 +206,13 @@ export const useCanvasPointer = (
 	};
 
 	const handlePointerUp = (event: React.PointerEvent<HTMLCanvasElement>) => {
+		if (event.pointerType === "touch") {
+			touchPointerIdsRef.current.delete(event.pointerId);
+			if (touchPointerIdsRef.current.size < 2) {
+				isMultiTouchRef.current = false;
+			}
+			if (isMultiTouchRef.current) return;
+		}
 		if (selection.finishSelection(event)) return;
 
 		if (moveDragRef.current != null || toolContext.tool === "move") {

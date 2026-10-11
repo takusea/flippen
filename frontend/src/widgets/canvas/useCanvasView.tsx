@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 const CanvasViewContext = createContext<ReturnType<
 	typeof useCanvasViewState
@@ -16,6 +16,10 @@ const useCanvasViewState = () => {
 	});
 	const [rotation, setRotation] = useState<number>(0);
 	const [scale, setScale] = useState<number>(1);
+	const scaleRef = useRef(scale);
+	useEffect(() => {
+		scaleRef.current = scale;
+	}, [scale]);
 	const [isFlippedHorizontal, setIsFlippedHorizontal] = useState(false);
 	const [isFlippedVertical, setIsFlippedVertical] = useState(false);
 	const [isGridVisible, setIsGridVisible] = useState(false);
@@ -79,6 +83,35 @@ const useCanvasViewState = () => {
 		setRotation((prev) => prev + rotateDelta * step);
 	};
 
+	const applyGesture = (
+		scaleRatio: number,
+		rotationDelta: number,
+		previousCenter: { x: number; y: number },
+		nextCenter: { x: number; y: number },
+		canvasCenter: { x: number; y: number },
+	) => {
+		const currentScale = scaleRef.current;
+		const nextScale = Math.min(
+			Math.max(scaleMinimum, currentScale * scaleRatio),
+			scaleMaximum,
+		);
+		const effectiveRatio = nextScale / currentScale;
+		const angle = (rotationDelta * Math.PI) / 180;
+		const dx = previousCenter.x - canvasCenter.x;
+		const dy = previousCenter.y - canvasCenter.y;
+		const transformedX =
+			(dx * Math.cos(angle) - dy * Math.sin(angle)) * effectiveRatio;
+		const transformedY =
+			(dx * Math.sin(angle) + dy * Math.cos(angle)) * effectiveRatio;
+		setPosition((prev) => ({
+			x: prev.x + nextCenter.x - previousCenter.x + dx - transformedX,
+			y: prev.y + nextCenter.y - previousCenter.y + dy - transformedY,
+		}));
+		setScale(nextScale);
+		scaleRef.current = nextScale;
+		setRotation((prev) => prev + rotationDelta);
+	};
+
 	const fitToView = (
 		contentWidth: number,
 		contentHeight: number,
@@ -126,6 +159,7 @@ const useCanvasViewState = () => {
 		zoom,
 		zoomAt,
 		rotate,
+		applyGesture,
 		fitToView,
 	};
 };
