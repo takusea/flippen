@@ -28,8 +28,8 @@ const NumberField = ({
 		);
 	}, [props.value, props.defaultValue]);
 
-	const min = Number(props.min) ?? Number.MIN_SAFE_INTEGER;
-	const max = Number(props.max) ?? Number.MAX_SAFE_INTEGER;
+	const min = Number(props.min ?? Number.MIN_SAFE_INTEGER);
+	const max = Number(props.max ?? Number.MAX_SAFE_INTEGER);
 	const step = Number(props.step ?? 1);
 	const clamp = (value: number) => {
 		return Math.max(min, Math.min(Math.round(value / step) * step, max));
