@@ -1,4 +1,5 @@
 use super::FlippenCore;
+use crate::app::composition::LayerId;
 use crate::gpu::GpuRenderer;
 use js_sys::Uint8ClampedArray;
 use wasm_bindgen::prelude::wasm_bindgen;
@@ -6,6 +7,55 @@ use web_sys::HtmlCanvasElement;
 
 #[wasm_bindgen]
 impl FlippenCore {
+    pub async fn render_frame_to_canvas_with_onion(
+        &mut self,
+        frame_index: u32,
+        canvas: HtmlCanvasElement,
+        layer_id_str: String,
+    ) -> bool {
+        let Ok(layer_id) = layer_id_str.parse::<LayerId>() else {
+            return false;
+        };
+        let (width, height) = match self.project.as_ref() {
+            Some(project) => (project.settings.width, project.settings.height),
+            None => return false,
+        };
+        if self
+            .gpu_renderer
+            .as_ref()
+            .is_none_or(|renderer| !renderer.has_canvas())
+        {
+            match GpuRenderer::new(Some(canvas)).await {
+                Ok(renderer) => self.gpu_renderer = Some(renderer),
+                Err(error) => {
+                    web_sys::console::error_1(
+                        &format!("WebGPU canvas initialization failed: {error}").into(),
+                    );
+                    return false;
+                }
+            }
+        }
+        let Some(renderer) = self.gpu_renderer.as_mut() else {
+            return false;
+        };
+        let Some(project) = self.project.as_ref() else {
+            return false;
+        };
+        match project
+            .composition
+            .render_frame_gpu_to_canvas_with_onion(renderer, frame_index, layer_id, width, height)
+            .await
+        {
+            Ok(()) => true,
+            Err(error) => {
+                web_sys::console::error_1(
+                    &format!("GPU onion frame rendering failed: {error}").into(),
+                );
+                false
+            }
+        }
+    }
+
     pub async fn render_frame(&mut self, frame_index: u32) -> Option<Uint8ClampedArray> {
         let (width, height) = match self.project.as_ref() {
             Some(project) => (project.settings.width, project.settings.height),

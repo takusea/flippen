@@ -16,7 +16,7 @@ export const useCanvasPointer = (
 	canvasRef: React.RefObject<HTMLCanvasElement | null>,
 	canvasView: CanvasView,
 	isOnionSkin: boolean,
-	render: (canvas: HTMLCanvasElement, isOnionSkin: boolean) => void,
+	render: (canvas: HTMLCanvasElement, isOnionSkin: boolean, layerId: string | null) => void,
 ) => {
 	const core = useCore();
 	const playbackContext = usePlayback();
@@ -127,7 +127,7 @@ export const useCanvasPointer = (
 		if (toolContext.tool === "fill") {
 			canvasDraw.draw(drawState);
 		}
-		render(canvasRef.current, isOnionSkin);
+		render(canvasRef.current, isOnionSkin, layerContext.selectedLayerId);
 	};
 
 	const handlePointerMove = async (
@@ -202,7 +202,7 @@ export const useCanvasPointer = (
 					},
 				];
 		canvasDraw.drawMultiple(drawStates);
-		render(canvas, isOnionSkin);
+		render(canvas, isOnionSkin, layerContext.selectedLayerId);
 	};
 
 	const handlePointerUp = (event: React.PointerEvent<HTMLCanvasElement>) => {
@@ -226,6 +226,9 @@ export const useCanvasPointer = (
 		}
 		canvasDraw.finishDraw();
 		void core.endDraw();
+		if (canvasRef.current != null) {
+			render(canvasRef.current, isOnionSkin, layerContext.selectedLayerId);
+		}
 	};
 
 	return {

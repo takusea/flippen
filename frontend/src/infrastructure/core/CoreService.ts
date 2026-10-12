@@ -347,8 +347,10 @@ export class CoreService {
 		return this.enqueue((core) => core.render_frame(frame));
 	}
 
-	renderFrameToCanvas(frame: number, canvas: HTMLCanvasElement) {
-		return this.enqueue((core) => core.render_frame_to_canvas(frame, canvas));
+	renderFrameToCanvas(frame: number, canvas: HTMLCanvasElement, onionLayerId?: LayerId | null) {
+		return this.enqueue((core) => onionLayerId == null
+			? core.render_frame_to_canvas(frame, canvas)
+			: core.render_frame_to_canvas_with_onion(frame, canvas, onionLayerId));
 	}
 
 	runOperation<T>(operation: WasmOperation<T>, notify = false) {

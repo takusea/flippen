@@ -5,6 +5,7 @@ struct ClipUniforms {
     opacity: f32,
     blend_mode: u32,
     _padding: vec2<f32>,
+    tint_color: vec4<f32>,
 };
 
 @group(0) @binding(0) var clip_texture: texture_2d<f32>;
@@ -38,7 +39,8 @@ fn fragment_main(input: VertexOutput) -> @location(0) vec4<f32> {
         return destination;
     }
 
-    let source = textureSampleLevel(clip_texture, clip_sampler, source_uv, 0.0);
+    let sampled_source = textureSampleLevel(clip_texture, clip_sampler, source_uv, 0.0);
+    let source = vec4<f32>(mix(sampled_source.rgb, uniforms.tint_color.rgb, uniforms.tint_color.a), sampled_source.a);
     let source_alpha = source.a * uniforms.opacity;
     let destination_alpha = destination.a;
     var destination_color = vec3<f32>(0.0);

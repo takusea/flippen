@@ -15,6 +15,12 @@ struct ClipUniforms {
     opacity: f32,
     blend_mode: u32,
     _padding: [f32; 2],
+    tint_color: [f32; 4],
+}
+
+struct RenderClip<'a> {
+    clip: &'a Clip,
+    tint: [f32; 4],
 }
 
 struct CachedClipTexture {
@@ -205,7 +211,14 @@ impl GpuRenderer {
         width: u32,
         height: u32,
     ) -> Result<Image, String> {
-        self.render_frame_inner(clips, width, height, false).await
+        let items: Vec<_> = clips
+            .iter()
+            .map(|clip| RenderClip {
+                clip,
+                tint: [0.0; 4],
+            })
+            .collect();
+        self.render_frame_inner(&items, width, height, false).await
     }
 
     pub async fn render_frame_to_canvas(
@@ -217,14 +230,64 @@ impl GpuRenderer {
         if self.surface.is_none() {
             return Err("WebGPU canvas is not initialized".into());
         }
-        self.render_frame_inner(clips, width, height, true)
+        let items: Vec<_> = clips
+            .iter()
+            .map(|clip| RenderClip {
+                clip,
+                tint: [0.0; 4],
+            })
+            .collect();
+        self.render_frame_inner(&items, width, height, true)
+            .await
+            .map(|_| ())
+    }
+
+    pub async fn render_frame_with_onion_to_canvas(
+        &mut self,
+        clips: &[(&Clip, usize)],
+        previous: &[&Clip],
+        next: &[&Clip],
+        selected_layer_index: usize,
+        width: u32,
+        height: u32,
+    ) -> Result<(), String> {
+        let mut items = Vec::new();
+        let mut inserted = false;
+        for (clip, layer_index) in clips {
+            if !inserted && *layer_index >= selected_layer_index {
+                items.extend(previous.iter().map(|clip| RenderClip {
+                    clip,
+                    tint: [1.0, 0.19, 0.19, 0.4],
+                }));
+                items.extend(next.iter().map(|clip| RenderClip {
+                    clip,
+                    tint: [0.19, 0.5, 1.0, 0.4],
+                }));
+                inserted = true;
+            }
+            items.push(RenderClip {
+                clip,
+                tint: [0.0; 4],
+            });
+        }
+        if !inserted {
+            items.extend(previous.iter().map(|clip| RenderClip {
+                clip,
+                tint: [1.0, 0.19, 0.19, 0.4],
+            }));
+            items.extend(next.iter().map(|clip| RenderClip {
+                clip,
+                tint: [0.19, 0.5, 1.0, 0.4],
+            }));
+        }
+        self.render_frame_inner(&items, width, height, true)
             .await
             .map(|_| ())
     }
 
     async fn render_frame_inner(
         &mut self,
-        clips: &[&Clip],
+        clips: &[RenderClip<'_>],
         width: u32,
         height: u32,
         to_canvas: bool,
@@ -294,11 +357,12 @@ impl GpuRenderer {
             .as_ref()
             .map(|texture| texture.texture.create_view(&Default::default()));
 
-        let active_clip_ids: HashSet<_> = clips.iter().map(|clip| clip.metadata.id).collect();
+        let active_clip_ids: HashSet<_> = clips.iter().map(|item| item.clip.metadata.id).collect();
         self.clip_textures
             .retain(|clip_id, _| active_clip_ids.contains(clip_id));
 
-        for clip in clips {
+        for item in clips {
+            let clip = item.clip;
             let image = &clip.image;
             let cached = self
                 .clip_textures
@@ -404,7 +468,8 @@ impl GpuRenderer {
             });
         }
 
-        for (clip_index, clip) in clips.iter().enumerate() {
+        for (clip_index, item) in clips.iter().enumerate() {
+            let clip = item.clip;
             let image = &clip.image;
             let cached = self
                 .clip_textures
@@ -422,14 +487,24 @@ impl GpuRenderer {
                 ],
                 image_size: [image.width as f32, image.height as f32],
                 output_size: [width as f32, height as f32],
-                opacity: clip.metadata.opacity,
-                blend_mode: match clip.metadata.blend_mode {
-                    BlendMode::Normal => 0,
-                    BlendMode::Multiply => 1,
-                    BlendMode::Screen => 2,
-                    BlendMode::Add => 3,
+                opacity: clip.metadata.opacity
+                    * if item.tint[3] > 0.0 {
+                        item.tint[3]
+                    } else {
+                        1.0
+                    },
+                blend_mode: if item.tint[3] > 0.0 {
+                    0
+                } else {
+                    match clip.metadata.blend_mode {
+                        BlendMode::Normal => 0,
+                        BlendMode::Multiply => 1,
+                        BlendMode::Screen => 2,
+                        BlendMode::Add => 3,
+                    }
                 },
                 _padding: [0.0; 2],
+                tint_color: item.tint,
             };
             let uniform_buffer =
                 self.device

@@ -221,6 +221,64 @@ impl Composition {
         clips.sort_by_key(|clip| self.layer_index(clip.metadata.layer_id).unwrap());
         renderer.render_frame_to_canvas(&clips, width, height).await
     }
+
+    pub async fn render_frame_gpu_to_canvas_with_onion(
+        &self,
+        renderer: &mut GpuRenderer,
+        frame_index: u32,
+        layer_id: LayerId,
+        width: u32,
+        height: u32,
+    ) -> Result<(), String> {
+        let Some(selected_layer_index) = self.layer_index(layer_id) else {
+            return self
+                .render_frame_gpu_to_canvas(renderer, frame_index, width, height)
+                .await;
+        };
+        let visible = |clip: &&Clip| {
+            !clip.metadata.hidden
+                && self
+                    .layer_index(clip.metadata.layer_id)
+                    .is_some_and(|index| !self.is_layer_hidden(index))
+        };
+        let mut current: Vec<_> = self
+            .clips
+            .iter()
+            .filter(|clip| clip.contains_frame(frame_index))
+            .filter(visible)
+            .map(|clip| (clip, self.layer_index(clip.metadata.layer_id).unwrap()))
+            .collect();
+        current.sort_by_key(|(_, layer_index)| *layer_index);
+        let previous: Vec<_> = if frame_index > 0 {
+            self.clips
+                .iter()
+                .filter(|clip| {
+                    clip.contains_frame(frame_index - 1) && clip.metadata.layer_id == layer_id
+                })
+                .filter(visible)
+                .collect()
+        } else {
+            Vec::new()
+        };
+        let next: Vec<_> = self
+            .clips
+            .iter()
+            .filter(|clip| {
+                clip.contains_frame(frame_index + 1) && clip.metadata.layer_id == layer_id
+            })
+            .filter(visible)
+            .collect();
+        renderer
+            .render_frame_with_onion_to_canvas(
+                &current,
+                &previous,
+                &next,
+                selected_layer_index,
+                width,
+                height,
+            )
+            .await
+    }
 }
 
 #[cfg(test)]
