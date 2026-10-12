@@ -144,5 +144,7 @@ export const useCanvasView = () => {
 		rotate,
 		applyGesture,
 		fitToView,
+		maxScale: SCALE_MAXIMUM,
+		minScale: SCALE_MINIMUM,
 	};
 };
