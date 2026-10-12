@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from "react";
+import { type JSX, useState } from "react";
 import AppearanceSettingsDialog from "~/features/appearance/AppearanceSettingDialog";
 import LanguageSettingDialog from "~/features/i18n/LanguageSettingDialog";
 import CreateNewProjectDialog from "~/features/project/CreateNewProjectDialog";
@@ -6,10 +6,10 @@ import EditProjectSettingsDialog from "~/features/project/EditProjectSettingsDia
 import ProjectExportDialog from "~/features/project/ProjectExportDialog";
 import ShortcutSettingsDialog from "~/features/shortcuts/ShortcutSettingsDialog";
 import AboutDialog from "./AboutDialog";
-import { type AppDialog, DialogsContext } from "./DialogsContextValue";
+import { type AppDialog, DialogsContext } from "./DialogsContext";
 
 type Props = {
-	children: ReactNode;
+	children: JSX.Element;
 };
 
 export const DialogsProvider = ({ children }: Props) => {

@@ -6,7 +6,7 @@ import {
 	MAX_FRAME_INDEX,
 } from "~/features/project/type";
 import { useProject } from "~/features/project/useProject";
-import { PlaybackContext } from "./PlaybackContextValue";
+import { PlaybackContext } from "./PlaybackContext";
 
 const FRAME_RANGE_BUFFER = 256;
 

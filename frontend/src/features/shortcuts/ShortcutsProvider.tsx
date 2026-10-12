@@ -1,5 +1,6 @@
-import { createContext, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useLocalStorage } from "usehooks-ts";
+import { ShortcutsContext } from "./ShortcutsContext";
 import {
 	defaultShortcuts,
 	type ShortcutId,
@@ -7,16 +8,6 @@ import {
 } from "./shortcutDefinitions";
 
 const STORAGE_KEY = "flippen.shortcuts";
-
-type ShortcutsContextValue = {
-	shortcuts: Shortcuts;
-	setShortcut: (id: ShortcutId, shortcut: string) => void;
-	resetShortcuts: () => void;
-};
-
-export const ShortcutsContext = createContext<ShortcutsContextValue | null>(
-	null,
-);
 
 export const ShortcutsProvider: React.FC<{ children: ReactNode }> = ({
 	children,

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useCore } from "~/core/useCore";
 import type { HSVAColor } from "~/lib/color";
-import { ToolContext } from "./ToolContextValue";
+import { ToolContext } from "./ToolContext";
 import type { ToolKind } from "./type";
 
 export const ToolProvider: React.FC<{ children: React.ReactNode }> = ({

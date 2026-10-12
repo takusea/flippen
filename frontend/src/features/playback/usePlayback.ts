@@ -1,5 +1,5 @@
 import { use } from "react";
-import { PlaybackContext } from "./PlaybackContextValue";
+import { PlaybackContext } from "./PlaybackContext";
 
 export const usePlayback = () => {
 	const playback = use(PlaybackContext);

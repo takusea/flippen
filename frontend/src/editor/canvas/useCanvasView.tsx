@@ -1,29 +1,22 @@
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef } from "react";
+import { CanvasViewContext } from "./CanvasViewContext";
 
-const CanvasViewContext = createContext<ReturnType<
-	typeof useCanvasViewState
-> | null>(null);
+const SCALE_MINIMUM = 0.0625;
+const SCALE_MAXIMUM = 32;
+const ZOOM_DELTA = 1.25;
+const ROTATE_DELTA = 5;
 
-const useCanvasViewState = () => {
-	const scaleMinimum = 0.0625;
-	const scaleMaximum = 32;
-	const zoomDelta = 1.25;
-	const rotateDelta = 5;
+export const useCanvasView = () => {
+	const context = use(CanvasViewContext);
 
-	const [position, setPosition] = useState<{ x: number; y: number }>({
-		x: 0,
-		y: 0,
-	});
-	const [rotation, setRotation] = useState<number>(0);
-	const [scale, setScale] = useState<number>(1);
-	const scaleRef = useRef(scale);
+	if (context == null) {
+		throw new Error("useCanvasView must be used within CanvasViewProvider.");
+	}
+
+	const scaleRef = useRef(context.scale);
 	useEffect(() => {
-		scaleRef.current = scale;
-	}, [scale]);
-	const [isFlippedHorizontal, setIsFlippedHorizontal] = useState(false);
-	const [isFlippedVertical, setIsFlippedVertical] = useState(false);
-	const [isGridVisible, setIsGridVisible] = useState(false);
-	const [isOnionSkin, setIsOnionSkin] = useState(false);
+		scaleRef.current = context.scale;
+	}, [context.scale]);
 
 	const applyCanvasTransform = (
 		x: number,
@@ -34,23 +27,23 @@ const useCanvasViewState = () => {
 		const cx = x - centerX;
 		const cy = y - centerY;
 
-		const rad = (-rotation * Math.PI) / 180;
+		const rad = (-context.rotation * Math.PI) / 180;
 		const cos = Math.cos(rad);
 		const sin = Math.sin(rad);
 
 		const rx = cx * cos - cy * sin;
 		const ry = cx * sin + cy * cos;
-		const scaleX = scale * (isFlippedHorizontal ? -1 : 1);
-		const scaleY = scale * (isFlippedVertical ? -1 : 1);
+		const scaleX = context.scale * (context.isFlippedHorizontal ? -1 : 1);
+		const scaleY = context.scale * (context.isFlippedVertical ? -1 : 1);
 
 		return {
-			x: rx / scaleX + centerX - position.x,
-			y: ry / scaleY + centerY - position.y,
+			x: rx / scaleX + centerX - context.position.x,
+			y: ry / scaleY + centerY - context.position.y,
 		};
 	};
 
 	const translate = (movementX: number, movementY: number) => {
-		setPosition((prev) => {
+		context.setPosition((prev) => {
 			return {
 				x: prev.x + movementX,
 				y: prev.y + movementY,
@@ -59,29 +52,29 @@ const useCanvasViewState = () => {
 	};
 
 	const zoom = (step: number) => {
-		const scale = zoomDelta ** step;
-		setScale((prev) =>
-			Math.min(Math.max(scaleMinimum, prev * scale), scaleMaximum),
+		const scale = ZOOM_DELTA ** step;
+		context.setScale((prev) =>
+			Math.min(Math.max(SCALE_MINIMUM, prev * scale), SCALE_MAXIMUM),
 		);
 	};
 
 	const zoomAt = (step: number, offsetX: number, offsetY: number) => {
-		const zoomFactor = zoomDelta ** step;
+		const zoomFactor = ZOOM_DELTA ** step;
 		const nextScale = Math.min(
-			Math.max(scaleMinimum, scale * zoomFactor),
-			scaleMaximum,
+			Math.max(SCALE_MINIMUM, context.scale * zoomFactor),
+			SCALE_MAXIMUM,
 		);
-		const scaleRatio = nextScale / scale;
+		const scaleRatio = nextScale / context.scale;
 
-		setScale(nextScale);
-		setPosition((prev) => ({
+		context.setScale(nextScale);
+		context.setPosition((prev) => ({
 			x: prev.x + offsetX * (1 - scaleRatio),
 			y: prev.y + offsetY * (1 - scaleRatio),
 		}));
 	};
 
 	const rotate = (step: number) => {
-		setRotation((prev) => prev + rotateDelta * step);
+		context.setRotation((prev) => prev + ROTATE_DELTA * step);
 	};
 
 	const applyGesture = (
@@ -93,8 +86,8 @@ const useCanvasViewState = () => {
 	) => {
 		const currentScale = scaleRef.current;
 		const nextScale = Math.min(
-			Math.max(scaleMinimum, currentScale * scaleRatio),
-			scaleMaximum,
+			Math.max(SCALE_MINIMUM, currentScale * scaleRatio),
+			SCALE_MAXIMUM,
 		);
 		const effectiveRatio = nextScale / currentScale;
 		const angle = (rotationDelta * Math.PI) / 180;
@@ -104,13 +97,13 @@ const useCanvasViewState = () => {
 			(dx * Math.cos(angle) - dy * Math.sin(angle)) * effectiveRatio;
 		const transformedY =
 			(dx * Math.sin(angle) + dy * Math.cos(angle)) * effectiveRatio;
-		setPosition((prev) => ({
+		context.setPosition((prev) => ({
 			x: prev.x + nextCenter.x - previousCenter.x + dx - transformedX,
 			y: prev.y + nextCenter.y - previousCenter.y + dy - transformedY,
 		}));
-		setScale(nextScale);
+		context.setScale(nextScale);
 		scaleRef.current = nextScale;
-		setRotation((prev) => prev + rotationDelta);
+		context.setRotation((prev) => prev + rotationDelta);
 	};
 
 	const fitToView = (
@@ -133,30 +126,17 @@ const useCanvasViewState = () => {
 			(viewportWidth * padding) / contentWidth,
 			(viewportHeight * padding) / contentHeight,
 		);
-		setScale(Math.min(Math.max(scaleMinimum, fitScale), scaleMaximum));
-		setPosition({
+		context.setScale(
+			Math.min(Math.max(SCALE_MINIMUM, fitScale), SCALE_MAXIMUM),
+		);
+		context.setPosition({
 			x: (viewportWidth - contentWidth) / 2,
 			y: (viewportHeight - contentHeight) / 2,
 		});
 	};
 
 	return {
-		position,
-		rotation,
-		scale,
-		isFlippedHorizontal,
-		isFlippedVertical,
-		isGridVisible,
-		isOnionSkin,
-		minScale: scaleMinimum,
-		maxScale: scaleMaximum,
-		setPosition,
-		setRotation,
-		setScale,
-		setIsFlippedHorizontal,
-		setIsFlippedVertical,
-		setIsGridVisible,
-		setIsOnionSkin,
+		...context,
 		applyCanvasTransform,
 		translate,
 		zoom,
@@ -165,24 +145,4 @@ const useCanvasViewState = () => {
 		applyGesture,
 		fitToView,
 	};
-};
-
-export const CanvasViewProvider: React.FC<React.PropsWithChildren> = (
-	props,
-) => {
-	const canvasView = useCanvasViewState();
-
-	return (
-		<CanvasViewContext.Provider value={canvasView}>
-			{props.children}
-		</CanvasViewContext.Provider>
-	);
-};
-
-export const useCanvasView = () => {
-	const canvasView = useContext(CanvasViewContext);
-	if (canvasView == null) {
-		throw new Error("useCanvasView must be used within CanvasViewProvider.");
-	}
-	return canvasView;
 };

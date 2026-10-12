@@ -3,7 +3,7 @@ import { useCoreSnapshot } from "~/core/useCoreSnapshot";
 import { useLayer } from "~/features/layer/useLayer";
 import { usePlayback } from "~/features/playback/usePlayback";
 import { useProject } from "~/features/project/useProject";
-import { ClipContext } from "./ClipContextValue";
+import { ClipContext } from "./ClipContext";
 import { useClipboard } from "./useClipboard";
 import { useClipCommands } from "./useClipCommands";
 import { useClipSelection } from "./useClipSelection";

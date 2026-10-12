@@ -1,17 +1,17 @@
 import { TooltipProvider } from "radix-ui/tooltip";
 import type { JSX } from "react";
-import { CoreProvider } from "~/core/CoreContext";
+import { CoreProvider } from "~/core/CoreProvider";
 import { DialogsProvider } from "~/editor/dialogs/DialogsProvider";
-import { AppearanceProvider } from "~/features/appearance/AppearanceContext";
-import { ClipProvider } from "~/features/clip/ClipContext";
-import { UndoStackProvider } from "~/features/history/UndoStackContext";
-import { I18nProvider } from "~/features/i18n/I18nContext";
-import { LayerProvider } from "~/features/layer/LayerContext";
-import { PlaybackProvider } from "~/features/playback/PlaybackContext";
-import { ProjectProvider } from "~/features/project/ProjectContext";
-import { ShortcutsProvider } from "~/features/shortcuts/ShortcutsContext";
-import { ToolProvider } from "~/features/tool/ToolContext";
-import { CanvasViewProvider } from "./canvas/useCanvasView";
+import { AppearanceProvider } from "~/features/appearance/AppearanceProvider";
+import { ClipProvider } from "~/features/clip/ClipProvider";
+import { UndoStackProvider } from "~/features/history/UndoStackProvider";
+import { I18nProvider } from "~/features/i18n/I18nProvider";
+import { LayerProvider } from "~/features/layer/LayerProvider";
+import { PlaybackProvider } from "~/features/playback/PlaybackProvider";
+import { ProjectProvider } from "~/features/project/ProjectProvider";
+import { ShortcutsProvider } from "~/features/shortcuts/ShortcutsProvider";
+import { ToolProvider } from "~/features/tool/ToolProvider";
+import { CanvasViewProvider } from "./canvas/CanvasViewProvider";
 
 type Props = {
 	children: JSX.Element;

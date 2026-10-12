@@ -1,7 +1,7 @@
 import { useDocumentTitle } from "usehooks-ts";
 import { useCore } from "~/core/useCore";
 import { useCoreSnapshot } from "~/core/useCoreSnapshot";
-import { ProjectContext } from "./ProjectContextValue";
+import { ProjectContext } from "./ProjectContext";
 import type { ProjectSettings } from "./type";
 
 export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({

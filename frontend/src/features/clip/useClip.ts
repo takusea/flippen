@@ -1,5 +1,5 @@
 import { use } from "react";
-import { ClipContext } from "./ClipContextValue";
+import { ClipContext } from "./ClipContext";
 
 export const useClip = () => {
 	const clip = use(ClipContext);

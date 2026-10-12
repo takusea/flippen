@@ -1,10 +1,10 @@
 import { use } from "react";
-import { DialogsContext } from "./DialogsContextValue";
+import { DialogsContext } from "./DialogsContext";
 
 export const useDialogs = () => {
-	const dialogs = use(DialogsContext);
+	const context = use(DialogsContext);
 
-	if (dialogs == null) throw new Error("DialogsContext is not provided");
+	if (context == null) throw new Error("DialogsContext is not provided");
 
-	return dialogs;
+	return context;
 };
