@@ -17,7 +17,7 @@ import ClipInspector from "~/editor/inspector/ClipInspector";
 import ColorInspector from "~/editor/inspector/ColorInspector";
 import ToolInspector from "~/editor/inspector/ToolInspector";
 import Timeline from "~/editor/timeline/Timeline";
-import Toolbar from "~/editor/toolbar";
+import Toolbar from "~/editor/toolbar/Toolbar";
 import { useClip } from "~/features/clip/useClip";
 import { useI18n } from "~/features/i18n/useI18n";
 import { useLayer } from "~/features/layer/useLayer";
