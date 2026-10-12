@@ -58,14 +58,14 @@ const useCanvasViewState = () => {
 	};
 
 	const zoom = (step: number) => {
-		const scale = step > 0 ? zoomDelta : 1 / zoomDelta;
+		const scale = zoomDelta ** step;
 		setScale((prev) =>
 			Math.min(Math.max(scaleMinimum, prev * scale), scaleMaximum),
 		);
 	};
 
 	const zoomAt = (step: number, offsetX: number, offsetY: number) => {
-		const zoomFactor = step > 0 ? zoomDelta : 1 / zoomDelta;
+		const zoomFactor = zoomDelta ** step;
 		const nextScale = Math.min(
 			Math.max(scaleMinimum, scale * zoomFactor),
 			scaleMaximum,

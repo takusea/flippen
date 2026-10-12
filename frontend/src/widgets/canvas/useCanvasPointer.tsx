@@ -16,7 +16,11 @@ export const useCanvasPointer = (
 	canvasRef: React.RefObject<HTMLCanvasElement | null>,
 	canvasView: CanvasView,
 	isOnionSkin: boolean,
-	render: (canvas: HTMLCanvasElement, isOnionSkin: boolean, layerId: string | null) => void,
+	render: (
+		canvas: HTMLCanvasElement,
+		isOnionSkin: boolean,
+		layerId: string | null,
+	) => void,
 ) => {
 	const core = useCore();
 	const playbackContext = usePlayback();
@@ -184,7 +188,8 @@ export const useCanvasPointer = (
 		if (
 			!canvasDraw.drawState.isDrawing ||
 			!(event.buttons & 1) ||
-			event.shiftKey
+			event.shiftKey ||
+			event.ctrlKey
 		) {
 			return;
 		}

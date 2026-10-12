@@ -18,8 +18,12 @@ export const useCanvasNavigation = (
 ) => {
 	const pointers = useRef(new Map<number, Point>());
 	const previousGesture = useRef<ReturnType<typeof getGesture> | null>(null);
+	const zoomAnchor = useRef<Point | null>(null);
 
 	const handleContainerPointerDown = (event: React.PointerEvent) => {
+		if (event.button === 0 && event.ctrlKey) {
+			zoomAnchor.current = { x: event.clientX, y: event.clientY };
+		}
 		if (event.pointerType !== "touch") return;
 		pointers.current.set(event.pointerId, {
 			x: event.clientX,
@@ -33,11 +37,15 @@ export const useCanvasNavigation = (
 	};
 
 	const handleContainerPointerUp = (event: React.PointerEvent) => {
+		zoomAnchor.current = null;
 		pointers.current.delete(event.pointerId);
 		previousGesture.current =
 			pointers.current.size >= 2
 				? getGesture([...pointers.current.values()].slice(0, 2))
 				: null;
+		if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+			event.currentTarget.releasePointerCapture(event.pointerId);
+		}
 	};
 
 	const handleContainerPointerCancel = handleContainerPointerUp;
@@ -90,8 +98,40 @@ export const useCanvasNavigation = (
 			}
 			return;
 		}
-		if (!(event.buttons & 1 && event.shiftKey) && !(event.buttons & 4)) return;
-		canvasView.translate(event.movementX, event.movementY);
+		const isTranslateButtonPressed =
+			(event.buttons & 1 && event.shiftKey) || event.buttons & 4;
+		const isZoomButtonPressed = event.buttons & 1 && event.ctrlKey;
+		const isRotateButtonPressed = event.buttons & 1 && event.altKey;
+
+		if (
+			!isTranslateButtonPressed &&
+			!isZoomButtonPressed &&
+			!isRotateButtonPressed
+		)
+			return;
+
+		event.currentTarget.setPointerCapture(event.pointerId);
+
+		if (isTranslateButtonPressed) {
+			canvasView.translate(event.movementX, event.movementY);
+		}
+		if (isZoomButtonPressed) {
+			const canvas = canvasRef.current;
+			if (canvas == null) return;
+			const rect = canvas.getBoundingClientRect();
+			const anchor = zoomAnchor.current ?? {
+				x: event.clientX,
+				y: event.clientY,
+			};
+			canvasView.zoomAt(
+				-event.movementY / 50,
+				anchor.x - (rect.left + rect.width / 2),
+				anchor.y - (rect.top + rect.height / 2),
+			);
+		}
+		if (isRotateButtonPressed) {
+			canvasView.rotate(event.movementX / 10);
+		}
 	};
 
 	return {
