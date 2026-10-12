@@ -53,7 +53,11 @@ const DrawCanvas: React.FC<Props> = (props) => {
 	// biome-ignore lint/correctness/useExhaustiveDependencies: The WASM renderer reads layer state from shared core state.
 	useEffect(() => {
 		if (canvasRef.current == null) return;
-		canvasRender.render(canvasRef.current, isOnionSkin, layerContext.selectedLayerId);
+		canvasRender.render(
+			canvasRef.current,
+			isOnionSkin,
+			layerContext.selectedLayerId,
+		);
 	}, [
 		clipContext.clips,
 		clipContext.transform,
@@ -113,15 +117,6 @@ const DrawCanvas: React.FC<Props> = (props) => {
 				style={{
 					clipPath: canvasClipPath,
 				}}
-			/>
-			<canvas
-				ref={canvasRender.onionCanvasRef}
-				width={canvasWidth}
-				height={canvasHeight}
-				className="pointer-events-none absolute inset-0 [image-rendering:pixelated]"
-				style={canvasTransform}
-				tabIndex={-1}
-				aria-hidden="true"
 			/>
 			<canvas
 				ref={canvasRef}

@@ -7,7 +7,6 @@ export const useCanvasRender = () => {
 	const playbackContext = usePlayback();
 	const core = useCore();
 	const frameRequestRef = useRef<number | null>(null);
-	const onionCanvasRef = useRef<HTMLCanvasElement | null>(null);
 	const requestIdRef = useRef(0);
 	const render = (
 		canvas: HTMLCanvasElement,
@@ -21,9 +20,6 @@ export const useCanvasRender = () => {
 		frameRequestRef.current = requestAnimationFrame(() => {
 			frameRequestRef.current = null;
 			void (async () => {
-				const onionCanvas = onionCanvasRef.current;
-				const onionContext = onionCanvas?.getContext("2d");
-				onionContext?.clearRect(0, 0, onionCanvas!.width, onionCanvas!.height);
 				if (requestId !== requestIdRef.current) return;
 				await core.renderFrameToCanvas(
 					playbackContext.currentFrame,
@@ -34,5 +30,5 @@ export const useCanvasRender = () => {
 		});
 	};
 
-	return { render, onionCanvasRef };
+	return { render };
 };
