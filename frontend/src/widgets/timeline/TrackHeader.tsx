@@ -105,7 +105,7 @@ const TrackHeader: React.FC<Props> = (props) => {
 
 	return (
 		<div
-			className="absolute h-full bg-zinc-950/10 border-b border-zinc-500/40"
+			className="absolute h-full border-b border-zinc-500/40"
 			style={{
 				translate: `-${props.scrollX}px 0`,
 				width: `${props.totalFrames * props.frameWidth}px`,
@@ -114,7 +114,7 @@ const TrackHeader: React.FC<Props> = (props) => {
 			onWheel={props.onWheel}
 		>
 			<div
-				className="absolute top-0 h-full bg-white dark:bg-white/10 pointer-events-none"
+				className="absolute top-0 h-full bg-white/50 dark:bg-zinc-800/50 pointer-events-none"
 				style={{
 					left: `${props.startFrame * props.frameWidth}px`,
 					width: `${(props.endFrame - props.startFrame + 1) * props.frameWidth}px`,

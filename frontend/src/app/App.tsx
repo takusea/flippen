@@ -19,25 +19,18 @@ import Splitter from "~/shared/ui/Splitter";
 import DrawCanvas from "~/widgets/canvas/Canvas";
 import { useCanvasView } from "~/widgets/canvas/useCanvasView";
 import { useDialogs } from "~/widgets/dialogs/useDialogs";
+import GlobalHeader from "~/widgets/header/GlobalHeader";
 import ClipInspector from "~/widgets/inspector/ClipInspector";
 import ColorInspector from "~/widgets/inspector/ColorInspector";
 import ToolInspector from "~/widgets/inspector/ToolInspector";
 import Timeline from "~/widgets/timeline/Timeline";
 import Toolbar from "~/widgets/toolbar";
 
-const SPLITTER_HEIGHT = 6;
+const SPLITTER_HEIGHT = 8;
 const MIN_CANVAS_HEIGHT = 160;
 const MIN_TIMELINE_HEIGHT = 96;
 
-type Props = {
-	isOnionSkin?: boolean;
-	onIsOnionSkinChange?: () => void;
-};
-
-const App: React.FC<Props> = ({
-	isOnionSkin = false,
-	onIsOnionSkinChange = () => undefined,
-}) => {
+const App: React.FC = () => {
 	const isDesktop: boolean = useMediaQuery("(min-width: 720px)");
 	const [isToolInspectorOpen, toggleIsToolInspectorOpen] = useToggle(false);
 	const [isClipInspectorOpen, toggleIsClipInspectorOpen] = useToggle(false);
@@ -54,12 +47,9 @@ const App: React.FC<Props> = ({
 	);
 
 	const [timelineHeight, setTimelineHeight] = useState<number>(160);
-	const mainRef = useRef<HTMLElement>(null);
 	const maxTimelineHeight = Math.max(
 		MIN_TIMELINE_HEIGHT,
-		(mainRef.current?.clientHeight ?? document.documentElement.clientHeight) -
-			MIN_CANVAS_HEIGHT -
-			SPLITTER_HEIGHT,
+		document.documentElement.clientHeight - MIN_CANVAS_HEIGHT - SPLITTER_HEIGHT,
 	);
 
 	const toolInspectorRef = useRef<HTMLDivElement>(null);
@@ -78,16 +68,16 @@ const App: React.FC<Props> = ({
 	});
 
 	return (
-		<main
-			ref={mainRef}
-			className="w-full h-full grid grid-cols-[minmax(0,1fr)]"
+		<div
+			className="grid w-svw h-svh overflow-hidden"
 			style={{
-				gridTemplateRows: `minmax(0, 1fr) ${SPLITTER_HEIGHT}px ${timelineHeight}px`,
+				gridTemplateRows: `48px minmax(0, 1fr) ${SPLITTER_HEIGHT}px ${timelineHeight}px`,
 			}}
 		>
-			<div className="relative w-full h-full">
+			<GlobalHeader />
+			<main className="relative bg-zinc-50 dark:bg-zinc-950">
 				{project.settings ? (
-					<DrawCanvas isOnionSkin={isOnionSkin} canvasView={canvasView} />
+					<DrawCanvas canvasView={canvasView} />
 				) : (
 					<div className="absolute grid place-content-center w-full h-full gap-2">
 						<Button
@@ -199,14 +189,10 @@ const App: React.FC<Props> = ({
 					)}
 				<div className="absolute bottom-0 left-0 right-0 overflow-x-auto">
 					<div className="mx-auto p-2 w-fit">
-						<Toolbar
-							isOnionSkin={isOnionSkin}
-							onIsOnionSkinChange={onIsOnionSkinChange}
-							canvasView={canvasView}
-						/>
+						<Toolbar />
 					</div>
 				</div>
-			</div>
+			</main>
 			<Splitter
 				orientation="horizontal"
 				label={t("app.resizeTimeline")}
@@ -222,10 +208,8 @@ const App: React.FC<Props> = ({
 					);
 				}}
 			/>
-			<div className="min-h-0 grid place-content-stretch bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl z-10">
-				<Timeline />
-			</div>
-		</main>
+			<Timeline />
+		</div>
 	);
 };
 

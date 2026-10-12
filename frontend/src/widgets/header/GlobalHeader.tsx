@@ -1,0 +1,85 @@
+import { IconFileExport, IconMenu2, IconX } from "@tabler/icons-react";
+import { type RefObject, useRef } from "react";
+import { useMediaQuery, useOnClickOutside, useToggle } from "usehooks-ts";
+import { useI18n } from "~/features/i18n/useI18n";
+import { useProject } from "~/features/project/useProject";
+import { useProjectExport } from "~/features/project/useProjectExport";
+import Button from "~/shared/ui/Button";
+import IconButton from "~/shared/ui/IconButton";
+import Tooltip from "~/shared/ui/Tooltip";
+import { useDialogs } from "~/widgets/dialogs/useDialogs";
+import GlobalMenubar from "./GlobalMenubar";
+
+const GlobalHeader: React.FC = () => {
+	const isDesktop: boolean = useMediaQuery("(min-width: 720px)");
+	const { t } = useI18n();
+	const project = useProject();
+	const dialogs = useDialogs();
+	const { progress: exportProgress } = useProjectExport();
+
+	const ExportButton = isDesktop ? Button : IconButton;
+
+	const [isMenubarOpen, toggleMenubarOpen] = useToggle(false);
+	const menubarRef = useRef<HTMLDivElement>(null);
+	useOnClickOutside(menubarRef as RefObject<HTMLDivElement>, (event) => {
+		if (
+			(event.target instanceof HTMLElement &&
+				event.target.closest("[data-radix-menu-content]")) ||
+			isDesktop
+		) {
+			return;
+		}
+		toggleMenubarOpen();
+	});
+
+	return (
+		<header className="relative grid grid-cols-[1fr_auto_1fr] items-center w-full px-2 gap-1 z-10 bg-white/90 dark:bg-zinc-950/90 border-b border-zinc-500/40 backdrop-blur-xl">
+			{!isDesktop && (
+				<div
+					className={`grid grid-cols-[auto_1fr] ${isMenubarOpen ? "col-span-3" : ""}`}
+				>
+					<IconButton
+						label={t("menubar.open")}
+						icon={isMenubarOpen ? IconX : IconMenu2}
+						onClick={() => toggleMenubarOpen()}
+					/>
+					{isMenubarOpen && (
+						<div className="overflow-scroll m-1" ref={menubarRef}>
+							<GlobalMenubar />
+						</div>
+					)}
+				</div>
+			)}
+			{isDesktop && <GlobalMenubar />}
+			{(!isMenubarOpen || isDesktop) && (
+				<>
+					<div className="flex justify-center">
+						{project.settings && (
+							<Tooltip label={t("nav.projectSettings")} side="bottom">
+								<Button
+									label={project.settings.title}
+									onClick={() => dialogs.open("editProjectSettings")}
+								/>
+							</Tooltip>
+						)}
+					</div>
+					<div className="flex justify-end min-w-max">
+						<ExportButton
+							label={
+								exportProgress
+									? t("nav.exportProgress", exportProgress)
+									: t("nav.export")
+							}
+							icon={IconFileExport}
+							variant="primary"
+							disabled={project.settings == null || exportProgress != null}
+							onClick={() => dialogs.open("exportProject")}
+						/>
+					</div>
+				</>
+			)}
+		</header>
+	);
+};
+
+export default GlobalHeader;

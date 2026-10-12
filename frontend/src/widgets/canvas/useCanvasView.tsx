@@ -23,6 +23,7 @@ const useCanvasViewState = () => {
 	const [isFlippedHorizontal, setIsFlippedHorizontal] = useState(false);
 	const [isFlippedVertical, setIsFlippedVertical] = useState(false);
 	const [isGridVisible, setIsGridVisible] = useState(false);
+	const [isOnionSkin, setIsOnionSkin] = useState(false);
 
 	const applyCanvasTransform = (
 		x: number,
@@ -146,6 +147,7 @@ const useCanvasViewState = () => {
 		isFlippedHorizontal,
 		isFlippedVertical,
 		isGridVisible,
+		isOnionSkin,
 		minScale: scaleMinimum,
 		maxScale: scaleMaximum,
 		setPosition,
@@ -154,6 +156,7 @@ const useCanvasViewState = () => {
 		setIsFlippedHorizontal,
 		setIsFlippedVertical,
 		setIsGridVisible,
+		setIsOnionSkin,
 		applyCanvasTransform,
 		translate,
 		zoom,

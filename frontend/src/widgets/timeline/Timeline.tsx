@@ -136,7 +136,7 @@ const Timeline: React.FC = () => {
 	}
 
 	return (
-		<div className="h-full min-h-0 min-w-0 grid grid-rows-[24px_minmax(0,1fr)] grid-cols-[192px_minmax(0,1fr)] ">
+		<div className="h-full min-h-0 min-w-0 bg-white/90 dark:bg-zinc-950/90 grid grid-rows-[24px_minmax(0,1fr)] grid-cols-[192px_minmax(0,1fr)] backdrop-blur-xl z-10">
 			<div className="size-full flex items-center justify-between px-1 font-mono border-b border-r border-zinc-500/40">
 				<span>{playbackContext.startFrame} - </span>
 				<span>{playbackContext.currentFrame}</span>
@@ -170,7 +170,7 @@ const Timeline: React.FC = () => {
 				/>
 			</div>
 			<div
-				className="relative overflow-scroll row-start-2 col-start-2 bg-zinc-950/10"
+				className="relative overflow-scroll row-start-2 col-start-2"
 				onPointerDown={handlePointerDown}
 				onScroll={handleScroll}
 				ref={timelineViewportRef}
@@ -183,7 +183,7 @@ const Timeline: React.FC = () => {
 					}}
 				/>
 				<div
-					className="absolute top-0 pointer-events-none bg-white dark:bg-white/10"
+					className="absolute top-0 pointer-events-none bg-white/50 dark:bg-zinc-800/50"
 					style={{
 						left: `${playbackContext.startFrame * frameWidth}px`,
 						height: `${layerHeight * layerCount}px`,

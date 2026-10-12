@@ -34,19 +34,14 @@ import { useTool } from "~/features/tool/useTool";
 import Card from "~/shared/ui/Card";
 import IconButton from "~/shared/ui/IconButton";
 import NumberField from "~/shared/ui/NumberField";
-import type { useCanvasView } from "~/widgets/canvas/useCanvasView";
+import { useCanvasView } from "~/widgets/canvas/useCanvasView";
 
-type Props = {
-	isOnionSkin: boolean;
-	onIsOnionSkinChange: () => void;
-	canvasView: ReturnType<typeof useCanvasView>;
-};
-
-const Toolbar: React.FC<Props> = (props) => {
+const Toolbar: React.FC = () => {
 	const { t } = useI18n();
 	const playbackContext = usePlayback();
 	const clipContext = useClip();
 	const toolContext = useTool();
+	const canvasView = useCanvasView();
 	const { undo, redo } = useUndoStack();
 	const { shortcuts } = useShortcuts();
 
@@ -68,7 +63,9 @@ const Toolbar: React.FC<Props> = (props) => {
 			: playbackContext.play(),
 	);
 	useHotkeys(shortcuts.stop, () => playbackContext.stop());
-	useHotkeys(shortcuts.toggleOnionSkin, props.onIsOnionSkinChange);
+	useHotkeys(shortcuts.toggleOnionSkin, () =>
+		canvasView.setIsOnionSkin((prev) => !prev),
+	);
 	useHotkeys(shortcuts.toggleLoop, () =>
 		playbackContext.setIsLoop(!playbackContext.isLoop),
 	);
@@ -195,8 +192,8 @@ const Toolbar: React.FC<Props> = (props) => {
 						label={t("toolbar.onionSkin")}
 						shortcut={formatShortcut(shortcuts.toggleOnionSkin)}
 						icon={IconLayersDifference}
-						variant={props.isOnionSkin ? "primary" : "default"}
-						onClick={props.onIsOnionSkinChange}
+						variant={canvasView.isOnionSkin ? "primary" : "default"}
+						onClick={() => canvasView.setIsOnionSkin((prev) => !prev)}
 					/>
 				</div>
 			</Card>
@@ -240,18 +237,18 @@ const Toolbar: React.FC<Props> = (props) => {
 				<div className="flex gap-1">
 					<div className="w-16">
 						<NumberField
-							value={Number((props.canvasView.scale * 100).toFixed(2))}
-							max={props.canvasView.maxScale * 100}
-							min={props.canvasView.minScale * 100}
+							value={Number((canvasView.scale * 100).toFixed(2))}
+							max={canvasView.maxScale * 100}
+							min={canvasView.minScale * 100}
 							step={10}
-							onValueChange={(value) => props.canvasView.setScale(value / 100)}
+							onValueChange={(value) => canvasView.setScale(value / 100)}
 						/>
 					</div>
 					<IconButton
 						label={t("toolbar.resetZoom")}
 						shortcut={formatShortcut(shortcuts.resetZoom)}
 						icon={IconZoom}
-						onClick={() => props.canvasView.setScale(1)}
+						onClick={() => canvasView.setScale(1)}
 					/>
 				</div>
 			</Card>
@@ -259,18 +256,18 @@ const Toolbar: React.FC<Props> = (props) => {
 				<div className="flex gap-1">
 					<div className="w-16">
 						<NumberField
-							value={props.canvasView.rotation}
+							value={canvasView.rotation}
 							max={180}
 							min={-180}
 							step={1}
-							onValueChange={props.canvasView.setRotation}
+							onValueChange={canvasView.setRotation}
 						/>
 					</div>
 					<IconButton
 						label={t("toolbar.resetRotate")}
 						shortcut={formatShortcut(shortcuts.resetRotation)}
 						icon={IconRotate}
-						onClick={() => props.canvasView.setRotation(0)}
+						onClick={() => canvasView.setRotation(0)}
 					/>
 				</div>
 			</Card>
@@ -280,21 +277,15 @@ const Toolbar: React.FC<Props> = (props) => {
 						label={t("toolbar.flipHorizontal")}
 						shortcut={formatShortcut(shortcuts.flipHorizontal)}
 						icon={IconFlipHorizontal}
-						variant={
-							props.canvasView.isFlippedHorizontal ? "primary" : "default"
-						}
-						onClick={() =>
-							props.canvasView.setIsFlippedHorizontal((prev) => !prev)
-						}
+						variant={canvasView.isFlippedHorizontal ? "primary" : "default"}
+						onClick={() => canvasView.setIsFlippedHorizontal((prev) => !prev)}
 					/>
 					<IconButton
 						label={t("toolbar.flipVertical")}
 						shortcut={formatShortcut(shortcuts.flipVertical)}
 						icon={IconFlipVertical}
-						variant={props.canvasView.isFlippedVertical ? "primary" : "default"}
-						onClick={() =>
-							props.canvasView.setIsFlippedVertical((prev) => !prev)
-						}
+						variant={canvasView.isFlippedVertical ? "primary" : "default"}
+						onClick={() => canvasView.setIsFlippedVertical((prev) => !prev)}
 					/>
 				</div>
 			</Card>
