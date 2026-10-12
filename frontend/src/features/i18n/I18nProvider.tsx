@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect } from "react";
+import { type JSX, useEffect } from "react";
 import { useLocalStorage } from "usehooks-ts";
 import {
 	I18nContext,
@@ -12,9 +12,11 @@ const STORAGE_KEY = "flippen.language";
 const getInitialLocale = (): Locale =>
 	navigator.language.toLowerCase().startsWith("ja") ? "ja" : "en";
 
-export const I18nProvider: React.FC<{ children: ReactNode }> = ({
-	children,
-}) => {
+type Props = {
+	children: JSX.Element;
+};
+
+export const I18nProvider = ({ children }: Props) => {
 	const [locale, setLocale] = useLocalStorage<Locale>(
 		STORAGE_KEY,
 		getInitialLocale,

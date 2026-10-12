@@ -16,7 +16,7 @@ const MIN_FRAME_WIDTH = 2;
 const MAX_FRAME_WIDTH = 64;
 const WHEEL_ZOOM_SENSITIVITY = 0.0015;
 
-const Timeline: React.FC = () => {
+const Timeline = () => {
 	const core = useCore();
 	const clipContext = useClip();
 	const playbackContext = usePlayback();

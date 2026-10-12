@@ -13,36 +13,40 @@ type Props = Omit<React.ComponentProps<"button">, "className" | "type"> & {
 	size?: Size;
 };
 
-const IconButton: React.FC<Props> = ({
+const padding = (size: Size) => {
+	switch (size) {
+		case "small":
+			return "";
+		case "medium":
+			return "p-1";
+		case "large":
+			return "p-2";
+	}
+};
+
+const color = (variant: Variant) => {
+	switch (variant) {
+		case "default":
+			return "hover:not-disabled:bg-zinc-500/20";
+		case "primary":
+			return "text-white bg-primary hover:not-disabled:bg-primary";
+	}
+};
+
+const IconButton = ({
 	label,
 	icon: Icon,
-	variant,
+	variant = "default",
+	size = "medium",
 	toolTipSide,
 	shortcut,
 	...props
-}) => {
-	const padding = (size: Size | undefined) => {
-		if (size === "small") {
-			return "";
-		}
-		if (size === "large") {
-			return "p-2";
-		}
-		return "p-1";
-	};
-
-	const color = (variant: Variant | undefined) => {
-		if (variant === "primary") {
-			return "text-white bg-primary hover:not-disabled:bg-primary";
-		}
-		return "hover:not-disabled:bg-zinc-500/20";
-	};
-
+}: Props) => {
 	return (
 		<Tooltip label={label} shortcut={shortcut} side={toolTipSide ?? "top"}>
 			<button
 				type="button"
-				className={`flex items-center justify-center rounded-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${padding(props.size)} ${color(variant)}`}
+				className={`flex items-center justify-center rounded-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${padding(size)} ${color(variant)}`}
 				aria-label={label}
 				{...props}
 			>

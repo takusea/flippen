@@ -1,10 +1,13 @@
+import type { JSX } from "react/jsx-runtime";
 import { useCore } from "~/core/useCore";
 import { useCoreSnapshot } from "~/core/useCoreSnapshot";
 import { UndoStackContext } from "./UndoStackContext";
 
-export const UndoStackProvider: React.FC<{ children: React.ReactNode }> = ({
-	children,
-}) => {
+type Props = {
+	children: JSX.Element;
+};
+
+export const UndoStackProvider = ({ children }: Props) => {
 	const core = useCore();
 	const snapshot = useCoreSnapshot();
 

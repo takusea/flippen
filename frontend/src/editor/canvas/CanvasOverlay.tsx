@@ -10,13 +10,13 @@ type Props = {
 	isGridVisible: boolean;
 };
 
-export const CanvasOverlay: React.FC<Props> = ({
+export const CanvasOverlay = ({
 	width,
 	height,
 	transform,
 	selection,
 	isGridVisible,
-}) => (
+}: Props) => (
 	<>
 		<div
 			aria-hidden="true"

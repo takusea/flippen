@@ -4,12 +4,12 @@ type Props = React.ComponentProps<typeof Menubar.Menu> & {
 	label: string;
 };
 
-const MenubarMenu: React.FC<Props> = (props) => {
+const MenubarMenu = ({ label, children, ...props }: Props) => {
 	return (
 		<Menubar.Menu {...props}>
 			<Menubar.Trigger className="group cursor-pointer h-12 disabled:opacity-50 disabled:cursor-not-allowed">
 				<div className="flex items-center justify-between rounded-md h-8 px-2 font-medium text-nowrap group-data-[state=open]:bg-zinc-500/20 group-hover:not-disabled:bg-zinc-500/20">
-					{props.label}
+					{label}
 				</div>
 			</Menubar.Trigger>
 			<Menubar.Portal>
@@ -18,7 +18,7 @@ const MenubarMenu: React.FC<Props> = (props) => {
 					align="start"
 					alignOffset={-8}
 				>
-					{props.children}
+					{children}
 				</Menubar.Content>
 			</Menubar.Portal>
 		</Menubar.Menu>

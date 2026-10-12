@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { type JSX, useMemo } from "react";
 import { useCoreSnapshot } from "~/core/useCoreSnapshot";
 import { useLayer } from "~/features/layer/useLayer";
 import { usePlayback } from "~/features/playback/usePlayback";
@@ -9,9 +9,11 @@ import { useClipCommands } from "./useClipCommands";
 import { useClipSelection } from "./useClipSelection";
 import { useClipTransform } from "./useClipTransform";
 
-export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
-	children,
-}) => {
+type Props = {
+	children: JSX.Element;
+};
+
+export const ClipProvider = ({ children }: Props) => {
 	const layerContext = useLayer();
 	const playbackContext = usePlayback();
 	const projectContext = useProject();

@@ -4,17 +4,15 @@ type Props = Omit<React.ComponentProps<"input">, "className" | "type"> & {
 	onValueChange?: (value: string) => void;
 };
 
-const TextField: React.FC<Props> = (props) => {
-	const {
-		onValueChange,
-		onChange,
-		onBlur,
-		value,
-		defaultValue,
-		...inputProps
-	} = props;
+const TextField = ({
+	onValueChange,
+	onChange,
+	onBlur,
+	value,
+	...props
+}: Props) => {
 	const [innerValue, setInnerValue] = useState(
-		value?.toString() ?? defaultValue?.toString() ?? "",
+		value?.toString() ?? props.defaultValue?.toString() ?? "",
 	);
 
 	useEffect(() => {
@@ -29,7 +27,7 @@ const TextField: React.FC<Props> = (props) => {
 
 	return (
 		<input
-			{...inputProps}
+			{...props}
 			type="text"
 			value={innerValue}
 			onChange={(event) => {

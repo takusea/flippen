@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { type JSX, useState } from "react";
 import { CanvasViewContext } from "./CanvasViewContext";
 
-export const CanvasViewProvider: React.FC<React.PropsWithChildren> = (
-	props,
-) => {
+type Props = {
+	children: JSX.Element;
+};
+
+export const CanvasViewProvider = ({ children }: Props) => {
 	const [position, setPosition] = useState<{ x: number; y: number }>({
 		x: 0,
 		y: 0,
@@ -34,7 +36,7 @@ export const CanvasViewProvider: React.FC<React.PropsWithChildren> = (
 				setIsOnionSkin,
 			}}
 		>
-			{props.children}
+			{children}
 		</CanvasViewContext>
 	);
 };

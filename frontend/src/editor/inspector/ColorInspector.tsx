@@ -10,14 +10,18 @@ type Props = {
 	onCurrentColorChange: (color: HSVAColor) => void;
 };
 
-const ColorInspector: React.FC<Props> = (props) => {
+const ColorInspector = ({
+	currentColor,
+	colorHistory,
+	onCurrentColorChange,
+}: Props) => {
 	const { t } = useI18n();
-	const rgbaColor = hsvaToRgba(props.currentColor);
+	const rgbaColor = hsvaToRgba(currentColor);
 	const hsvaColor = {
-		h: Math.round(props.currentColor.h),
-		s: Math.round(props.currentColor.s * 100),
-		v: Math.round(props.currentColor.v * 100),
-		a: props.currentColor.a,
+		h: Math.round(currentColor.h),
+		s: Math.round(currentColor.s * 100),
+		v: Math.round(currentColor.v * 100),
+		a: currentColor.a,
 	};
 
 	return (
@@ -25,8 +29,8 @@ const ColorInspector: React.FC<Props> = (props) => {
 			<div className="flex flex-col gap-2">
 				<h2 className="font-bold">{t("inspector.colorPicker")}</h2>
 				<ColorPicker
-					currentColor={props.currentColor}
-					onCurrentColorChange={props.onCurrentColorChange}
+					currentColor={currentColor}
+					onCurrentColorChange={onCurrentColorChange}
 				/>
 				<div className="flex gap-2">
 					<div
@@ -47,9 +51,9 @@ const ColorInspector: React.FC<Props> = (props) => {
 					</div>
 				</div>
 				<ColorPalette
-					currentColor={props.currentColor}
-					colorHistory={props.colorHistory}
-					onCurrentColorChange={props.onCurrentColorChange}
+					currentColor={currentColor}
+					colorHistory={colorHistory}
+					onCurrentColorChange={onCurrentColorChange}
 				/>
 			</div>
 		</Card>

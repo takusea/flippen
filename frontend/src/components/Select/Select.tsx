@@ -7,7 +7,7 @@ type Props = React.ComponentProps<typeof SelectPrimitive.Root> & {
 	placeholder?: string;
 };
 
-const Select: React.FC<Props> = ({ children, placeholder, ...props }) => {
+const Select = ({ children, placeholder, ...props }: Props) => {
 	return (
 		<SelectPrimitive.Root {...props}>
 			<SelectPrimitive.Trigger

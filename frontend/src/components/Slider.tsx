@@ -2,7 +2,7 @@ import * as SliderPrimitive from "@radix-ui/react-slider";
 
 type Props = React.ComponentProps<typeof SliderPrimitive.Root>;
 
-const Slider: React.FC<Props> = (props) => {
+const Slider = (props: Props) => {
 	return (
 		<SliderPrimitive.Root
 			className="relative flex items-center h-8 cursor-pointer touch-none select-none"

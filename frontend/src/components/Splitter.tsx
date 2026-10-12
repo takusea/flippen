@@ -13,14 +13,7 @@ type Props = {
 
 const KEYBOARD_STEP = 16;
 
-const Splitter: React.FC<Props> = ({
-	orientation,
-	label,
-	value,
-	min,
-	max,
-	onResize,
-}) => {
+const Splitter = ({ orientation, label, value, min, max, onResize }: Props) => {
 	const pointerPosition = useRef<number | null>(null);
 	const isHorizontal = orientation === "horizontal";
 

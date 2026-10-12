@@ -10,36 +10,45 @@ type Props = Omit<React.ComponentProps<"button">, "className" | "type"> & {
 	size?: Size;
 };
 
-const Button: React.FC<Props> = (props) => {
-	const padding = (size: Size | undefined) => {
-		if (size === "small") {
+const padding = (size: Size) => {
+	switch (size) {
+		case "small":
 			return "h-6 px-1";
-		}
-		if (size === "large") {
+		case "medium":
+			return "h-8 px-2";
+		case "large":
 			return "h-12 px-3";
-		}
-		return "h-8 px-2";
-	};
+	}
+};
 
-	const color = (variant: Variant | undefined) => {
-		if (variant === "primary") {
+const color = (variant: Variant) => {
+	switch (variant) {
+		case "default":
+			return "hover:not-disabled:bg-zinc-500/20";
+		case "primary":
 			return "text-white bg-primary hover:not-disabled:bg-primary";
-		}
-		return "hover:not-disabled:bg-zinc-500/20";
-	};
+	}
+};
 
+const Button = ({
+	label,
+	icon: Icon,
+	variant = "default",
+	size = "medium",
+	...props
+}: Props) => {
 	return (
 		<button
 			type="button"
-			className={`grid grid-cols-[auto_auto] items-center justify-center rounded-md font-semibold cursor-pointer text-nowrap disabled:opacity-50 disabled:cursor-not-allowed ${padding(props.size)} ${color(props.variant)}`}
+			className={`grid grid-cols-[auto_auto] items-center justify-center rounded-md font-semibold cursor-pointer text-nowrap disabled:opacity-50 disabled:cursor-not-allowed ${padding(size)} ${color(variant)}`}
 			{...props}
 		>
-			{props.icon && (
+			{Icon && (
 				<div className="mr-1">
-					<props.icon />
+					<Icon />
 				</div>
 			)}
-			<div className="overflow-hidden text-ellipsis">{props.label}</div>
+			<div className="overflow-hidden text-ellipsis">{label}</div>
 		</button>
 	);
 };

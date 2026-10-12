@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { JSX } from "react";
 import { useLocalStorage } from "usehooks-ts";
 import { ShortcutsContext } from "./ShortcutsContext";
 import {
@@ -9,9 +9,11 @@ import {
 
 const STORAGE_KEY = "flippen.shortcuts";
 
-export const ShortcutsProvider: React.FC<{ children: ReactNode }> = ({
-	children,
-}) => {
+type Props = {
+	children: JSX.Element;
+};
+
+export const ShortcutsProvider = ({ children }: Props) => {
 	const [shortcuts, setShortcuts] = useLocalStorage<Shortcuts>(
 		STORAGE_KEY,
 		defaultShortcuts,

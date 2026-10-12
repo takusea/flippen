@@ -7,28 +7,23 @@ import { CanvasOverlay } from "./CanvasOverlay";
 import { useCanvasNavigation } from "./useCanvasNavigation";
 import { useCanvasPointer } from "./useCanvasPointer";
 import { useCanvasRender } from "./useCanvasRender";
-import type { useCanvasView } from "./useCanvasView";
+import { useCanvasView } from "./useCanvasView";
 
-type Props = {
-	isOnionSkin?: boolean;
-	canvasView: ReturnType<typeof useCanvasView>;
-};
-
-const DrawCanvas: React.FC<Props> = (props) => {
+const DrawCanvas = () => {
 	const projectContext = useProject();
 	const playbackContext = usePlayback();
 	const clipContext = useClip();
 	const layerContext = useLayer();
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const canvasRender = useCanvasRender();
-	const isOnionSkin = props.isOnionSkin ?? false;
+	const canvasView = useCanvasView();
 	const canvasPointer = useCanvasPointer(
 		canvasRef,
-		props.canvasView,
-		isOnionSkin,
+		canvasView,
+		canvasView.isOnionSkin,
 		canvasRender.render,
 	);
-	const canvasNavigation = useCanvasNavigation(canvasRef, props.canvasView);
+	const canvasNavigation = useCanvasNavigation(canvasRef, canvasView);
 	const canvasWidth = projectContext.settings?.width;
 	const canvasHeight = projectContext.settings?.height;
 
@@ -44,18 +39,18 @@ const DrawCanvas: React.FC<Props> = (props) => {
 			return;
 		}
 
-		props.canvasView.setPosition({
+		canvasView.setPosition({
 			x: (viewport.clientWidth - canvasWidth) / 2,
 			y: (viewport.clientHeight - canvasHeight) / 2,
 		});
-	}, [canvasWidth, canvasHeight, props.canvasView.setPosition]);
+	}, [canvasWidth, canvasHeight, canvasView.setPosition]);
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: The WASM renderer reads layer state from shared core state.
 	useEffect(() => {
 		if (canvasRef.current == null) return;
 		canvasRender.render(
 			canvasRef.current,
-			isOnionSkin,
+			canvasView.isOnionSkin,
 			layerContext.selectedLayerId,
 		);
 	}, [
@@ -64,7 +59,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 		layerContext.layers,
 		layerContext.selectedLayerId,
 		playbackContext.currentFrame,
-		isOnionSkin,
+		canvasView.isOnionSkin,
 	]);
 
 	if (
@@ -76,20 +71,20 @@ const DrawCanvas: React.FC<Props> = (props) => {
 	}
 
 	const canvasTransform = {
-		scale: `${props.canvasView.scale * (props.canvasView.isFlippedHorizontal ? -1 : 1)} ${props.canvasView.scale * (props.canvasView.isFlippedVertical ? -1 : 1)}`,
-		translate: `${props.canvasView.position.x}px ${props.canvasView.position.y}px`,
-		rotate: `${props.canvasView.rotation}deg`,
+		scale: `${canvasView.scale * (canvasView.isFlippedHorizontal ? -1 : 1)} ${canvasView.scale * (canvasView.isFlippedVertical ? -1 : 1)}`,
+		translate: `${canvasView.position.x}px ${canvasView.position.y}px`,
+		rotate: `${canvasView.rotation}deg`,
 	};
-	const flipX = props.canvasView.isFlippedHorizontal ? -1 : 1;
-	const flipY = props.canvasView.isFlippedVertical ? -1 : 1;
-	const angle = (props.canvasView.rotation * Math.PI) / 180;
+	const flipX = canvasView.isFlippedHorizontal ? -1 : 1;
+	const flipY = canvasView.isFlippedVertical ? -1 : 1;
+	const angle = (canvasView.rotation * Math.PI) / 180;
 	const cos = Math.cos(angle);
 	const sin = Math.sin(angle);
-	const centerX = canvasWidth / 2 + props.canvasView.position.x;
-	const centerY = canvasHeight / 2 + props.canvasView.position.y;
+	const centerX = canvasWidth / 2 + canvasView.position.x;
+	const centerY = canvasHeight / 2 + canvasView.position.y;
 	const transformedPoint = (x: number, y: number) => {
-		const localX = (x - canvasWidth / 2) * props.canvasView.scale * flipX;
-		const localY = (y - canvasHeight / 2) * props.canvasView.scale * flipY;
+		const localX = (x - canvasWidth / 2) * canvasView.scale * flipX;
+		const localY = (y - canvasHeight / 2) * canvasView.scale * flipY;
 		return {
 			x: centerX + localX * cos - localY * sin,
 			y: centerY + localX * sin + localY * cos,
@@ -135,7 +130,7 @@ const DrawCanvas: React.FC<Props> = (props) => {
 				height={projectContext.settings.height}
 				transform={canvasTransform}
 				selection={canvasPointer.selection}
-				isGridVisible={props.canvasView.isGridVisible}
+				isGridVisible={canvasView.isGridVisible}
 			/>
 		</div>
 	);

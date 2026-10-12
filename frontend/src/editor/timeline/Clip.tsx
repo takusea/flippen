@@ -18,27 +18,43 @@ type Props = {
 	onInteractionEnd: () => void;
 };
 
-const Clip: React.FC<Props> = (props) => {
+const Clip = ({
+	id,
+	name,
+	layerHeight,
+	frameWidth,
+	startFrame,
+	duration,
+	layerIndex,
+	isSelected,
+	isHidden,
+	isLocked,
+	onSelect,
+	onMove,
+	onDurationChange,
+	onInteractionStart,
+	onInteractionEnd,
+}: Props) => {
 	const [startPosX, setStartPosX] = useState(0);
 	const isInteracting = useRef(false);
 
 	const startInteraction = () => {
 		if (isInteracting.current) return;
 		isInteracting.current = true;
-		props.onInteractionStart();
+		onInteractionStart();
 	};
 
 	const endInteraction = () => {
 		if (!isInteracting.current) return;
 		isInteracting.current = false;
-		props.onInteractionEnd();
+		onInteractionEnd();
 	};
 
 	const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
 		event.stopPropagation();
 		if (!(event.buttons & 1)) return;
 
-		props.onSelect();
+		onSelect();
 
 		const rect = event.currentTarget.getBoundingClientRect();
 		setStartPosX(event.clientX - rect.left);
@@ -52,15 +68,13 @@ const Clip: React.FC<Props> = (props) => {
 
 		const rect = event.currentTarget.getBoundingClientRect();
 		const startFrame = Math.floor(
-			(event.clientX - rect.left - startPosX) / props.frameWidth,
+			(event.clientX - rect.left - startPosX) / frameWidth,
 		);
-		const layerIndex = Math.floor(
-			(event.clientY - rect.top) / props.layerHeight,
-		);
+		const layerIndex = Math.floor((event.clientY - rect.top) / layerHeight);
 
-		props.onMove(
-			Math.max(0, props.startFrame + startFrame),
-			Math.max(0, props.layerIndex + layerIndex),
+		onMove(
+			Math.max(0, startFrame + startFrame),
+			Math.max(0, layerIndex + layerIndex),
 		);
 	};
 
@@ -73,20 +87,20 @@ const Clip: React.FC<Props> = (props) => {
 		event.currentTarget.setPointerCapture(event.pointerId);
 
 		const rect = event.currentTarget.getBoundingClientRect();
-		const duration = Math.floor((event.clientX - rect.left) / props.frameWidth);
+		const duration = Math.floor((event.clientX - rect.left) / frameWidth);
 
-		props.onDurationChange(Math.max(1, props.duration + duration));
+		onDurationChange(Math.max(1, duration + duration));
 	};
 
 	return (
 		<div
-			key={props.id}
-			className={`absolute grid grid-cols-[1fr_8px] items-stretch rounded border overflow-hidden ${props.isSelected ? "bg-primary/25 border-primary" : "bg-zinc-500/25 border-zinc-500/40"} ${props.isHidden ? "opacity-40" : ""} ${props.isLocked ? "cursor-not-allowed" : ""}`}
+			key={id}
+			className={`absolute grid grid-cols-[1fr_8px] items-stretch rounded border overflow-hidden ${isSelected ? "bg-primary/25 border-primary" : "bg-zinc-500/25 border-zinc-500/40"} ${isHidden ? "opacity-40" : ""} ${isLocked ? "cursor-not-allowed" : ""}`}
 			style={{
-				left: `${props.startFrame * props.frameWidth}px`,
-				top: `${props.layerIndex * props.layerHeight}px`,
-				width: `${props.duration * props.frameWidth}px`,
-				height: `${props.layerHeight}px`,
+				left: `${startFrame * frameWidth}px`,
+				top: `${layerIndex * layerHeight}px`,
+				width: `${duration * frameWidth}px`,
+				height: `${layerHeight}px`,
 			}}
 			onPointerDown={handlePointerDown}
 			onPointerUp={endInteraction}
@@ -94,15 +108,15 @@ const Clip: React.FC<Props> = (props) => {
 			onLostPointerCapture={endInteraction}
 		>
 			<div className="absolute h-full flex items-center text-nowrap pointer-events-none px-1">
-				{props.name}
+				{name}
 			</div>
 			<div
-				className={props.isLocked ? "" : "cursor-move"}
-				onPointerMove={props.isLocked ? undefined : handlePointerMove}
+				className={isLocked ? "" : "cursor-move"}
+				onPointerMove={isLocked ? undefined : handlePointerMove}
 			/>
 			<div
-				className={props.isLocked ? "" : "cursor-w-resize"}
-				onPointerMove={props.isLocked ? undefined : handleRightPointerMove}
+				className={isLocked ? "" : "cursor-w-resize"}
+				onPointerMove={isLocked ? undefined : handleRightPointerMove}
 			/>
 		</div>
 	);

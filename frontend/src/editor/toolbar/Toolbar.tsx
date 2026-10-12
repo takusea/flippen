@@ -36,7 +36,7 @@ import { useShortcuts } from "~/features/shortcuts/useShortcuts";
 import { useTool } from "~/features/tool/useTool";
 import { useCanvasView } from "../canvas/useCanvasView";
 
-const Toolbar: React.FC = () => {
+const Toolbar = () => {
 	const { t } = useI18n();
 	const playbackContext = usePlayback();
 	const clipContext = useClip();

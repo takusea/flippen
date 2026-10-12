@@ -6,13 +6,7 @@ type Props = React.ComponentProps<typeof TooltipPrimitive.Root> & {
 	side: "top" | "right" | "bottom" | "left";
 };
 
-const Tooltip: React.FC<Props> = ({
-	label,
-	shortcut,
-	side,
-	children,
-	...props
-}) => {
+const Tooltip = ({ label, shortcut, side, children, ...props }: Props) => {
 	return (
 		<TooltipPrimitive.Root {...props}>
 			<TooltipPrimitive.Trigger asChild>{children}</TooltipPrimitive.Trigger>

@@ -1,28 +1,29 @@
-import type { ReactNode } from "react";
+import type { JSX } from "react";
 
 type Size = "small" | "medium" | "large";
 
 type Props = {
-	children: ReactNode;
+	children: JSX.Element;
 	size?: Size;
 };
 
-const Card: React.FC<Props> = (props) => {
-	const padding = (size: Size | undefined) => {
-		if (size === "small") {
+const padding = (size: Size) => {
+	switch (size) {
+		case "small":
 			return "p-2 rounded-xl";
-		}
-		if (size === "large") {
+		case "medium":
+			return "p-4 rounded-2xl";
+		case "large":
 			return "p-8 rounded-3xl";
-		}
-		return "p-4 rounded-2xl";
-	};
+	}
+};
 
+const Card = ({ children, size = "medium" }: Props) => {
 	return (
 		<div
-			className={`border border-zinc-500/40 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl ${padding(props.size)}`}
+			className={`border border-zinc-500/40 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl ${padding(size)}`}
 		>
-			{props.children}
+			{children}
 		</div>
 	);
 };

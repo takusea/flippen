@@ -6,7 +6,7 @@ type Props = {
 	onCurrentColorChange: (color: HSVAColor) => void;
 };
 
-const ColorPicker: React.FC<Props> = (props) => {
+const ColorPicker = ({ currentColor, onCurrentColorChange }: Props) => {
 	const handleHueMove = (event: React.PointerEvent) => {
 		if (event.buttons === 0) return;
 
@@ -17,8 +17,8 @@ const ColorPicker: React.FC<Props> = (props) => {
 		const y = event.clientY - rect.top - event.currentTarget.clientHeight / 2;
 		const angle = (Math.atan2(y, x) * 180) / Math.PI;
 
-		props.onCurrentColorChange({
-			...props.currentColor,
+		onCurrentColorChange({
+			...currentColor,
 			h: (angle + 510) % 360,
 		});
 	};
@@ -38,8 +38,8 @@ const ColorPicker: React.FC<Props> = (props) => {
 			Math.min(1 - y / event.currentTarget.clientHeight, 1),
 		);
 
-		props.onCurrentColorChange({
-			...props.currentColor,
+		onCurrentColorChange({
+			...currentColor,
 			s,
 			v,
 		});
@@ -48,7 +48,7 @@ const ColorPicker: React.FC<Props> = (props) => {
 	return (
 		<div className="flex flex-col gap-1">
 			<div
-				style={{ "--hue": props.currentColor.h } as React.CSSProperties}
+				style={{ "--hue": currentColor.h } as React.CSSProperties}
 				className="relative w-full h-auto aspect-square p-[20%] touch-none"
 			>
 				<div
@@ -57,8 +57,8 @@ const ColorPicker: React.FC<Props> = (props) => {
 				>
 					<div
 						style={{
-							top: `${50 + Math.sin(props.currentColor.h / 57 - 2.6) * 46}%`,
-							left: `${50 + Math.cos(props.currentColor.h / 57 - 2.6) * 46}%`,
+							top: `${50 + Math.sin(currentColor.h / 57 - 2.6) * 46}%`,
+							left: `${50 + Math.cos(currentColor.h / 57 - 2.6) * 46}%`,
 						}}
 						className="pointer-events-none absolute translate-x-[-50%] translate-y-[-50%] w-2 h-2 border border-black shadow-inner shadow-white rounded-full"
 					/>
@@ -69,8 +69,8 @@ const ColorPicker: React.FC<Props> = (props) => {
 				>
 					<div
 						style={{
-							bottom: `${props.currentColor.v * 100}%`,
-							left: `${props.currentColor.s * 100}%`,
+							bottom: `${currentColor.v * 100}%`,
+							left: `${currentColor.s * 100}%`,
 						}}
 						className="pointer-events-none absolute translate-x-[-50%] translate-y-[50%] w-2 h-2 border border-black shadow-inner shadow-white rounded-full"
 					/>
@@ -79,10 +79,10 @@ const ColorPicker: React.FC<Props> = (props) => {
 			<Slider
 				min={0}
 				max={255}
-				value={[props.currentColor.a]}
+				value={[currentColor.a]}
 				onValueChange={(value) => {
-					props.onCurrentColorChange({
-						...props.currentColor,
+					onCurrentColorChange({
+						...currentColor,
 						a: value[0],
 					});
 				}}

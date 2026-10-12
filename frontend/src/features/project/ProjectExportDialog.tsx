@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent } from "~/components/Dialog";
+import Dialog from "~/components/Dialog";
 import Select from "~/components/Select/Select";
 import SelectItem from "~/components/Select/SelectItem";
 import { useDialogs } from "~/editor/dialogs/useDialogs";
@@ -13,45 +13,44 @@ type Props = {
 	onOpenChange: (open: boolean) => void;
 };
 
-const ProjectExportDialog: React.FC<Props> = ({ open, onOpenChange }) => {
+const ProjectExportDialog = (props: Props) => {
 	const { t } = useI18n();
 	const dialogs = useDialogs();
 	const { exportAs } = useProjectExport();
 	const [format, setFormat] = useState<ProjectExportFormat>("gif");
 
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent
-				title={t("projectExport.title")}
-				cancelText={t("common.cancel")}
-				submitText={t("nav.export")}
-				onSubmit={() => {
-					dialogs.close();
-					void exportAs(format);
-				}}
-			>
-				<div className="flex flex-col gap-2">
-					<label htmlFor="project-export-format">
-						{t("projectExport.format")}
-					</label>
-					<Select
-						id="project-export-format"
-						label={t("projectExport.format")}
-						value={format}
-						onValueChange={(value) => {
-							if (isProjectExportFormat(value)) {
-								setFormat(value);
-							}
-						}}
-					>
-						{projectExporters.map((exporter) => (
-							<SelectItem key={exporter.format} value={exporter.format}>
-								{t(exporter.labelKey)}
-							</SelectItem>
-						))}
-					</Select>
-				</div>
-			</DialogContent>
+		<Dialog
+			{...props}
+			title={t("projectExport.title")}
+			cancelText={t("common.cancel")}
+			submitText={t("nav.export")}
+			onSubmit={() => {
+				dialogs.close();
+				void exportAs(format);
+			}}
+		>
+			<div className="flex flex-col gap-2">
+				<label htmlFor="project-export-format">
+					{t("projectExport.format")}
+				</label>
+				<Select
+					id="project-export-format"
+					label={t("projectExport.format")}
+					value={format}
+					onValueChange={(value) => {
+						if (isProjectExportFormat(value)) {
+							setFormat(value);
+						}
+					}}
+				>
+					{projectExporters.map((exporter) => (
+						<SelectItem key={exporter.format} value={exporter.format}>
+							{t(exporter.labelKey)}
+						</SelectItem>
+					))}
+				</Select>
+			</div>
 		</Dialog>
 	);
 };

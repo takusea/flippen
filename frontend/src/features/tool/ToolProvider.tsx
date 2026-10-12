@@ -1,12 +1,14 @@
-import { useEffect, useState } from "react";
+import { type JSX, useEffect, useState } from "react";
 import { useCore } from "~/core/useCore";
 import type { HSVAColor } from "~/lib/color";
 import { ToolContext } from "./ToolContext";
 import type { ToolKind } from "./type";
 
-export const ToolProvider: React.FC<{ children: React.ReactNode }> = ({
-	children,
-}) => {
+type Props = {
+	children: JSX.Element;
+};
+
+export const ToolProvider = ({ children }: Props) => {
 	const core = useCore();
 
 	const [tool, setTool] = useState<ToolKind>("pen");

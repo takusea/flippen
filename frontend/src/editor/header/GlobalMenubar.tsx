@@ -14,7 +14,7 @@ import { formatShortcut } from "~/features/shortcuts/shortcutDefinitions";
 import { useShortcuts } from "~/features/shortcuts/useShortcuts";
 import { useCanvasView } from "../canvas/useCanvasView";
 
-const GlobalMenubar: React.FC = () => {
+const GlobalMenubar = () => {
 	const { t } = useI18n();
 	const { shortcuts } = useShortcuts();
 	const undoStack = useUndoStack();

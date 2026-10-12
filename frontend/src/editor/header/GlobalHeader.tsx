@@ -10,7 +10,7 @@ import { useProject } from "~/features/project/useProject";
 import { useProjectExport } from "~/features/project/useProjectExport";
 import GlobalMenubar from "./GlobalMenubar";
 
-const GlobalHeader: React.FC = () => {
+const GlobalHeader = () => {
 	const isDesktop: boolean = useMediaQuery("(min-width: 720px)");
 	const { t } = useI18n();
 	const project = useProject();

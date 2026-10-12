@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Button from "~/components/Button";
-import { Dialog, DialogContent } from "~/components/Dialog";
+import Dialog from "~/components/Dialog";
 import { useI18n } from "~/features/i18n/useI18n";
 import {
 	formatShortcut,
@@ -52,7 +52,7 @@ const getShortcutFromEvent = (event: React.KeyboardEvent): string | null => {
 		.join("+");
 };
 
-const ShortcutSettingsDialog: React.FC<Props> = ({ open, onOpenChange }) => {
+const ShortcutSettingsDialog = (props: Props) => {
 	const { t } = useI18n();
 	const { shortcuts, setShortcut, resetShortcuts } = useShortcuts();
 	const [recording, setRecording] = useState<ShortcutId | null>(null);
@@ -60,79 +60,76 @@ const ShortcutSettingsDialog: React.FC<Props> = ({ open, onOpenChange }) => {
 
 	return (
 		<Dialog
-			open={open}
+			open={props.open}
 			onOpenChange={(nextOpen) => {
 				setRecording(null);
 				setConflict(false);
-				onOpenChange(nextOpen);
+				props.onOpenChange(nextOpen);
 			}}
+			title={t("shortcutSettings.title")}
+			cancelText={t("common.close")}
 		>
-			<DialogContent
-				title={t("shortcutSettings.title")}
-				cancelText={t("common.close")}
-			>
-				<div className="max-h-[60vh] overflow-y-auto">
-					<div className="flex flex-col gap-2">
-						{(
-							Object.entries(shortcutDefinitions) as [
-								ShortcutId,
-								(typeof shortcutDefinitions)[ShortcutId],
-							][]
-						).map(([id, definition]) => (
-							<div key={id} className="flex items-center justify-between gap-4">
-								<span>{t(definition.label)}</span>
-								<Button
-									onClick={() => {
-										setRecording(id);
-										setConflict(false);
-									}}
-									onKeyDown={(event) => {
-										if (recording !== id) return;
-										event.preventDefault();
-										event.stopPropagation();
-										const nextShortcut = getShortcutFromEvent(event);
-										if (nextShortcut == null) return;
-										if (
-											Object.entries(shortcuts).some(
-												([otherId, value]) =>
-													otherId !== id && value === nextShortcut,
-											)
-										) {
-											setConflict(true);
-											return;
-										}
-										setShortcut(id, nextShortcut);
-										setRecording(null);
-										setConflict(false);
-									}}
-									label={
-										recording === id
-											? t("shortcutSettings.pressKeys")
-											: formatShortcut(shortcuts[id])
+			<div className="max-h-[60vh] overflow-y-auto">
+				<div className="flex flex-col gap-2">
+					{(
+						Object.entries(shortcutDefinitions) as [
+							ShortcutId,
+							(typeof shortcutDefinitions)[ShortcutId],
+						][]
+					).map(([id, definition]) => (
+						<div key={id} className="flex items-center justify-between gap-4">
+							<span>{t(definition.label)}</span>
+							<Button
+								onClick={() => {
+									setRecording(id);
+									setConflict(false);
+								}}
+								onKeyDown={(event) => {
+									if (recording !== id) return;
+									event.preventDefault();
+									event.stopPropagation();
+									const nextShortcut = getShortcutFromEvent(event);
+									if (nextShortcut == null) return;
+									if (
+										Object.entries(shortcuts).some(
+											([otherId, value]) =>
+												otherId !== id && value === nextShortcut,
+										)
+									) {
+										setConflict(true);
+										return;
 									}
-								></Button>
-							</div>
-						))}
-					</div>
+									setShortcut(id, nextShortcut);
+									setRecording(null);
+									setConflict(false);
+								}}
+								label={
+									recording === id
+										? t("shortcutSettings.pressKeys")
+										: formatShortcut(shortcuts[id])
+								}
+							></Button>
+						</div>
+					))}
 				</div>
-				<div className="mt-2 grid grid-cols-[1fr_auto]">
-					{conflict && (
-						<p role="alert" className="mt-2 text-red-600">
-							{t("shortcutSettings.conflict")}
-						</p>
-					)}
-					<div className="col-start-2">
-						<Button
-							label={t("shortcutSettings.reset")}
-							onClick={() => {
-								resetShortcuts();
-								setRecording(null);
-								setConflict(false);
-							}}
-						/>
-					</div>
+			</div>
+			<div className="mt-2 grid grid-cols-[1fr_auto]">
+				{conflict && (
+					<p role="alert" className="mt-2 text-red-600">
+						{t("shortcutSettings.conflict")}
+					</p>
+				)}
+				<div className="col-start-2">
+					<Button
+						label={t("shortcutSettings.reset")}
+						onClick={() => {
+							resetShortcuts();
+							setRecording(null);
+							setConflict(false);
+						}}
+					/>
 				</div>
-			</DialogContent>
+			</div>
 		</Dialog>
 	);
 };

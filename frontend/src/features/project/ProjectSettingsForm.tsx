@@ -8,7 +8,10 @@ type Props = {
 	onProjectSettingsChanged: (projectSettings: ProjectSettings) => void;
 };
 
-const ProjectSettingsForm = (props: Props) => {
+const ProjectSettingsForm = ({
+	projectSettings,
+	onProjectSettingsChanged,
+}: Props) => {
 	const { t } = useI18n();
 
 	return (
@@ -16,10 +19,10 @@ const ProjectSettingsForm = (props: Props) => {
 			<label htmlFor="title">{t("project.name")}</label>
 			<TextField
 				id="title"
-				value={props.projectSettings.title}
+				value={projectSettings.title}
 				onValueChange={(title) =>
-					props.onProjectSettingsChanged({
-						...props.projectSettings,
+					onProjectSettingsChanged({
+						...projectSettings,
 						title,
 					})
 				}
@@ -27,32 +30,32 @@ const ProjectSettingsForm = (props: Props) => {
 			<label htmlFor="width">{t("project.width")}</label>
 			<NumberField
 				id="width"
-				value={props.projectSettings.width}
+				value={projectSettings.width}
 				min={0}
 				max={10000}
 				onValueChange={(width) =>
-					props.onProjectSettingsChanged({ ...props.projectSettings, width })
+					onProjectSettingsChanged({ ...projectSettings, width })
 				}
 			/>
 			<label htmlFor="height">{t("project.height")}</label>
 			<NumberField
 				id="height"
-				value={props.projectSettings.height}
+				value={projectSettings.height}
 				min={0}
 				max={10000}
 				onValueChange={(height) =>
-					props.onProjectSettingsChanged({ ...props.projectSettings, height })
+					onProjectSettingsChanged({ ...projectSettings, height })
 				}
 			/>
 			<label htmlFor="frameRate">{t("project.frameRate")}</label>
 			<NumberField
 				id="frameRate"
-				value={props.projectSettings.frameRate}
+				value={projectSettings.frameRate}
 				min={0}
 				max={1000}
 				onValueChange={(frameRate) =>
-					props.onProjectSettingsChanged({
-						...props.projectSettings,
+					onProjectSettingsChanged({
+						...projectSettings,
 						frameRate,
 					})
 				}
@@ -60,12 +63,12 @@ const ProjectSettingsForm = (props: Props) => {
 			<label htmlFor="startFrame">{t("project.startFrame")}</label>
 			<NumberField
 				id="startFrame"
-				value={props.projectSettings.startFrame}
+				value={projectSettings.startFrame}
 				min={0}
-				max={props.projectSettings.endFrame}
+				max={projectSettings.endFrame}
 				onValueChange={(startFrame) =>
-					props.onProjectSettingsChanged({
-						...props.projectSettings,
+					onProjectSettingsChanged({
+						...projectSettings,
 						startFrame,
 					})
 				}
@@ -73,12 +76,12 @@ const ProjectSettingsForm = (props: Props) => {
 			<label htmlFor="endFrame">{t("project.endFrame")}</label>
 			<NumberField
 				id="endFrame"
-				value={props.projectSettings.endFrame}
-				min={props.projectSettings.startFrame}
+				value={projectSettings.endFrame}
+				min={projectSettings.startFrame}
 				max={MAX_FRAME_INDEX}
 				onValueChange={(endFrame) =>
-					props.onProjectSettingsChanged({
-						...props.projectSettings,
+					onProjectSettingsChanged({
+						...projectSettings,
 						endFrame,
 					})
 				}

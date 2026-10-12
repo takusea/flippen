@@ -1,27 +1,19 @@
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 
-type Props = Omit<
-	React.ComponentProps<"input">,
-	"className" | "type" | "min" | "max" | "value" | "defaultValue"
-> & {
-	min?: number;
-	max?: number;
-	value?: number;
-	defaultValue?: number;
+type Props = Omit<React.ComponentProps<"input">, "className" | "type"> & {
 	onValueChange?: (value: number) => void;
 	onInteractionStart?: () => void;
 	onInteractionEnd?: () => void;
 };
 
-const NumberField: React.FC<Props> = (props) => {
-	const {
-		onValueChange,
-		onBlur,
-		onInteractionStart,
-		onInteractionEnd,
-		...inputProps
-	} = props;
+const NumberField = ({
+	onValueChange,
+	onBlur,
+	onInteractionStart,
+	onInteractionEnd,
+	...props
+}: Props) => {
 	const input = useRef<HTMLInputElement>(null);
 	const dragValue = useRef<number | null>(null);
 	const lastCommittedValue = useRef<number | null>(null);
@@ -36,8 +28,8 @@ const NumberField: React.FC<Props> = (props) => {
 		);
 	}, [props.value, props.defaultValue]);
 
-	const min = props.min ?? Number.MIN_SAFE_INTEGER;
-	const max = props.max ?? Number.MAX_SAFE_INTEGER;
+	const min = Number(props.min) ?? Number.MIN_SAFE_INTEGER;
+	const max = Number(props.max) ?? Number.MAX_SAFE_INTEGER;
 	const step = Number(props.step ?? 1);
 	const clamp = (value: number) => {
 		return Math.max(min, Math.min(Math.round(value / step) * step, max));
@@ -54,7 +46,7 @@ const NumberField: React.FC<Props> = (props) => {
 			setIsMoved(true);
 		}
 
-		const currentValue = dragValue.current ?? props.value;
+		const currentValue = dragValue.current ?? Number(props.value);
 		const nextValue = clamp(currentValue + event.movementX * step);
 		dragValue.current = nextValue;
 		onValueChange?.(nextValue);
@@ -145,7 +137,7 @@ const NumberField: React.FC<Props> = (props) => {
 			}}
 		>
 			<input
-				{...inputProps}
+				{...props}
 				ref={input}
 				type="number"
 				value={innerValue}

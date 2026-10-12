@@ -8,7 +8,7 @@ type Props = {
 	onPropertyChange: (key: string, value: unknown) => void;
 };
 
-const ToolInspector: React.FC<Props> = (props) => {
+const ToolInspector = ({ properties, onPropertyChange }: Props) => {
 	const { t } = useI18n();
 	const toolContext = useTool();
 
@@ -20,7 +20,7 @@ const ToolInspector: React.FC<Props> = (props) => {
 						tool: toolContext.tool.toUpperCase(),
 					})}
 				</h2>
-				{Object.entries(props.properties).map(([key, value]) => {
+				{Object.entries(properties).map(([key, value]) => {
 					const numericValue =
 						typeof value === "number" ? value : Number(value);
 					const safeValue = Number.isFinite(numericValue) ? numericValue : 0;
@@ -36,7 +36,7 @@ const ToolInspector: React.FC<Props> = (props) => {
 								max={1000}
 								value={[safeValue]}
 								onValueChange={(value) => {
-									props.onPropertyChange(key, value[0]);
+									onPropertyChange(key, value[0]);
 								}}
 							/>
 						</div>

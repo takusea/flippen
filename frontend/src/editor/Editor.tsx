@@ -24,7 +24,6 @@ import { useLayer } from "~/features/layer/useLayer";
 import { useProject } from "~/features/project/useProject";
 import { useTool } from "~/features/tool/useTool";
 import DrawCanvas from "./canvas/Canvas";
-import { useCanvasView } from "./canvas/useCanvasView";
 
 const SPLITTER_HEIGHT = 8;
 const MIN_CANVAS_HEIGHT = 160;
@@ -35,7 +34,6 @@ const Editor = () => {
 	const [isToolInspectorOpen, toggleIsToolInspectorOpen] = useToggle(false);
 	const [isClipInspectorOpen, toggleIsClipInspectorOpen] = useToggle(false);
 	const { t } = useI18n();
-	const canvasView = useCanvasView();
 	const toolContext = useTool();
 	const core = useCore();
 	const project = useProject();
@@ -77,7 +75,7 @@ const Editor = () => {
 			<GlobalHeader />
 			<main className="relative bg-zinc-50 dark:bg-zinc-950">
 				{project.settings ? (
-					<DrawCanvas canvasView={canvasView} />
+					<DrawCanvas />
 				) : (
 					<div className="absolute grid place-content-center w-full h-full gap-2">
 						<Button

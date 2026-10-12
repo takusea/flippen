@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { type JSX, useEffect, useState } from "react";
 import { useCore } from "~/core/useCore";
 import {
 	DEFAULT_END_FRAME,
@@ -10,9 +10,11 @@ import { PlaybackContext } from "./PlaybackContext";
 
 const FRAME_RANGE_BUFFER = 256;
 
-export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({
-	children,
-}) => {
+type Props = {
+	children: JSX.Element;
+};
+
+export const PlaybackProvider = ({ children }: Props) => {
 	const core = useCore();
 	const project = useProject();
 

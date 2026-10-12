@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent } from "~/components/Dialog";
+import Dialog from "~/components/Dialog";
 import { useI18n } from "~/features/i18n/useI18n";
 import ProjectSettingsForm from "./ProjectSettingsForm";
 import { DEFAULT_END_FRAME, DEFAULT_START_FRAME } from "./type";
@@ -10,7 +10,7 @@ type Props = {
 	onOpenChange: (open: boolean) => void;
 };
 
-const CreateNewProjectDialog: React.FC<Props> = ({ open, onOpenChange }) => {
+const CreateNewProjectDialog = (props: Props) => {
 	const { t } = useI18n();
 	const project = useProject();
 
@@ -26,18 +26,17 @@ const CreateNewProjectDialog: React.FC<Props> = ({ open, onOpenChange }) => {
 	);
 
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent
-				title={t("project.create")}
-				cancelText={t("common.cancel")}
-				submitText={t("project.createAction")}
-				onSubmit={() => project.createNew(projectSettings)}
-			>
-				<ProjectSettingsForm
-					projectSettings={projectSettings}
-					onProjectSettingsChanged={setProjectSettings}
-				/>
-			</DialogContent>
+		<Dialog
+			{...props}
+			title={t("project.create")}
+			cancelText={t("common.cancel")}
+			submitText={t("project.createAction")}
+			onSubmit={() => project.createNew(projectSettings)}
+		>
+			<ProjectSettingsForm
+				projectSettings={projectSettings}
+				onProjectSettingsChanged={setProjectSettings}
+			/>
 		</Dialog>
 	);
 };
