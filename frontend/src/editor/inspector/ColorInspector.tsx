@@ -1,8 +1,8 @@
+import Card from "~/components/Card";
+import ColorPalette from "~/components/ColorPalette";
+import ColorPicker from "~/components/ColorPicker";
 import { useI18n } from "~/features/i18n/useI18n";
-import { type HSVAColor, hsvaToRgba } from "~/shared/lib/color";
-import Card from "~/shared/ui/Card";
-import ColorPalette from "~/shared/ui/ColorPalette";
-import ColorPicker from "~/shared/ui/ColorPicker";
+import { type HSVAColor, hsvaToRgba } from "~/lib/color";
 
 type Props = {
 	currentColor: HSVAColor;

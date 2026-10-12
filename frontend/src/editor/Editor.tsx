@@ -6,31 +6,31 @@ import {
 } from "@tabler/icons-react";
 import { type RefObject, useRef, useState } from "react";
 import { useMediaQuery, useOnClickOutside, useToggle } from "usehooks-ts";
+import Button from "~/components/Button";
+import Card from "~/components/Card";
+import IconButton from "~/components/IconButton";
+import Splitter from "~/components/Splitter";
+import { useCore } from "~/core/useCore";
+import { useDialogs } from "~/editor/dialogs/useDialogs";
+import GlobalHeader from "~/editor/header/GlobalHeader";
+import ClipInspector from "~/editor/inspector/ClipInspector";
+import ColorInspector from "~/editor/inspector/ColorInspector";
+import ToolInspector from "~/editor/inspector/ToolInspector";
+import Timeline from "~/editor/timeline/Timeline";
+import Toolbar from "~/editor/toolbar";
 import { useClip } from "~/features/clip/useClip";
 import { useI18n } from "~/features/i18n/useI18n";
 import { useLayer } from "~/features/layer/useLayer";
 import { useProject } from "~/features/project/useProject";
 import { useTool } from "~/features/tool/useTool";
-import { useCore } from "~/infrastructure/core/useCore";
-import Button from "~/shared/ui/Button";
-import Card from "~/shared/ui/Card";
-import IconButton from "~/shared/ui/IconButton";
-import Splitter from "~/shared/ui/Splitter";
-import DrawCanvas from "~/widgets/canvas/Canvas";
-import { useCanvasView } from "~/widgets/canvas/useCanvasView";
-import { useDialogs } from "~/widgets/dialogs/useDialogs";
-import GlobalHeader from "~/widgets/header/GlobalHeader";
-import ClipInspector from "~/widgets/inspector/ClipInspector";
-import ColorInspector from "~/widgets/inspector/ColorInspector";
-import ToolInspector from "~/widgets/inspector/ToolInspector";
-import Timeline from "~/widgets/timeline/Timeline";
-import Toolbar from "~/widgets/toolbar";
+import DrawCanvas from "./canvas/Canvas";
+import { useCanvasView } from "./canvas/useCanvasView";
 
 const SPLITTER_HEIGHT = 8;
 const MIN_CANVAS_HEIGHT = 160;
 const MIN_TIMELINE_HEIGHT = 96;
 
-const App: React.FC = () => {
+const Editor = () => {
 	const isDesktop: boolean = useMediaQuery("(min-width: 720px)");
 	const [isToolInspectorOpen, toggleIsToolInspectorOpen] = useToggle(false);
 	const [isClipInspectorOpen, toggleIsClipInspectorOpen] = useToggle(false);
@@ -213,4 +213,4 @@ const App: React.FC = () => {
 	);
 };
 
-export default App;
+export default Editor;

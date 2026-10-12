@@ -1,6 +1,6 @@
+import NumberField from "~/components/NumberField";
+import TextField from "~/components/TextField";
 import { useI18n } from "~/features/i18n/useI18n";
-import NumberField from "~/shared/ui/NumberField";
-import TextField from "~/shared/ui/TextField";
 import { MAX_FRAME_INDEX, type ProjectSettings } from "./type";
 
 type Props = {

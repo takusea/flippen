@@ -1,9 +1,7 @@
-import { useEffect } from "react";
-import { useLocalStorage, useTernaryDarkMode } from "usehooks-ts";
-import { Dialog, DialogContent } from "~/shared/ui/Dialog";
-import RadioGroup from "~/shared/ui/RadioGroup";
-import RadioGroupItem from "~/shared/ui/RadioGroupItem";
-import Slider from "~/shared/ui/Slider";
+import { Dialog, DialogContent } from "~/components/Dialog";
+import RadioGroup from "~/components/RadioGroup/RadioGroup";
+import RadioGroupItem from "~/components/RadioGroup/RadioGroupItem";
+import Slider from "~/components/Slider";
 import { useI18n } from "../i18n/useI18n";
 import { useAppearance } from "./useAppearance";
 

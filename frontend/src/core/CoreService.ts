@@ -1,8 +1,8 @@
 import type { ProjectSettings } from "~/features/project/type";
-import init, { FlippenCore } from "~/infrastructure/wasm/flippen_wasm";
-import type { ClipMetadata, ClipProperties } from "~/shared/lib/clip";
-import type { LayerId, LayerState } from "~/shared/lib/layer";
-import type { Transform } from "~/shared/lib/transform";
+import type { ClipMetadata, ClipProperties } from "~/lib/clip";
+import type { LayerId, LayerState } from "~/lib/layer";
+import type { Transform } from "~/lib/transform";
+import init, { FlippenCore } from "./wasm/flippen_wasm";
 
 type WasmOperation<T> = (core: FlippenCore) => T | PromiseLike<T>;
 
@@ -347,10 +347,16 @@ export class CoreService {
 		return this.enqueue((core) => core.render_frame(frame));
 	}
 
-	renderFrameToCanvas(frame: number, canvas: HTMLCanvasElement, onionLayerId?: LayerId | null) {
-		return this.enqueue((core) => onionLayerId == null
-			? core.render_frame_to_canvas(frame, canvas)
-			: core.render_frame_to_canvas_with_onion(frame, canvas, onionLayerId));
+	renderFrameToCanvas(
+		frame: number,
+		canvas: HTMLCanvasElement,
+		onionLayerId?: LayerId | null,
+	) {
+		return this.enqueue((core) =>
+			onionLayerId == null
+				? core.render_frame_to_canvas(frame, canvas)
+				: core.render_frame_to_canvas_with_onion(frame, canvas, onionLayerId),
+		);
 	}
 
 	runOperation<T>(operation: WasmOperation<T>, notify = false) {

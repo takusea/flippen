@@ -1,6 +1,6 @@
-import { useCore } from "~/infrastructure/core/useCore";
-import type { ClipMetadata, ClipProperties } from "~/shared/lib/clip";
-import type { LayerId } from "~/shared/lib/layer";
+import { useCore } from "~/core/useCore";
+import type { ClipMetadata, ClipProperties } from "~/lib/clip";
+import type { LayerId } from "~/lib/layer";
 
 type Options = {
 	clips: ClipMetadata[];

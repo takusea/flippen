@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
+import { useCore } from "~/core/useCore";
 import { useTool } from "~/features/tool/useTool";
-import { useCore } from "~/infrastructure/core/useCore";
-import { hsvaToRgba } from "~/shared/lib/color";
+import { hsvaToRgba } from "~/lib/color";
 import type { DrawState } from "./type";
 
 export const useCanvasDraw = () => {

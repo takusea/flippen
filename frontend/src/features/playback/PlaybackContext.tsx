@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
+import { useCore } from "~/core/useCore";
 import {
 	DEFAULT_END_FRAME,
 	DEFAULT_START_FRAME,
 	MAX_FRAME_INDEX,
 } from "~/features/project/type";
 import { useProject } from "~/features/project/useProject";
-import { useCore } from "~/infrastructure/core/useCore";
 import { PlaybackContext } from "./PlaybackContextValue";
 
 const FRAME_RANGE_BUFFER = 256;

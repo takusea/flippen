@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import type { ClipMetadata } from "~/shared/lib/clip";
-import type { LayerId } from "~/shared/lib/layer";
+import type { ClipMetadata } from "~/lib/clip";
+import type { LayerId } from "~/lib/layer";
 
 type SelectionRectangle = {
 	x: number;

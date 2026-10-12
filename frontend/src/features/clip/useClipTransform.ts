@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useCore } from "~/infrastructure/core/useCore";
-import type { ClipMetadata } from "~/shared/lib/clip";
-import type { LayerId } from "~/shared/lib/layer";
-import type { Transform } from "~/shared/lib/transform";
+import { useCore } from "~/core/useCore";
+import type { ClipMetadata } from "~/lib/clip";
+import type { LayerId } from "~/lib/layer";
+import type { Transform } from "~/lib/transform";
 
 type Options = {
 	clips: ClipMetadata[];

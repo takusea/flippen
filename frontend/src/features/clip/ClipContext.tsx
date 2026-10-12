@@ -1,13 +1,13 @@
+import { useMemo } from "react";
+import { useCoreSnapshot } from "~/core/useCoreSnapshot";
 import { useLayer } from "~/features/layer/useLayer";
 import { usePlayback } from "~/features/playback/usePlayback";
 import { useProject } from "~/features/project/useProject";
-import { useCoreSnapshot } from "~/infrastructure/core/useCoreSnapshot";
 import { ClipContext } from "./ClipContextValue";
 import { useClipboard } from "./useClipboard";
 import { useClipCommands } from "./useClipCommands";
 import { useClipSelection } from "./useClipSelection";
 import { useClipTransform } from "./useClipTransform";
-import { useCurrentClip } from "./useCurrentClip";
 
 export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 	children,
@@ -17,11 +17,19 @@ export const ClipProvider: React.FC<{ children: React.ReactNode }> = ({
 	const projectContext = useProject();
 	const { clips, revision } = useCoreSnapshot();
 
-	const currentClip = useCurrentClip(
-		clips,
-		layerContext.selectedLayerId,
-		playbackContext.currentFrame,
+	const currentClip = useMemo(
+		() =>
+			layerContext.selectedLayerId == null
+				? undefined
+				: clips.find(
+						(clip) =>
+							clip.layer_id === layerContext.selectedLayerId &&
+							clip.start <= playbackContext.currentFrame &&
+							playbackContext.currentFrame < clip.start + clip.duration,
+					),
+		[clips, playbackContext.currentFrame, layerContext.selectedLayerId],
 	);
+
 	const selectionState = useClipSelection({
 		clips,
 		currentClip,

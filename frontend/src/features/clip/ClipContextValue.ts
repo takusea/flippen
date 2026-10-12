@@ -1,7 +1,7 @@
 import { createContext } from "react";
-import type { ClipMetadata, ClipProperties } from "~/shared/lib/clip";
-import type { LayerId } from "~/shared/lib/layer";
-import type { Transform } from "~/shared/lib/transform";
+import type { ClipMetadata, ClipProperties } from "~/lib/clip";
+import type { LayerId } from "~/lib/layer";
+import type { Transform } from "~/lib/transform";
 
 export type ClipContextValue = {
 	clips: ClipMetadata[];

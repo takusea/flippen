@@ -1,4 +1,10 @@
 import { useHotkeys } from "react-hotkeys-hook";
+import MenubarCheckboxItem from "~/components/Menubar/MenubarCheckboxItem";
+import MenubarItem from "~/components/Menubar/MenubarItem";
+import MenubarMenu from "~/components/Menubar/MenubarMenu";
+import MenubarRoot from "~/components/Menubar/MenubarRoot";
+import MenubarSeparator from "~/components/Menubar/MenubarSeparator";
+import { useDialogs } from "~/editor/dialogs/useDialogs";
 import { useClip } from "~/features/clip/useClip";
 import { useUndoStack } from "~/features/history/useUndoStack";
 import { useI18n } from "~/features/i18n/useI18n";
@@ -6,13 +12,7 @@ import { usePlayback } from "~/features/playback/usePlayback";
 import { useProject } from "~/features/project/useProject";
 import { formatShortcut } from "~/features/shortcuts/shortcutDefinitions";
 import { useShortcuts } from "~/features/shortcuts/useShortcuts";
-import MenubarCheckboxItem from "~/shared/ui/Menubar/MenubarCheckboxItem";
-import MenubarItem from "~/shared/ui/Menubar/MenubarItem";
-import MenubarMenu from "~/shared/ui/Menubar/MenubarMenu";
-import MenubarRoot from "~/shared/ui/Menubar/MenubarRoot";
-import MenubarSeparator from "~/shared/ui/Menubar/MenubarSeparator";
-import { useCanvasView } from "~/widgets/canvas/useCanvasView";
-import { useDialogs } from "~/widgets/dialogs/useDialogs";
+import { useCanvasView } from "../canvas/useCanvasView";
 
 const GlobalMenubar: React.FC = () => {
 	const { t } = useI18n();

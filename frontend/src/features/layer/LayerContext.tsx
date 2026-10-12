@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useCore } from "~/infrastructure/core/useCore";
-import { useCoreSnapshot } from "~/infrastructure/core/useCoreSnapshot";
-import type { LayerId } from "~/shared/lib/layer";
+import { useCore } from "~/core/useCore";
+import { useCoreSnapshot } from "~/core/useCoreSnapshot";
+import type { LayerId } from "~/lib/layer";
 import { LayerContext } from "./LayerContextValue";
 
 export const LayerProvider: React.FC<{ children: React.ReactNode }> = ({

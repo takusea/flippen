@@ -1,11 +1,11 @@
 import { useRef } from "react";
+import { useCore } from "~/core/useCore";
 import { useClip } from "~/features/clip/useClip";
 import { useLayer } from "~/features/layer/useLayer";
 import { usePlayback } from "~/features/playback/usePlayback";
 import { useTool } from "~/features/tool/useTool";
-import { useCore } from "~/infrastructure/core/useCore";
-import { rgbaToHsva } from "~/shared/lib/color";
-import type { Transform } from "~/shared/lib/transform";
+import { rgbaToHsva } from "~/lib/color";
+import type { Transform } from "~/lib/transform";
 import { useCanvasDraw } from "./useCanvasDraw";
 import { useCanvasSelection } from "./useCanvasSelection";
 import type { useCanvasView } from "./useCanvasView";

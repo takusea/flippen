@@ -1,11 +1,11 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
+import { useCore } from "~/core/useCore";
 import { useClip } from "~/features/clip/useClip";
 import { useLayer } from "~/features/layer/useLayer";
 import { usePlayback } from "~/features/playback/usePlayback";
 import { useProject } from "~/features/project/useProject";
 import { useShortcuts } from "~/features/shortcuts/useShortcuts";
-import { useCore } from "~/infrastructure/core/useCore";
 import Clip from "./Clip";
 import TrackHeader from "./TrackHeader";
 import TrackSide from "./TrackSide";

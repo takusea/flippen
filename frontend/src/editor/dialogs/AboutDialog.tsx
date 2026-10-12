@@ -1,5 +1,5 @@
+import { Dialog, DialogContent } from "~/components/Dialog";
 import { useI18n } from "~/features/i18n/useI18n";
-import { Dialog, DialogContent } from "~/shared/ui/Dialog";
 
 type Props = {
 	open: boolean;

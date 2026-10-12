@@ -1,6 +1,6 @@
 import { useState } from "react";
+import { Dialog, DialogContent } from "~/components/Dialog";
 import { useI18n } from "~/features/i18n/useI18n";
-import { Dialog, DialogContent } from "~/shared/ui/Dialog";
 import ProjectSettingsForm from "./ProjectSettingsForm";
 import { DEFAULT_END_FRAME, DEFAULT_START_FRAME } from "./type";
 import { useProject } from "./useProject";

@@ -24,6 +24,9 @@ import {
 	IconZoom,
 } from "@tabler/icons-react";
 import { useHotkeys } from "react-hotkeys-hook";
+import Card from "~/components/Card";
+import IconButton from "~/components/IconButton";
+import NumberField from "~/components/NumberField";
 import { useClip } from "~/features/clip/useClip";
 import { useUndoStack } from "~/features/history/useUndoStack";
 import { useI18n } from "~/features/i18n/useI18n";
@@ -31,10 +34,7 @@ import { usePlayback } from "~/features/playback/usePlayback";
 import { formatShortcut } from "~/features/shortcuts/shortcutDefinitions";
 import { useShortcuts } from "~/features/shortcuts/useShortcuts";
 import { useTool } from "~/features/tool/useTool";
-import Card from "~/shared/ui/Card";
-import IconButton from "~/shared/ui/IconButton";
-import NumberField from "~/shared/ui/NumberField";
-import { useCanvasView } from "~/widgets/canvas/useCanvasView";
+import { useCanvasView } from "../canvas/useCanvasView";
 
 const Toolbar: React.FC = () => {
 	const { t } = useI18n();

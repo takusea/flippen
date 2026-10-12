@@ -1,13 +1,13 @@
 import { IconFileExport, IconMenu2, IconX } from "@tabler/icons-react";
 import { type RefObject, useRef } from "react";
 import { useMediaQuery, useOnClickOutside, useToggle } from "usehooks-ts";
+import Button from "~/components/Button";
+import IconButton from "~/components/IconButton";
+import Tooltip from "~/components/Tooltip";
+import { useDialogs } from "~/editor/dialogs/useDialogs";
 import { useI18n } from "~/features/i18n/useI18n";
 import { useProject } from "~/features/project/useProject";
 import { useProjectExport } from "~/features/project/useProjectExport";
-import Button from "~/shared/ui/Button";
-import IconButton from "~/shared/ui/IconButton";
-import Tooltip from "~/shared/ui/Tooltip";
-import { useDialogs } from "~/widgets/dialogs/useDialogs";
 import GlobalMenubar from "./GlobalMenubar";
 
 const GlobalHeader: React.FC = () => {

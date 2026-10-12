@@ -1,7 +1,7 @@
 import { useState } from "react";
+import Button from "~/components/Button";
+import { Dialog, DialogContent } from "~/components/Dialog";
 import { useI18n } from "~/features/i18n/useI18n";
-import Button from "~/shared/ui/Button";
-import { Dialog, DialogContent } from "~/shared/ui/Dialog";
 import {
 	formatShortcut,
 	type ShortcutId,

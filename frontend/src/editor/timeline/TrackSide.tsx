@@ -4,9 +4,9 @@ import {
 	IconLock,
 	IconLockOpen,
 } from "@tabler/icons-react";
+import IconButton from "~/components/IconButton";
 import { useI18n } from "~/features/i18n/useI18n";
-import type { LayerId, LayerState } from "~/shared/lib/layer";
-import IconButton from "~/shared/ui/IconButton";
+import type { LayerId, LayerState } from "~/lib/layer";
 
 type Props = {
 	layers: LayerState[];

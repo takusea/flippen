@@ -1,7 +1,7 @@
+import Card from "~/components/Card";
+import Slider from "~/components/Slider";
 import { useI18n } from "~/features/i18n/useI18n";
 import { useTool } from "~/features/tool/useTool";
-import Card from "~/shared/ui/Card";
-import Slider from "~/shared/ui/Slider";
 
 type Props = {
 	properties: { [key: string]: unknown };

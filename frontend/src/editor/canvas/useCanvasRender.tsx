@@ -1,7 +1,7 @@
 import { useRef } from "react";
+import { useCore } from "~/core/useCore";
 import { usePlayback } from "~/features/playback/usePlayback";
-import { useCore } from "~/infrastructure/core/useCore";
-import type { LayerId } from "~/shared/lib/layer";
+import type { LayerId } from "~/lib/layer";
 
 export const useCanvasRender = () => {
 	const playbackContext = usePlayback();

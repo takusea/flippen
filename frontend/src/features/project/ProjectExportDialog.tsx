@@ -1,9 +1,9 @@
 import { useState } from "react";
+import { Dialog, DialogContent } from "~/components/Dialog";
+import Select from "~/components/Select/Select";
+import SelectItem from "~/components/Select/SelectItem";
+import { useDialogs } from "~/editor/dialogs/useDialogs";
 import { useI18n } from "~/features/i18n/useI18n";
-import { Dialog, DialogContent } from "~/shared/ui/Dialog";
-import Select from "~/shared/ui/Select";
-import SelectItem from "~/shared/ui/SelectItem";
-import { useDialogs } from "~/widgets/dialogs/useDialogs";
 import type { ProjectExportFormat } from "./projectExport";
 import { isProjectExportFormat, projectExporters } from "./projectExporters";
 import { useProjectExport } from "./useProjectExport";

@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import type { LayerId, LayerState } from "~/shared/lib/layer";
+import type { LayerId, LayerState } from "~/lib/layer";
 
 export type LayerContextValue = {
 	layers: LayerState[];

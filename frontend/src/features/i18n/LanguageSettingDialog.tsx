@@ -1,6 +1,6 @@
-import { Dialog, DialogContent } from "~/shared/ui/Dialog";
-import RadioGroup from "~/shared/ui/RadioGroup";
-import RadioGroupItem from "~/shared/ui/RadioGroupItem";
+import { Dialog, DialogContent } from "~/components/Dialog";
+import RadioGroup from "~/components/RadioGroup/RadioGroup";
+import RadioGroupItem from "~/components/RadioGroup/RadioGroupItem";
 import { useI18n } from "./useI18n";
 
 type Props = {

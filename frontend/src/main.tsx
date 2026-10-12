@@ -1,8 +1,8 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./main.css";
-import Editor from "~/app/App";
-import AppProviders from "~/app/AppProviders";
+import Editor from "~/editor/Editor";
+import AppProviders from "~/editor/EditorProviders";
 
 const preventDefault = (event: Event) => event.preventDefault();
 const preventWheelDefault = (event: WheelEvent) => {

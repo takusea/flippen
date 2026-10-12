@@ -5,15 +5,15 @@ import {
 	IconLock,
 	IconLockOpen,
 } from "@tabler/icons-react";
+import Card from "~/components/Card";
+import IconButton from "~/components/IconButton";
+import NumberField from "~/components/NumberField";
+import Select from "~/components/Select/Select";
+import SelectItem from "~/components/Select/SelectItem";
+import TextField from "~/components/TextField";
 import { useI18n } from "~/features/i18n/useI18n";
-import type { ClipMetadata, ClipProperties } from "~/shared/lib/clip";
-import type { Transform } from "~/shared/lib/transform";
-import Card from "~/shared/ui/Card";
-import IconButton from "~/shared/ui/IconButton";
-import NumberField from "~/shared/ui/NumberField";
-import Select from "~/shared/ui/Select";
-import SelectItem from "~/shared/ui/SelectItem";
-import TextField from "~/shared/ui/TextField";
+import type { ClipMetadata, ClipProperties } from "~/lib/clip";
+import type { Transform } from "~/lib/transform";
 
 type Props = {
 	clip: ClipMetadata;

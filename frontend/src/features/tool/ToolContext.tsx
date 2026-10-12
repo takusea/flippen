@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useCore } from "~/infrastructure/core/useCore";
-import type { HSVAColor } from "~/shared/lib/color";
+import { useCore } from "~/core/useCore";
+import type { HSVAColor } from "~/lib/color";
 import { ToolContext } from "./ToolContextValue";
 import type { ToolKind } from "./type";
 

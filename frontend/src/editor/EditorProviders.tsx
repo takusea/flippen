@@ -1,5 +1,7 @@
 import { TooltipProvider } from "radix-ui/tooltip";
-import type { ReactNode } from "react";
+import type { JSX } from "react";
+import { CoreProvider } from "~/core/CoreContext";
+import { DialogsProvider } from "~/editor/dialogs/DialogsProvider";
 import { AppearanceProvider } from "~/features/appearance/AppearanceContext";
 import { ClipProvider } from "~/features/clip/ClipContext";
 import { UndoStackProvider } from "~/features/history/UndoStackContext";
@@ -9,15 +11,13 @@ import { PlaybackProvider } from "~/features/playback/PlaybackContext";
 import { ProjectProvider } from "~/features/project/ProjectContext";
 import { ShortcutsProvider } from "~/features/shortcuts/ShortcutsContext";
 import { ToolProvider } from "~/features/tool/ToolContext";
-import { CoreProvider } from "~/infrastructure/core/CoreContext";
-import { CanvasViewProvider } from "~/widgets/canvas/useCanvasView";
-import { DialogsProvider } from "~/widgets/dialogs/DialogsProvider";
+import { CanvasViewProvider } from "./canvas/useCanvasView";
 
 type Props = {
-	children: ReactNode;
+	children: JSX.Element;
 };
 
-function AppProviders({ children }: Props) {
+function Editor({ children }: Props) {
 	return (
 		<TooltipProvider delayDuration={200}>
 			<I18nProvider>
@@ -47,4 +47,4 @@ function AppProviders({ children }: Props) {
 	);
 }
 
-export default AppProviders;
+export default Editor;

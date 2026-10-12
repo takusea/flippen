@@ -1,4 +1,4 @@
-import { type HSVAColor, hsvaToRgba } from "~/shared/lib/color";
+import { type HSVAColor, hsvaToRgba } from "~/lib/color";
 
 type Props = {
 	currentColor: HSVAColor;

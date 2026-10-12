@@ -1,6 +1,6 @@
 import { useDocumentTitle } from "usehooks-ts";
-import { useCore } from "~/infrastructure/core/useCore";
-import { useCoreSnapshot } from "~/infrastructure/core/useCoreSnapshot";
+import { useCore } from "~/core/useCore";
+import { useCoreSnapshot } from "~/core/useCoreSnapshot";
 import { ProjectContext } from "./ProjectContextValue";
 import type { ProjectSettings } from "./type";
 

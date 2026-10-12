@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import type { HSVAColor } from "~/shared/lib/color";
+import type { HSVAColor } from "~/lib/color";
 import type { ToolKind } from "./type";
 
 export type ToolContextValue = {
