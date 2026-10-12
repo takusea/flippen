@@ -42,11 +42,11 @@ const Toolbar: React.FC = () => {
 	const clipContext = useClip();
 	const toolContext = useTool();
 	const canvasView = useCanvasView();
-	const { undo, redo } = useUndoStack();
+	const undoStack = useUndoStack();
 	const { shortcuts } = useShortcuts();
 
-	useHotkeys(shortcuts.undo, undo);
-	useHotkeys(shortcuts.redo, redo);
+	useHotkeys(shortcuts.undo, undoStack.undo);
+	useHotkeys(shortcuts.redo, undoStack.redo);
 	useHotkeys(shortcuts.cut, clipContext.cut);
 	useHotkeys(shortcuts.copy, clipContext.copy);
 	useHotkeys(shortcuts.paste, clipContext.paste);
@@ -134,13 +134,15 @@ const Toolbar: React.FC = () => {
 						label={t("toolbar.undo")}
 						shortcut={formatShortcut(shortcuts.undo)}
 						icon={IconArrowBackUp}
-						onClick={undo}
+						onClick={undoStack.undo}
+						disabled={!undoStack.canUndo}
 					/>
 					<IconButton
 						label={t("toolbar.redo")}
 						shortcut={formatShortcut(shortcuts.redo)}
 						icon={IconArrowForwardUp}
-						onClick={redo}
+						onClick={undoStack.redo}
+						disabled={!undoStack.canRedo}
 					/>
 					<IconButton
 						label={t("toolbar.cut")}

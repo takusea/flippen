@@ -106,11 +106,13 @@ const GlobalMenubar: React.FC = () => {
 					label={t("menubar.undo")}
 					shortcut={formatShortcut(shortcuts.undo)}
 					onSelect={() => undoStack.undo()}
+					disabled={!undoStack.canUndo}
 				/>
 				<MenubarItem
 					label={t("menubar.redo")}
 					shortcut={formatShortcut(shortcuts.redo)}
 					onSelect={() => undoStack.redo()}
+					disabled={!undoStack.canRedo}
 				/>
 				<MenubarSeparator />
 				<MenubarItem

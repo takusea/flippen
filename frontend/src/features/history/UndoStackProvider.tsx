@@ -1,10 +1,12 @@
 import { useCore } from "~/core/useCore";
+import { useCoreSnapshot } from "~/core/useCoreSnapshot";
 import { UndoStackContext } from "./UndoStackContext";
 
 export const UndoStackProvider: React.FC<{ children: React.ReactNode }> = ({
 	children,
 }) => {
 	const core = useCore();
+	const snapshot = useCoreSnapshot();
 
 	const undo = async () => {
 		await core.undo();
@@ -14,5 +16,12 @@ export const UndoStackProvider: React.FC<{ children: React.ReactNode }> = ({
 		await core.redo();
 	};
 
-	return <UndoStackContext value={{ undo, redo }}>{children}</UndoStackContext>;
+	const canUndo = snapshot.canUndo;
+	const canRedo = snapshot.canRedo;
+
+	return (
+		<UndoStackContext value={{ undo, redo, canUndo, canRedo }}>
+			{children}
+		</UndoStackContext>
+	);
 };
