@@ -31,7 +31,7 @@ const EditProjectSettingsDialog = (props: Props) => {
 			title={t("project.settings")}
 			cancelText={t("common.cancel")}
 			submitText={t("project.apply")}
-			onSubmit={() => project.updateSettings(projectSettings)}
+			onSubmit={() => project.setSettings(projectSettings)}
 		>
 			<ProjectSettingsForm
 				projectSettings={projectSettings}

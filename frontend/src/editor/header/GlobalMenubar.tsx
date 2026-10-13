@@ -6,7 +6,7 @@ import MenubarRoot from "~/components/Menubar/MenubarRoot";
 import MenubarSeparator from "~/components/Menubar/MenubarSeparator";
 import { useDialogs } from "~/editor/dialogs/useDialogs";
 import { useClip } from "~/features/clip/useClip";
-import { useUndoStack } from "~/features/history/useUndoStack";
+import { useUndo } from "~/features/history/useUndo";
 import { useI18n } from "~/features/i18n/useI18n";
 import { usePlayback } from "~/features/playback/usePlayback";
 import { useProject } from "~/features/project/useProject";
@@ -17,7 +17,7 @@ import { useCanvasView } from "../canvas/useCanvasView";
 const GlobalMenubar = () => {
 	const { t } = useI18n();
 	const { shortcuts } = useShortcuts();
-	const undoStack = useUndoStack();
+	const undoStack = useUndo();
 	const clipContext = useClip();
 	const playbackContext = usePlayback();
 	const project = useProject();

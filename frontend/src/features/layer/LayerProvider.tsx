@@ -10,8 +10,8 @@ type Props = {
 
 export const LayerProvider = ({ children }: Props) => {
 	const core = useCore();
-
 	const { layers } = useCoreSnapshot();
+
 	const [selectedLayerId, setSelectedLayerId] = useState<LayerId | null>(null);
 
 	useEffect(() => {

@@ -31,7 +31,7 @@ const CreateNewProjectDialog = (props: Props) => {
 			title={t("project.create")}
 			cancelText={t("common.cancel")}
 			submitText={t("project.createAction")}
-			onSubmit={() => project.createNew(projectSettings)}
+			onSubmit={() => project.create(projectSettings)}
 		>
 			<ProjectSettingsForm
 				projectSettings={projectSettings}

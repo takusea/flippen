@@ -21,15 +21,13 @@ export const PlaybackProvider = ({ children }: Props) => {
 	const [currentFrame, setCurrentFrame] = useState(0);
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [isLoop, setIsLoop] = useState(false);
+
 	const startFrame = project.settings?.startFrame ?? DEFAULT_START_FRAME;
 	const endFrame = project.settings?.endFrame ?? DEFAULT_END_FRAME;
 	const maxFrameCount = Math.min(
 		MAX_FRAME_INDEX + 1,
 		endFrame + FRAME_RANGE_BUFFER + 1,
 	);
-	const setCurrentFrameClamped = (frame: number) => {
-		setCurrentFrame(Math.min(Math.max(frame, startFrame), endFrame));
-	};
 
 	useEffect(() => {
 		setCurrentFrame((frame) => Math.min(Math.max(frame, startFrame), endFrame));
@@ -52,6 +50,10 @@ export const PlaybackProvider = ({ children }: Props) => {
 			setIsPlaying(false);
 		}
 	}, [currentFrame, endFrame, isLoop, isPlaying]);
+
+	const setCurrentFrameClamped = (frame: number) => {
+		setCurrentFrame(Math.min(Math.max(frame, startFrame), endFrame));
+	};
 
 	const play = () => {
 		if (!project.settings) return;

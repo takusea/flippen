@@ -28,7 +28,7 @@ import Card from "~/components/Card";
 import IconButton from "~/components/IconButton";
 import NumberField from "~/components/NumberField";
 import { useClip } from "~/features/clip/useClip";
-import { useUndoStack } from "~/features/history/useUndoStack";
+import { useUndo } from "~/features/history/useUndo";
 import { useI18n } from "~/features/i18n/useI18n";
 import { usePlayback } from "~/features/playback/usePlayback";
 import { formatShortcut } from "~/features/shortcuts/shortcutDefinitions";
@@ -42,7 +42,7 @@ const Toolbar = () => {
 	const clipContext = useClip();
 	const toolContext = useTool();
 	const canvasView = useCanvasView();
-	const undoStack = useUndoStack();
+	const undoStack = useUndo();
 	const { shortcuts } = useShortcuts();
 
 	useHotkeys(shortcuts.undo, undoStack.undo);
