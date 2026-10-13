@@ -67,14 +67,16 @@ const Clip = ({
 		event.currentTarget.setPointerCapture(event.pointerId);
 
 		const rect = event.currentTarget.getBoundingClientRect();
-		const startFrame = Math.floor(
+		const startFrameDelta = Math.floor(
 			(event.clientX - rect.left - startPosX) / frameWidth,
 		);
-		const layerIndex = Math.floor((event.clientY - rect.top) / layerHeight);
+		const layerIndexDelta = Math.floor(
+			(event.clientY - rect.top) / layerHeight,
+		);
 
 		onMove(
-			Math.max(0, startFrame + startFrame),
-			Math.max(0, layerIndex + layerIndex),
+			Math.max(0, startFrame + startFrameDelta),
+			Math.max(0, layerIndex + layerIndexDelta),
 		);
 	};
 
@@ -87,9 +89,9 @@ const Clip = ({
 		event.currentTarget.setPointerCapture(event.pointerId);
 
 		const rect = event.currentTarget.getBoundingClientRect();
-		const duration = Math.floor((event.clientX - rect.left) / frameWidth);
+		const durationDelta = Math.floor((event.clientX - rect.left) / frameWidth);
 
-		onDurationChange(Math.max(1, duration + duration));
+		onDurationChange(Math.max(1, duration + durationDelta));
 	};
 
 	return (
