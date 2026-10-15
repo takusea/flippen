@@ -11,11 +11,11 @@ export const AppearanceProvider = ({ children }: { children: JSX.Element }) => {
 
 	useEffect(() => {
 		document.documentElement.style.setProperty("--hue", accentColor.toString());
-	});
+	}, [accentColor]);
 
 	useEffect(() => {
 		document.documentElement.dataset.theme = isDarkMode ? "dark" : "light";
-	});
+	}, [isDarkMode]);
 
 	return (
 		<AppearanceContext

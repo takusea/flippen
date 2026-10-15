@@ -48,7 +48,7 @@ export const useCanvasPointer = (
 
 		const parentRect = canvas.parentElement.getBoundingClientRect();
 		const rect = canvas.getBoundingClientRect();
-		const transformed = canvasView.applyCanvasTransform(
+		const transformed = canvasView.applyTransform(
 			x,
 			y,
 			rect.left + rect.width / 2,

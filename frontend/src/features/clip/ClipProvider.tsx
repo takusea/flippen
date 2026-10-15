@@ -1,4 +1,4 @@
-import { type JSX, useMemo } from "react";
+import type { JSX } from "react";
 import { useCoreSnapshot } from "~/core/useCoreSnapshot";
 import { useLayer } from "~/features/layer/useLayer";
 import { usePlayback } from "~/features/playback/usePlayback";
@@ -17,20 +17,17 @@ export const ClipProvider = ({ children }: Props) => {
 	const layerContext = useLayer();
 	const playbackContext = usePlayback();
 	const projectContext = useProject();
-	const { clips, revision } = useCoreSnapshot();
+	const { clips, clipTransforms } = useCoreSnapshot();
 
-	const currentClip = useMemo(
-		() =>
-			layerContext.selectedLayerId == null
-				? undefined
-				: clips.find(
-						(clip) =>
-							clip.layer_id === layerContext.selectedLayerId &&
-							clip.start <= playbackContext.currentFrame &&
-							playbackContext.currentFrame < clip.start + clip.duration,
-					),
-		[clips, playbackContext.currentFrame, layerContext.selectedLayerId],
-	);
+	const currentClip =
+		layerContext.selectedLayerId == null
+			? undefined
+			: clips.find(
+					(clip) =>
+						clip.layer_id === layerContext.selectedLayerId &&
+						clip.start <= playbackContext.currentFrame &&
+						playbackContext.currentFrame < clip.start + clip.duration,
+				);
 
 	const selectionState = useClipSelection({
 		clips,
@@ -56,9 +53,9 @@ export const ClipProvider = ({ children }: Props) => {
 	});
 	const clipTransform = useClipTransform({
 		clips,
+		clipTransforms,
 		selectedClipId: selectionState.selectedClipId,
 		isLayerLocked: layerContext.isLayerLocked,
-		revision,
 	});
 
 	return (
@@ -74,7 +71,6 @@ export const ClipProvider = ({ children }: Props) => {
 				selectAll: selectionState.selectAll,
 				...commands,
 				changeTransform: clipTransform.changeTransform,
-				syncTransform: clipTransform.syncTransform,
 			}}
 		>
 			{children}

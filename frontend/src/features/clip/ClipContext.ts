@@ -30,7 +30,6 @@ export type ClipContextValue = {
 		properties: ClipProperties,
 	) => Promise<void>;
 	changeTransform: (id: string, transform: Transform) => Promise<void>;
-	syncTransform: () => Promise<void>;
 	ensureClipAt: (
 		frame: number,
 		layerId: LayerId | null,

@@ -30,10 +30,6 @@ export const PlaybackProvider = ({ children }: Props) => {
 	);
 
 	useEffect(() => {
-		setCurrentFrame((frame) => Math.min(Math.max(frame, startFrame), endFrame));
-	}, [startFrame, endFrame]);
-
-	useEffect(() => {
 		if (!isPlaying || !project.settings) return;
 
 		const interval = setInterval(() => {

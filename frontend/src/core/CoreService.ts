@@ -14,6 +14,7 @@ export type ToolPoint = {
 
 export type CoreSnapshot = {
 	clips: ClipMetadata[];
+	clipTransforms: Record<string, Transform>;
 	layers: LayerState[];
 	projectSettings: ProjectSettings | undefined;
 	canUndo: boolean;
@@ -31,6 +32,7 @@ export class CoreService {
 	private revision = 0;
 	private snapshot: CoreSnapshot = {
 		clips: [],
+		clipTransforms: {},
 		layers: [],
 		projectSettings: undefined,
 		canUndo: false,
@@ -58,10 +60,19 @@ export class CoreService {
 
 	private notify() {
 		const settings = this.readProjectSettings();
+		const clips = (this.core.get_clips() as ClipMetadata[] | undefined) ?? [];
 		const layers = (this.core.get_layers() as LayerState[] | undefined) ?? [];
 		this.revision += 1;
 		this.snapshot = {
-			clips: (this.core.get_clips() as ClipMetadata[] | undefined) ?? [],
+			clips,
+			clipTransforms: Object.fromEntries(
+				clips.flatMap((clip) => {
+					const transform = this.core.get_clip_transform(clip.id);
+					return transform === undefined
+						? []
+						: [[clip.id, transform as Transform] as const];
+				}),
+			),
 			layers,
 			projectSettings: settings,
 			canUndo: this.core.can_undo(),
@@ -308,27 +319,6 @@ export class CoreService {
 		);
 	}
 
-	getClipTransform(id: string) {
-		return this.enqueue((core) => {
-			const transform = core.get_clip_transform(id);
-			if (transform === undefined) return;
-			return transform as Transform;
-		});
-	}
-
-	setClipTransform(id: string, transform: Transform) {
-		return this.enqueue(
-			(core) =>
-				core.set_clip_transform(id, {
-					position: transform.position,
-					scale: transform.scale,
-					rotation: transform.rotation,
-					anchor: transform.anchor,
-				}),
-			true,
-		);
-	}
-
 	updateClipTransform(id: string, transform: Transform) {
 		return this.enqueue((core) => {
 			core.set_clip_transform(id, {
@@ -337,9 +327,6 @@ export class CoreService {
 				rotation: transform.rotation,
 				anchor: transform.anchor,
 			});
-			const nextTransform = core.get_clip_transform(id);
-			if (nextTransform === undefined) return;
-			return nextTransform as Transform;
 		}, true);
 	}
 
