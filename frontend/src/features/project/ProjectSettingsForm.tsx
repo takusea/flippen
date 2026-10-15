@@ -33,6 +33,7 @@ const ProjectSettingsForm = ({
 				value={projectSettings.width}
 				min={0}
 				max={10000}
+				rightElement={"px"}
 				onValueChange={(width) =>
 					onProjectSettingsChanged({ ...projectSettings, width })
 				}
@@ -43,6 +44,7 @@ const ProjectSettingsForm = ({
 				value={projectSettings.height}
 				min={0}
 				max={10000}
+				rightElement={"px"}
 				onValueChange={(height) =>
 					onProjectSettingsChanged({ ...projectSettings, height })
 				}
@@ -53,6 +55,7 @@ const ProjectSettingsForm = ({
 				value={projectSettings.frameRate}
 				min={0}
 				max={1000}
+				rightElement={"fps"}
 				onValueChange={(frameRate) =>
 					onProjectSettingsChanged({
 						...projectSettings,
@@ -66,6 +69,7 @@ const ProjectSettingsForm = ({
 				value={projectSettings.startFrame}
 				min={0}
 				max={projectSettings.endFrame}
+				rightElement={"frame"}
 				onValueChange={(startFrame) =>
 					onProjectSettingsChanged({
 						...projectSettings,
@@ -79,6 +83,7 @@ const ProjectSettingsForm = ({
 				value={projectSettings.endFrame}
 				min={projectSettings.startFrame}
 				max={MAX_FRAME_INDEX}
+				rightElement={"frame"}
 				onValueChange={(endFrame) =>
 					onProjectSettingsChanged({
 						...projectSettings,

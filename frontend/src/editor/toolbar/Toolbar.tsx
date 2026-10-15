@@ -237,12 +237,13 @@ const Toolbar = () => {
 			</Card>
 			<Card size="small">
 				<div className="flex gap-1">
-					<div className="w-16">
+					<div className="w-24">
 						<NumberField
 							value={Number((canvasView.scale * 100).toFixed(2))}
 							max={canvasView.maxScale * 100}
 							min={canvasView.minScale * 100}
 							step={10}
+							rightElement={"%"}
 							onValueChange={(value) => canvasView.setScale(value / 100)}
 						/>
 					</div>
@@ -256,12 +257,13 @@ const Toolbar = () => {
 			</Card>
 			<Card size="small">
 				<div className="flex gap-1">
-					<div className="w-16">
+					<div className="w-24">
 						<NumberField
 							value={canvasView.rotation}
 							max={180}
 							min={-180}
 							step={1}
+							rightElement={"deg"}
 							onValueChange={canvasView.setRotation}
 						/>
 					</div>

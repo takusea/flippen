@@ -103,6 +103,7 @@ const ClipInspector = ({
 					min={0}
 					value={clip.start}
 					disabled={isLocked}
+					rightElement={"frame"}
 					onInteractionStart={onInteractionStart}
 					onInteractionEnd={onInteractionEnd}
 					onValueChange={onStartChange}
@@ -113,6 +114,7 @@ const ClipInspector = ({
 					min={1}
 					value={clip.duration}
 					disabled={isLocked}
+					rightElement={"frame"}
 					onInteractionStart={onInteractionStart}
 					onInteractionEnd={onInteractionEnd}
 					onValueChange={onDurationChange}
@@ -125,6 +127,8 @@ const ClipInspector = ({
 						aria-label={t("inspector.positionX")}
 						value={transform.position[0]}
 						disabled={isLocked}
+						leftElement={"X"}
+						rightElement={"px"}
 						onInteractionStart={onInteractionStart}
 						onInteractionEnd={onInteractionEnd}
 						onValueChange={(value) => {
@@ -139,6 +143,8 @@ const ClipInspector = ({
 						aria-label={t("inspector.positionY")}
 						value={transform.position[1]}
 						disabled={isLocked}
+						leftElement={"Y"}
+						rightElement={"px"}
 						onInteractionStart={onInteractionStart}
 						onInteractionEnd={onInteractionEnd}
 						onValueChange={(value) => {
@@ -159,6 +165,8 @@ const ClipInspector = ({
 						step={0.01}
 						value={transform.anchor[0]}
 						disabled={isLocked}
+						leftElement={"X"}
+						rightElement={"px"}
 						onInteractionStart={onInteractionStart}
 						onInteractionEnd={onInteractionEnd}
 						onValueChange={(value) => {
@@ -176,6 +184,8 @@ const ClipInspector = ({
 						step={0.01}
 						value={transform.anchor[1]}
 						disabled={isLocked}
+						leftElement={"Y"}
+						rightElement={"px"}
 						onInteractionStart={onInteractionStart}
 						onInteractionEnd={onInteractionEnd}
 						onValueChange={(value) => {
@@ -193,6 +203,7 @@ const ClipInspector = ({
 					max={360}
 					value={transform.rotation}
 					disabled={isLocked}
+					rightElement={"deg"}
 					onInteractionStart={onInteractionStart}
 					onInteractionEnd={onInteractionEnd}
 					onValueChange={(value) => {
@@ -208,16 +219,17 @@ const ClipInspector = ({
 						id="clipScale"
 						aria-label={t("inspector.scaleX")}
 						min={0}
-						max={10}
-						step={0.01}
-						value={transform.scale[0]}
+						max={1000}
+						value={transform.scale[0] * 100}
 						disabled={isLocked}
+						leftElement={"X"}
+						rightElement={"%"}
 						onInteractionStart={onInteractionStart}
 						onInteractionEnd={onInteractionEnd}
 						onValueChange={(value) => {
 							onTransformChange({
 								...transform,
-								scale: [value, transform.scale[1]],
+								scale: [value / 100, transform.scale[1]],
 							});
 						}}
 					/>
@@ -225,16 +237,17 @@ const ClipInspector = ({
 						id="clipScaleY"
 						aria-label={t("inspector.scaleY")}
 						min={0}
-						max={10}
-						step={0.01}
-						value={transform.scale[1]}
+						max={1000}
+						value={transform.scale[1] * 100}
 						disabled={isLocked}
+						leftElement={"Y"}
+						rightElement={"%"}
 						onInteractionStart={onInteractionStart}
 						onInteractionEnd={onInteractionEnd}
 						onValueChange={(value) => {
 							onTransformChange({
 								...transform,
-								scale: [transform.scale[0], value],
+								scale: [transform.scale[0], Math.round(value / 100)],
 							});
 						}}
 					/>
@@ -244,13 +257,15 @@ const ClipInspector = ({
 				<NumberField
 					id="clipOpacity"
 					min={0}
-					max={1}
-					step={0.01}
-					value={clip.opacity}
+					max={100}
+					value={clip.opacity * 100}
 					disabled={isLocked}
+					rightElement={"%"}
 					onInteractionStart={onInteractionStart}
 					onInteractionEnd={onInteractionEnd}
-					onValueChange={(opacity) => onPropertiesChange({ opacity })}
+					onValueChange={(value) =>
+						onPropertiesChange({ opacity: value / 100 })
+					}
 				/>
 				<label htmlFor="clipBlendMode">{t("inspector.blendMode")}</label>
 				<Select

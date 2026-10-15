@@ -1,13 +1,17 @@
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { type JSX, useEffect, useRef, useState } from "react";
 
 type Props = Omit<React.ComponentProps<"input">, "className" | "type"> & {
+	leftElement?: string | JSX.Element;
+	rightElement?: string | JSX.Element;
 	onValueChange?: (value: number) => void;
 	onInteractionStart?: () => void;
 	onInteractionEnd?: () => void;
 };
 
 const NumberField = ({
+	leftElement,
+	rightElement,
 	onValueChange,
 	onBlur,
 	onInteractionStart,
@@ -127,7 +131,7 @@ const NumberField = ({
 
 	return (
 		<div
-			className={`relative h-8 border border-zinc-500/40 bg-white/50 dark:bg-zinc-800/50 rounded-md touch-none ${props.disabled ? "opacity-50" : cursor}`}
+			className={`flex gap-1 px-2 h-8 border border-zinc-500/40 bg-white/50 dark:bg-zinc-800/50 rounded-md touch-none focus-within:outline-2 ${props.disabled ? "opacity-50" : cursor}`}
 			onPointerDown={handlePointerDown}
 			onPointerMove={handlePointerMove}
 			onPointerUp={handlePointerUp}
@@ -136,17 +140,27 @@ const NumberField = ({
 				setIsMoved(false);
 			}}
 		>
+			{leftElement && (
+				<div className="text-zinc-500 h-full flex items-center">
+					{leftElement}
+				</div>
+			)}
 			<input
 				{...props}
 				ref={input}
 				type="number"
 				value={innerValue}
-				className="absolute -inset-px px-2 pointer-events-none focus:pointer-events-auto"
+				className="min-w-0 flex-1 h-full pointer-events-none focus:pointer-events-auto outline-none"
 				onPointerMove={handleInputPointerMove}
 				onChange={handleChange}
 				onKeyDown={handleKeyDown}
 				onBlur={handleBlur}
 			/>
+			{rightElement && (
+				<div className="text-zinc-500 h-full flex items-center">
+					{rightElement}
+				</div>
+			)}
 		</div>
 	);
 };
