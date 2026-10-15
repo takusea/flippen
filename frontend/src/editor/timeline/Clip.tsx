@@ -18,6 +18,16 @@ type Props = {
 	onInteractionEnd: () => void;
 };
 
+type Drag = {
+	pointerId: number;
+	startX: number;
+	startY: number;
+	startFrame: number;
+	duration: number;
+	layerIndex: number;
+	kind: "move" | "resize";
+};
+
 const Clip = ({
 	id,
 	name,
@@ -35,7 +45,7 @@ const Clip = ({
 	onInteractionStart,
 	onInteractionEnd,
 }: Props) => {
-	const [startPosX, setStartPosX] = useState(0);
+	const dragRef = useRef<Drag | null>(null);
 	const isInteracting = useRef(false);
 
 	const startInteraction = () => {
@@ -51,73 +61,77 @@ const Clip = ({
 	};
 
 	const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-		event.stopPropagation();
-		if (!(event.buttons & 1)) return;
+		if (event.button !== 0) return;
+		event.currentTarget.setPointerCapture(event.pointerId);
 
 		onSelect();
-
-		const rect = event.currentTarget.getBoundingClientRect();
-		setStartPosX(event.clientX - rect.left);
+		dragRef.current = {
+			pointerId: event.pointerId,
+			startX: event.clientX,
+			startY: event.clientY,
+			startFrame,
+			duration,
+			layerIndex,
+			kind: event.currentTarget.dataset.resize === "true" ? "resize" : "move",
+		};
 	};
 
 	const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+		const drag = dragRef.current;
+		if (drag == null || drag.pointerId !== event.pointerId) {
+			return;
+		}
+		if (drag.kind !== "move") return;
 		event.stopPropagation();
-		if (!(event.buttons & 1)) return;
 		startInteraction();
-		event.currentTarget.setPointerCapture(event.pointerId);
-
-		const rect = event.currentTarget.getBoundingClientRect();
-		const startFrameDelta = Math.floor(
-			(event.clientX - rect.left - startPosX) / frameWidth,
-		);
-		const layerIndexDelta = Math.floor(
-			(event.clientY - rect.top) / layerHeight,
-		);
 
 		onMove(
-			Math.max(0, startFrame + startFrameDelta),
-			Math.max(0, layerIndex + layerIndexDelta),
+			Math.max(0, drag.startFrame + Math.floor((event.clientX - drag.startX) / frameWidth)),
+			Math.max(0, drag.layerIndex + Math.floor((event.clientY - drag.startY) / layerHeight)),
 		);
 	};
 
 	const handleRightPointerMove = (
 		event: React.PointerEvent<HTMLDivElement>,
 	) => {
+		const drag = dragRef.current;
+		if (drag == null || drag.pointerId !== event.pointerId || drag.kind !== "resize") return;
 		event.stopPropagation();
-		if (!(event.buttons & 1)) return;
 		startInteraction();
-		event.currentTarget.setPointerCapture(event.pointerId);
+		onDurationChange(Math.max(1, drag.duration + Math.floor((event.clientX - drag.startX) / frameWidth)));
+	};
 
-		const rect = event.currentTarget.getBoundingClientRect();
-		const durationDelta = Math.floor((event.clientX - rect.left) / frameWidth);
-
-		onDurationChange(Math.max(1, duration + durationDelta));
+	const handlePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
+		if (dragRef.current?.pointerId === event.pointerId) dragRef.current = null;
+		endInteraction();
 	};
 
 	return (
 		<div
 			key={id}
-			className={`absolute grid grid-cols-[1fr_8px] items-stretch rounded border overflow-hidden ${isSelected ? "bg-primary/25 border-primary" : "bg-zinc-500/25 border-zinc-500/40"} ${isHidden ? "opacity-40" : ""} ${isLocked ? "cursor-not-allowed" : ""}`}
+			className={`absolute grid grid-cols-[1fr_8px] items-stretch rounded border overflow-hidden touch-none ${isSelected ? "bg-primary/25 border-primary" : "bg-zinc-500/25 border-zinc-500/40"} ${isHidden ? "opacity-40" : ""} ${isLocked ? "cursor-not-allowed" : ""}`}
 			style={{
 				left: `${startFrame * frameWidth}px`,
 				top: `${layerIndex * layerHeight}px`,
 				width: `${duration * frameWidth}px`,
 				height: `${layerHeight}px`,
 			}}
-			onPointerDown={handlePointerDown}
-			onPointerUp={endInteraction}
-			onPointerCancel={endInteraction}
-			onLostPointerCapture={endInteraction}
+			onPointerUp={handlePointerUp}
+			onPointerCancel={handlePointerUp}
+			onLostPointerCapture={handlePointerUp}
 		>
 			<div className="absolute h-full flex items-center text-nowrap pointer-events-none px-1">
 				{name}
 			</div>
 			<div
 				className={isLocked ? "" : "cursor-move"}
+				onPointerDown={isLocked ? undefined : handlePointerDown}
 				onPointerMove={isLocked ? undefined : handlePointerMove}
 			/>
 			<div
 				className={isLocked ? "" : "cursor-w-resize"}
+				data-resize="true"
+				onPointerDown={isLocked ? undefined : handlePointerDown}
 				onPointerMove={isLocked ? undefined : handleRightPointerMove}
 			/>
 		</div>

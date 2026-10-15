@@ -42,7 +42,13 @@ const NumberField = ({
 	const cursor = isMoved ? "cursor-ew-resize" : "cursor-text";
 
 	const handlePointerMove = (event: React.PointerEvent) => {
-		if (props.disabled || !(event.buttons & 1) || props.value == null) return;
+		if (
+			props.disabled ||
+			!(event.buttons & 1) ||
+			props.value == null ||
+			event.pointerType === "touch"
+		)
+			return;
 
 		event.currentTarget.setPointerCapture(event.pointerId);
 
@@ -65,12 +71,14 @@ const NumberField = ({
 	};
 
 	const handlePointerDown = (event: React.PointerEvent) => {
-		if (props.disabled || event.button !== 0) return;
+		if (props.disabled || event.button !== 0 || event.pointerType === "touch")
+			return;
 		interactionStarted.current = true;
 		onInteractionStart?.();
 	};
 
-	const handlePointerUp = () => {
+	const handlePointerUp = (event: React.PointerEvent) => {
+		if (event.pointerType === "touch") return;
 		finishInteraction();
 		if (props.disabled) {
 			setIsMoved(false);

@@ -65,7 +65,7 @@ const Timeline = () => {
 
 		const layerId = layerContext.layers[layerIndex]?.id;
 		if (layerId == null) return;
-		clipContext.addClip(startFrame, layerId);
+		// clipContext.addClip(startFrame, layerId);
 	}
 
 	function handleScroll(event: React.UIEvent<HTMLDivElement, UIEvent>) {
@@ -78,13 +78,13 @@ const Timeline = () => {
 	function updateStartFrame(startFrame: number) {
 		const settings = projectContext.settings;
 		if (settings == null || startFrame === settings.startFrame) return;
-		projectContext.updateSettings({ ...settings, startFrame });
+		projectContext.setSettings({ ...settings, startFrame });
 	}
 
 	function updateEndFrame(endFrame: number) {
 		const settings = projectContext.settings;
 		if (settings == null || endFrame === settings.endFrame) return;
-		projectContext.updateSettings({ ...settings, endFrame });
+		projectContext.setSettings({ ...settings, endFrame });
 	}
 
 	function handleHorizontalZoom(event: React.WheelEvent<HTMLDivElement>) {
