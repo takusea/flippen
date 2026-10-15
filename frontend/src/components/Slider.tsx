@@ -10,7 +10,7 @@ const Slider = (props: Props) => {
 		>
 			<SliderPrimitive.Track className="relative h-2 grow rounded-full overflow-hidden">
 				<div className="h-full w-full border border-zinc-500/40 bg-zinc-500/20 rounded-full"></div>
-				<SliderPrimitive.Range className="absolute top-0 h-full rounded-full bg-primary" />
+				<SliderPrimitive.Range className="absolute top-0 h-full bg-primary" />
 			</SliderPrimitive.Track>
 			<SliderPrimitive.Thumb className="block size-4 rounded-full border border-zinc-500/40 bg-white shadow-md" />
 		</SliderPrimitive.Root>

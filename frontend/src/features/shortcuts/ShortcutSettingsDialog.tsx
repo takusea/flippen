@@ -69,51 +69,49 @@ const ShortcutSettingsDialog = (props: Props) => {
 			title={t("shortcutSettings.title")}
 			cancelText={t("common.close")}
 		>
-			<div className="max-h-[60vh] overflow-y-auto">
-				<div className="flex flex-col gap-2">
-					{(
-						Object.entries(shortcutDefinitions) as [
-							ShortcutId,
-							(typeof shortcutDefinitions)[ShortcutId],
-						][]
-					).map(([id, definition]) => (
-						<div key={id} className="flex items-center justify-between gap-4">
-							<span>{t(definition.label)}</span>
-							<Button
-								onClick={() => {
-									setRecording(id);
-									setConflict(false);
-								}}
-								onKeyDown={(event) => {
-									if (recording !== id) return;
-									event.preventDefault();
-									event.stopPropagation();
-									const nextShortcut = getShortcutFromEvent(event);
-									if (nextShortcut == null) return;
-									if (
-										Object.entries(shortcuts).some(
-											([otherId, value]) =>
-												otherId !== id && value === nextShortcut,
-										)
-									) {
-										setConflict(true);
-										return;
-									}
-									setShortcut(id, nextShortcut);
-									setRecording(null);
-									setConflict(false);
-								}}
-								label={
-									recording === id
-										? t("shortcutSettings.pressKeys")
-										: formatShortcut(shortcuts[id])
+			<div className="grid grid-cols-[1fr_auto] items-center gap-2 px-2">
+				{(
+					Object.entries(shortcutDefinitions) as [
+						ShortcutId,
+						(typeof shortcutDefinitions)[ShortcutId],
+					][]
+				).map(([id, definition]) => (
+					<>
+						<span>{t(definition.label)}</span>
+						<Button
+							onClick={() => {
+								setRecording(id);
+								setConflict(false);
+							}}
+							onKeyDown={(event) => {
+								if (recording !== id) return;
+								event.preventDefault();
+								event.stopPropagation();
+								const nextShortcut = getShortcutFromEvent(event);
+								if (nextShortcut == null) return;
+								if (
+									Object.entries(shortcuts).some(
+										([otherId, value]) =>
+											otherId !== id && value === nextShortcut,
+									)
+								) {
+									setConflict(true);
+									return;
 								}
-							></Button>
-						</div>
-					))}
-				</div>
+								setShortcut(id, nextShortcut);
+								setRecording(null);
+								setConflict(false);
+							}}
+							label={
+								recording === id
+									? t("shortcutSettings.pressKeys")
+									: formatShortcut(shortcuts[id])
+							}
+						></Button>
+					</>
+				))}
 			</div>
-			<div className="mt-2 grid grid-cols-[1fr_auto]">
+			<div className="mt-2 grid grid-cols-[1fr_auto] sticky p-2 bottom-0 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl">
 				{conflict && (
 					<p role="alert" className="mt-2 text-red-600">
 						{t("shortcutSettings.conflict")}

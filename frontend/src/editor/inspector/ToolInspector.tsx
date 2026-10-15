@@ -33,7 +33,7 @@ const ToolInspector = ({ properties, onPropertyChange }: Props) => {
 							</div>
 							<Slider
 								min={1}
-								max={1000}
+								max={100}
 								value={[safeValue]}
 								onValueChange={(value) => {
 									onPropertyChange(key, value[0]);

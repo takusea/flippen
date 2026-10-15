@@ -26,7 +26,7 @@ const color = (variant: Variant) => {
 		case "default":
 			return "hover:not-disabled:bg-zinc-500/20";
 		case "primary":
-			return "text-white bg-primary hover:not-disabled:bg-primary";
+			return "text-white bg-primary hover:not-disabled:bg-primary-hover";
 	}
 };
 
