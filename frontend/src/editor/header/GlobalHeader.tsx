@@ -44,7 +44,7 @@ const GlobalHeader = () => {
 						onClick={() => toggleMenubarOpen()}
 					/>
 					{isMenubarOpen && (
-						<div className="overflow-scroll m-1" ref={menubarRef}>
+						<div className="overflow-scroll" ref={menubarRef}>
 							<GlobalMenubar />
 						</div>
 					)}

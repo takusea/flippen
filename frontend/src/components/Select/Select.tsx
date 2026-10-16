@@ -24,7 +24,7 @@ const Select = ({ children, placeholder, ...props }: Props) => {
 				<SelectPrimitive.Content
 					position="popper"
 					sideOffset={5}
-					className="overflow-hidden rounded-xl p-2 border border-zinc-500/40 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl shadow-lg w-(--radix-select-trigger-width) max-h-(--radix-select-content-available-height)"
+					className="overflow-hidden rounded-xl p-2 z-50 border border-zinc-500/40 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl shadow-lg w-(--radix-select-trigger-width) max-h-(--radix-select-content-available-height)"
 				>
 					<SelectPrimitive.ScrollUpButton className="flex h-6 cursor-default items-center justify-center">
 						<IconChevronUp />
