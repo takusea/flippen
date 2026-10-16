@@ -27,11 +27,17 @@ impl FlippenCore {
         let mut tools = ToolRegistry::new();
         tools.insert(
             ToolId::Pen,
-            Box::new(tool::circle_brush_tool::CircleBrushTool { size: 5 }),
+            Box::new(tool::circle_brush_tool::CircleBrushTool {
+                size: 5,
+                antialiasing: 8,
+            }),
         );
         tools.insert(
             ToolId::Eraser,
-            Box::new(tool::eraser_tool::EraserTool { size: 5 }),
+            Box::new(tool::eraser_tool::EraserTool {
+                size: 5,
+                antialiasing: 8,
+            }),
         );
         tools.insert(
             ToolId::Fill,

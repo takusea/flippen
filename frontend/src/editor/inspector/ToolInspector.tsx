@@ -1,10 +1,12 @@
 import Card from "~/components/Card";
 import Slider from "~/components/Slider";
+import type { ToolProperty } from "~/core/CoreService";
+import type { MessageKey } from "~/features/i18n/I18nContext";
 import { useI18n } from "~/features/i18n/useI18n";
 import { useTool } from "~/features/tool/useTool";
 
 type Props = {
-	properties: { [key: string]: unknown };
+	properties: ToolProperty[];
 	onPropertyChange: (key: string, value: unknown) => void;
 };
 
@@ -20,23 +22,26 @@ const ToolInspector = ({ properties, onPropertyChange }: Props) => {
 						tool: toolContext.tool.toUpperCase(),
 					})}
 				</h2>
-				{Object.entries(properties).map(([key, value]) => {
+				{properties.map((property) => {
 					const numericValue =
-						typeof value === "number" ? value : Number(value);
+						typeof property.value === "number"
+							? property.value
+							: Number(property.value);
 					const safeValue = Number.isFinite(numericValue) ? numericValue : 0;
 
 					return (
-						<div key={key}>
+						<div key={property.name}>
 							<div className="flex gap-1 justify-between">
-								<span>{key}</span>
-								<span>{String(value)}</span>
+								<span>{t(property.label as MessageKey)}</span>
+								<span>{`${String(property.value)}${property.unit ?? ""}`}</span>
 							</div>
 							<Slider
-								min={1}
-								max={100}
+								min={property.min}
+								max={property.max}
+								step={property.step}
 								value={[safeValue]}
 								onValueChange={(value) => {
-									onPropertyChange(key, value[0]);
+									onPropertyChange(property.name, value[0]);
 								}}
 							/>
 						</div>

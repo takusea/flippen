@@ -38,17 +38,29 @@ pub enum ToolPropertyValue {
     Color(Color),
 }
 
+#[derive(Clone, Serialize)]
+pub struct ToolProperty {
+    pub name: String,
+    pub label: String,
+    pub value: ToolPropertyValue,
+    pub min: f64,
+    pub max: f64,
+    pub step: f64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub unit: Option<String>,
+}
+
 pub trait Tool {
     fn apply(
         &mut self,
         image: &mut Image,
-        x: u32,
-        y: u32,
+        x: f32,
+        y: f32,
         color: Color,
         pressure: Option<f32>,
         changes: &mut Vec<PixelChange>,
     );
-    fn get_properties(&self) -> HashMap<&str, ToolPropertyValue>;
+    fn get_properties(&self) -> Vec<ToolProperty>;
     fn set_property(&mut self, name: &str, value: ToolPropertyValue);
 }
 

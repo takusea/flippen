@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::core::{
     color::{color_distance, Color},
     image::{Image, PixelChange},
-    tool::{Tool, ToolPropertyValue},
+    tool::{Tool, ToolProperty, ToolPropertyValue},
 };
 
 pub struct FillTool {
@@ -14,12 +14,14 @@ impl Tool for FillTool {
     fn apply(
         &mut self,
         image: &mut Image,
-        x: u32,
-        y: u32,
+        x: f32,
+        y: f32,
         color: Color,
         _pressure: Option<f32>,
         changes: &mut Vec<PixelChange>,
     ) {
+        let x = x.floor() as u32;
+        let y = y.floor() as u32;
         let idx = ((y as usize) * (image.width as usize) + (x as usize)) * 4;
         if idx + 3 >= image.data.len() {
             return;
@@ -72,11 +74,16 @@ impl Tool for FillTool {
         }
     }
 
-    fn get_properties(&self) -> HashMap<&str, ToolPropertyValue> {
-        HashMap::from([(
-            "tolerance",
-            ToolPropertyValue::Number(self.tolerance as f64),
-        )])
+    fn get_properties(&self) -> Vec<ToolProperty> {
+        vec![ToolProperty {
+            name: "tolerance".into(),
+            label: "toolInspector.tolerance".into(),
+            value: ToolPropertyValue::Number(self.tolerance as f64),
+            min: 0.0,
+            max: 1000.0,
+            step: 1.0,
+            unit: None,
+        }]
     }
 
     fn set_property(&mut self, name: &str, value: ToolPropertyValue) {

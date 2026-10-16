@@ -12,6 +12,16 @@ export type ToolPoint = {
 	pressure: number;
 };
 
+export type ToolProperty = {
+	name: string;
+	label: string;
+	value: unknown;
+	min: number;
+	max: number;
+	step: number;
+	unit?: string;
+};
+
 export type CoreSnapshot = {
 	clips: ClipMetadata[];
 	clipTransforms: Record<string, Transform>;
@@ -308,7 +318,7 @@ export class CoreService {
 		return this.enqueue((core) => {
 			const properties = core.get_tool_properties(tool);
 			if (properties === undefined) return;
-			return properties as Record<string, unknown>;
+			return properties as ToolProperty[];
 		});
 	}
 

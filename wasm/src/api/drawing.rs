@@ -147,7 +147,7 @@ impl FlippenCore {
         let mut changes = Vec::new();
         for point in points.chunks_exact(3) {
             let (x, y) = match clip.transform.inverse_transform_point(
-                (point[0] as u32 as f32, point[1] as u32 as f32),
+                (point[0] as f32, point[1] as f32),
                 (width as f32 / 2.0, height as f32 / 2.0),
             ) {
                 Some((x, y))
@@ -158,7 +158,7 @@ impl FlippenCore {
                         && x < width as f32
                         && y < height as f32 =>
                 {
-                    (x.floor() as u32, y.floor() as u32)
+                    (x, y)
                 }
                 Some(_) => continue,
                 None => {

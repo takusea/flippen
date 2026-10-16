@@ -83,8 +83,8 @@ export const useCanvasDraw = () => {
 		const drawStates = [];
 		for (let i = 1; i <= steps; i++) {
 			const t = i / steps;
-			const x = Math.floor(prev.x + dx * t);
-			const y = Math.floor(prev.y + dy * t);
+			const x = prev.x + dx * t;
+			const y = prev.y + dy * t;
 			const pressure = prev.pressure + dPressure * t;
 			drawStates.push({ x, y, pressure });
 		}

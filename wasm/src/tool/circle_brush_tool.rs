@@ -3,58 +3,115 @@ use std::collections::HashMap;
 use crate::core::{
     color::Color,
     image::{Image, PixelChange},
-    tool::{Tool, ToolPropertyValue},
+    tool::{Tool, ToolProperty, ToolPropertyValue},
 };
 
 pub struct CircleBrushTool {
     pub size: u32,
+    pub antialiasing: u32,
 }
 
 impl Tool for CircleBrushTool {
     fn apply(
         &mut self,
         image: &mut Image,
-        x: u32,
-        y: u32,
+        x: f32,
+        y: f32,
         color: Color,
         pressure: Option<f32>,
         changes: &mut Vec<PixelChange>,
     ) {
         let pressure = pressure.unwrap_or(1.0);
-        let diameter = (self.size as f32 * pressure.max(0.0)).max(1.0);
-        let radius = (diameter - 1.0) / 2.0;
+        let diameter = (self.size as f32 * pressure.clamp(0.0, 1.0)).max(1.0);
+        let radius = diameter / 2.0;
         let (cr, cg, cb, _) = (color[0], color[1], color[2], color[3]);
         let fw = image.width as i32;
         let fh = image.height as i32;
-        let bounds = radius.ceil() as i32;
+        let samples = self.antialiasing.clamp(1, 16) as i32;
+        let bounds = radius.ceil() as i32 + 1;
 
         for dy in -bounds..=bounds {
             for dx in -bounds..=bounds {
-                let distance_squared = (dx * dx + dy * dy) as f32;
-                if distance_squared > radius * radius {
-                    continue;
-                }
-
-                let px = x as i32 + dx;
-                let py = y as i32 + dy;
+                let px = x.floor() as i32 + dx;
+                let py = y.floor() as i32 + dy;
                 if px < 0 || py < 0 || px >= fw || py >= fh {
                     continue;
                 }
 
+                let mut covered = 0;
+                for sy in 0..samples {
+                    for sx in 0..samples {
+                        let sample_x = px as f32 + (sx as f32 + 0.5) / samples as f32;
+                        let sample_y = py as f32 + (sy as f32 + 0.5) / samples as f32;
+                        let dx = sample_x - (x + 0.5);
+                        let dy = sample_y - (y + 0.5);
+                        if dx * dx + dy * dy <= radius * radius {
+                            covered += 1;
+                        }
+                    }
+                }
+                if covered == 0 {
+                    continue;
+                }
+
                 let idx = ((py * fw + px) * 4) as usize;
-                image.set_pixel(idx, [cr, cg, cb, 255], changes);
+                let coverage = covered as f32 / (samples * samples) as f32;
+                let alpha = (color[3] as f32 * coverage).round() as u8;
+                let before = &image.data[idx..idx + 4];
+                let dst_a = before[3] as f32 / 255.0;
+                let src_a = alpha as f32 / 255.0;
+                let out_a = src_a + dst_a * (1.0 - src_a);
+                if out_a <= 0.0 {
+                    continue;
+                }
+                let blend = |src: u8, dst: u8| {
+                    ((src as f32 * src_a + dst as f32 * dst_a * (1.0 - src_a)) / out_a).round()
+                        as u8
+                };
+                image.set_pixel(
+                    idx,
+                    [
+                        blend(cr, before[0]),
+                        blend(cg, before[1]),
+                        blend(cb, before[2]),
+                        (out_a * 255.0).round() as u8,
+                    ],
+                    changes,
+                );
             }
         }
     }
 
-    fn get_properties(&self) -> HashMap<&str, ToolPropertyValue> {
-        HashMap::from([("size", ToolPropertyValue::Number(self.size as f64))])
+    fn get_properties(&self) -> Vec<ToolProperty> {
+        vec![
+            ToolProperty {
+                name: "size".into(),
+                label: "toolInspector.size".into(),
+                value: ToolPropertyValue::Number(self.size as f64),
+                min: 1.0,
+                max: 100.0,
+                step: 1.0,
+                unit: None,
+            },
+            ToolProperty {
+                name: "antialiasing".into(),
+                label: "toolInspector.antialiasing".into(),
+                value: ToolPropertyValue::Number(self.antialiasing as f64),
+                min: 1.0,
+                max: 16.0,
+                step: 1.0,
+                unit: Some("×".into()),
+            },
+        ]
     }
 
     fn set_property(&mut self, name: &str, value: ToolPropertyValue) {
         match (name, value) {
             ("size", ToolPropertyValue::Number(size)) => {
                 self.size = size.max(1.0) as u32;
+            }
+            ("antialiasing", ToolPropertyValue::Number(samples)) => {
+                self.antialiasing = samples.clamp(1.0, 16.0).round() as u32;
             }
             _ => {
                 eprintln!("Brush: Unknown or invalid property: {}.", name);

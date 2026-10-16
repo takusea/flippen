@@ -1,4 +1,5 @@
 import { type JSX, useEffect, useState } from "react";
+import type { ToolProperty } from "~/core/CoreService";
 import { useCore } from "~/core/useCore";
 import type { HSVAColor } from "~/lib/color";
 import { ToolContext } from "./ToolContext";
@@ -12,7 +13,7 @@ export const ToolProvider = ({ children }: Props) => {
 	const core = useCore();
 
 	const [tool, setTool] = useState<ToolKind>("pen");
-	const [properties, setProperties] = useState<{ [key: string]: unknown }>({});
+	const [properties, setProperties] = useState<ToolProperty[]>([]);
 	const [color, setColor] = useState<HSVAColor>({
 		h: 0,
 		s: 0,
@@ -25,7 +26,7 @@ export const ToolProvider = ({ children }: Props) => {
 
 	const setProperty = async (key: string, value: unknown) => {
 		await core.setToolProperty(tool, key, value);
-		setProperties((await core.getToolProperties(tool)) ?? {});
+		setProperties((await core.getToolProperties(tool)) ?? []);
 	};
 
 	const pushColorHistory = (color: HSVAColor) => {
@@ -35,7 +36,7 @@ export const ToolProvider = ({ children }: Props) => {
 	useEffect(() => {
 		let active = true;
 		void core.getToolProperties(tool).then((nextProperties) => {
-			if (active) setProperties(nextProperties ?? {});
+			if (active) setProperties(nextProperties ?? []);
 		});
 		return () => {
 			active = false;
