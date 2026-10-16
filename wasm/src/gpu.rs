@@ -40,6 +40,7 @@ pub struct GpuRenderer {
     canvas: Option<web_sys::HtmlCanvasElement>,
     surface_config: Option<wgpu::SurfaceConfiguration>,
     clip_textures: HashMap<uuid::Uuid, CachedClipTexture>,
+    frame_textures: Option<(u32, u32, [wgpu::Texture; 2])>,
 }
 
 impl GpuRenderer {
@@ -202,6 +203,7 @@ impl GpuRenderer {
             canvas,
             surface_config,
             clip_textures: HashMap::new(),
+            frame_textures: None,
         })
     }
 
@@ -319,24 +321,34 @@ impl GpuRenderer {
         } else {
             None
         };
-        let output_textures = [0, 1].map(|_| {
-            self.device.create_texture(&wgpu::TextureDescriptor {
-                label: Some("frame-texture"),
-                size: wgpu::Extent3d {
-                    width,
-                    height,
-                    depth_or_array_layers: 1,
-                },
-                mip_level_count: 1,
-                sample_count: 1,
-                dimension: wgpu::TextureDimension::D2,
-                format: wgpu::TextureFormat::Rgba8Unorm,
-                usage: wgpu::TextureUsages::RENDER_ATTACHMENT
-                    | wgpu::TextureUsages::TEXTURE_BINDING
-                    | wgpu::TextureUsages::COPY_SRC,
-                view_formats: &[],
+        if self
+            .frame_textures
+            .as_ref()
+            .is_none_or(|(texture_width, texture_height, _)| {
+                *texture_width != width || *texture_height != height
             })
-        });
+        {
+            let textures = [0, 1].map(|_| {
+                self.device.create_texture(&wgpu::TextureDescriptor {
+                    label: Some("frame-texture"),
+                    size: wgpu::Extent3d {
+                        width,
+                        height,
+                        depth_or_array_layers: 1,
+                    },
+                    mip_level_count: 1,
+                    sample_count: 1,
+                    dimension: wgpu::TextureDimension::D2,
+                    format: wgpu::TextureFormat::Rgba8Unorm,
+                    usage: wgpu::TextureUsages::RENDER_ATTACHMENT
+                        | wgpu::TextureUsages::TEXTURE_BINDING
+                        | wgpu::TextureUsages::COPY_SRC,
+                    view_formats: &[],
+                })
+            });
+            self.frame_textures = Some((width, height, textures));
+        }
+        let output_textures = &self.frame_textures.as_ref().unwrap().2;
         let output_views = output_textures
             .each_ref()
             .map(|texture| texture.create_view(&wgpu::TextureViewDescriptor::default()));

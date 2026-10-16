@@ -7,27 +7,43 @@ export const useCanvasRender = () => {
 	const playbackContext = usePlayback();
 	const core = useCore();
 	const frameRequestRef = useRef<number | null>(null);
-	const requestIdRef = useRef(0);
+	const pendingRenderRef = useRef<{
+		canvas: HTMLCanvasElement;
+		onionLayerId: LayerId | null;
+	} | null>(null);
+	const renderingRef = useRef(false);
+	const finishRender = () => {
+		renderingRef.current = false;
+		if (pendingRenderRef.current != null) scheduleRender();
+	};
+	const scheduleRender = () => {
+		if (renderingRef.current || frameRequestRef.current != null) return;
+		frameRequestRef.current = requestAnimationFrame(() => {
+			frameRequestRef.current = null;
+			const request = pendingRenderRef.current;
+			pendingRenderRef.current = null;
+			if (request == null) return;
+			renderingRef.current = true;
+			void core
+				.renderFrameToCanvas(
+					playbackContext.currentFrame,
+					request.canvas,
+					request.onionLayerId,
+				)
+				.then(finishRender, finishRender);
+		});
+	};
 	const render = (
 		canvas: HTMLCanvasElement,
 		_isOnionSkinEnabled: boolean,
 		layerId: LayerId | null,
 	) => {
-		const requestId = ++requestIdRef.current;
-		if (frameRequestRef.current != null) {
-			cancelAnimationFrame(frameRequestRef.current);
-		}
-		frameRequestRef.current = requestAnimationFrame(() => {
-			frameRequestRef.current = null;
-			void (async () => {
-				if (requestId !== requestIdRef.current) return;
-				await core.renderFrameToCanvas(
-					playbackContext.currentFrame,
-					canvas,
-					_isOnionSkinEnabled && !playbackContext.isPlaying ? layerId : null,
-				);
-			})();
-		});
+		pendingRenderRef.current = {
+			canvas,
+			onionLayerId:
+				_isOnionSkinEnabled && !playbackContext.isPlaying ? layerId : null,
+		};
+		scheduleRender();
 	};
 
 	return { render };

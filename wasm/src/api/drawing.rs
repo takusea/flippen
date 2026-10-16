@@ -144,6 +144,7 @@ impl FlippenCore {
         let alpha_locked = clip.metadata.alpha_locked;
         let color_array = [color[0], color[1], color[2], color[3]];
 
+        let mut changes = Vec::new();
         for point in points.chunks_exact(3) {
             let (x, y) = match clip.transform.inverse_transform_point(
                 (point[0] as u32 as f32, point[1] as u32 as f32),
@@ -166,7 +167,7 @@ impl FlippenCore {
                 }
             };
 
-            let mut changes = Vec::new();
+            let change_start = changes.len();
             let image = clip.get_image_mut();
             tool.apply(
                 image,
@@ -177,7 +178,7 @@ impl FlippenCore {
                 &mut changes,
             );
             if alpha_locked {
-                for change in &mut changes {
+                for change in &mut changes[change_start..] {
                     let pixel = &mut image.data[change.index..change.index + 4];
                     if change.before[3] == 0 || pixel[3] == 0 {
                         pixel.copy_from_slice(&change.before);
@@ -187,11 +188,11 @@ impl FlippenCore {
                     change.after.copy_from_slice(pixel);
                 }
             }
-            if !changes.is_empty() {
-                clip.mark_image_changed();
-            }
-            self.action_manager.record_pixel_changes(clip_id, changes);
         }
+        if !changes.is_empty() {
+            clip.mark_image_changed();
+        }
+        self.action_manager.record_pixel_changes(clip_id, changes);
     }
 
     pub fn get_tool_properties(&self, current_tool: &str) -> JsValue {
