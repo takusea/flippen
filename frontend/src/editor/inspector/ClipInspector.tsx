@@ -78,7 +78,7 @@ const ClipInspector = ({
 						onClick={() => onPropertiesChange({ locked: !isLocked })}
 					/>
 				</div>
-				<label htmlFor="clipName">{t("inspector.name")}</label>
+				<span className="font-semibold">{t("inspector.name")}</span>
 				<TextField
 					key={`${clip.id}:${clip.name}`}
 					id="clipName"
@@ -97,7 +97,7 @@ const ClipInspector = ({
 					}}
 				/>
 				<hr className="text-zinc-500/25" />
-				<label htmlFor="clipStart">{t("inspector.start")}</label>
+				<span className="font-semibold">{t("inspector.start")}</span>
 				<NumberField
 					id="clipStart"
 					min={0}
@@ -108,7 +108,7 @@ const ClipInspector = ({
 					onInteractionEnd={onInteractionEnd}
 					onValueChange={onStartChange}
 				/>
-				<label htmlFor="clipLength">{t("inspector.length")}</label>
+				<span className="font-semibold">{t("inspector.length")}</span>
 				<NumberField
 					id="clipLength"
 					min={1}
@@ -120,7 +120,7 @@ const ClipInspector = ({
 					onValueChange={onDurationChange}
 				/>
 				<hr className="text-zinc-500/25" />
-				<label htmlFor="clipPosition">{t("inspector.position")}</label>
+				<span className="font-semibold">{t("inspector.position")}</span>
 				<div className="grid grid-cols-2 gap-2">
 					<NumberField
 						id="clipPosition"
@@ -155,7 +155,7 @@ const ClipInspector = ({
 						}}
 					/>
 				</div>
-				<label htmlFor="clipAnchor">{t("inspector.anchor")}</label>
+				<span className="font-semibold">{t("inspector.anchor")}</span>
 				<div className="grid grid-cols-2 gap-2">
 					<NumberField
 						id="clipAnchor"
@@ -196,7 +196,7 @@ const ClipInspector = ({
 						}}
 					/>
 				</div>
-				<label htmlFor="clipRotation">{t("inspector.rotation")}</label>
+				<span className="font-semibold">{t("inspector.rotation")}</span>
 				<NumberField
 					id="clipRotation"
 					min={0}
@@ -213,7 +213,7 @@ const ClipInspector = ({
 						});
 					}}
 				/>
-				<label htmlFor="clipScale">{t("inspector.scale")}</label>
+				<span className="font-semibold">{t("inspector.scale")}</span>
 				<div className="grid grid-cols-2 gap-2">
 					<NumberField
 						id="clipScale"
@@ -253,7 +253,7 @@ const ClipInspector = ({
 					/>
 				</div>
 				<hr className="text-zinc-500/25" />
-				<label htmlFor="clipOpacity">{t("inspector.opacity")}</label>
+				<span className="font-semibold">{t("inspector.opacity")}</span>
 				<NumberField
 					id="clipOpacity"
 					min={0}
@@ -267,7 +267,7 @@ const ClipInspector = ({
 						onPropertiesChange({ opacity: value / 100 })
 					}
 				/>
-				<label htmlFor="clipBlendMode">{t("inspector.blendMode")}</label>
+				<span className="font-semibold">{t("inspector.blendMode")}</span>
 				<Select
 					id="clipBlendMode"
 					value={clip.blend_mode}

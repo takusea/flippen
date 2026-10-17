@@ -16,7 +16,7 @@ const ProjectSettingsForm = ({
 
 	return (
 		<div className="flex flex-col gap-2">
-			<label htmlFor="title">{t("project.name")}</label>
+			<span className="font-semibold">{t("project.name")}</span>
 			<TextField
 				id="title"
 				value={projectSettings.title}
@@ -27,7 +27,7 @@ const ProjectSettingsForm = ({
 					})
 				}
 			/>
-			<label htmlFor="width">{t("project.width")}</label>
+			<span className="font-semibold">{t("project.width")}</span>
 			<NumberField
 				id="width"
 				value={projectSettings.width}
@@ -38,7 +38,7 @@ const ProjectSettingsForm = ({
 					onProjectSettingsChanged({ ...projectSettings, width })
 				}
 			/>
-			<label htmlFor="height">{t("project.height")}</label>
+			<span className="font-semibold">{t("project.height")}</span>
 			<NumberField
 				id="height"
 				value={projectSettings.height}
@@ -49,7 +49,7 @@ const ProjectSettingsForm = ({
 					onProjectSettingsChanged({ ...projectSettings, height })
 				}
 			/>
-			<label htmlFor="frameRate">{t("project.frameRate")}</label>
+			<span className="font-semibold">{t("project.frameRate")}</span>
 			<NumberField
 				id="frameRate"
 				value={projectSettings.frameRate}
@@ -63,7 +63,7 @@ const ProjectSettingsForm = ({
 					})
 				}
 			/>
-			<label htmlFor="startFrame">{t("project.startFrame")}</label>
+			<span className="font-semibold">{t("project.startFrame")}</span>
 			<NumberField
 				id="startFrame"
 				value={projectSettings.startFrame}
@@ -77,7 +77,7 @@ const ProjectSettingsForm = ({
 					})
 				}
 			/>
-			<label htmlFor="endFrame">{t("project.endFrame")}</label>
+			<span className="font-semibold">{t("project.endFrame")}</span>
 			<NumberField
 				id="endFrame"
 				value={projectSettings.endFrame}
