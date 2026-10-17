@@ -5,6 +5,7 @@ export type AppDialog =
 	| "editProjectSettings"
 	| "exportProject"
 	| "appearanceSettings"
+	| "inputSettings"
 	| "languageSettings"
 	| "shortcutSettings"
 	| "about";

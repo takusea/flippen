@@ -3,6 +3,7 @@ import { useCore } from "~/core/useCore";
 import { useClip } from "~/features/clip/useClip";
 import { useLayer } from "~/features/layer/useLayer";
 import { usePlayback } from "~/features/playback/usePlayback";
+import { applyPressureCurve } from "~/features/tool/pressureCurve";
 import { useTool } from "~/features/tool/useTool";
 import { rgbaToHsva } from "~/lib/color";
 import type { Transform } from "~/lib/transform";
@@ -65,8 +66,15 @@ export const useCanvasPointer = (
 
 	const getPointerPressure = (
 		event: Pick<PointerEvent, "pointerType" | "pressure">,
-	) =>
-		event.pointerType === "mouse" || event.pressure <= 0 ? 1 : event.pressure;
+	) => {
+		if (
+			!toolContext.pressureEnabled ||
+			event.pointerType === "mouse" ||
+			event.pressure <= 0
+		)
+			return 1;
+		return applyPressureCurve(toolContext.pressureCurve, event.pressure);
+	};
 
 	const handlePointerDown = async (
 		event: React.PointerEvent<HTMLCanvasElement>,

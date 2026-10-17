@@ -14,6 +14,42 @@ export const ToolProvider = ({ children }: Props) => {
 
 	const [tool, setTool] = useState<ToolKind>("pen");
 	const [properties, setProperties] = useState<ToolProperty[]>([]);
+	const [pressureEnabled, setPressureEnabled] = useState(
+		() => localStorage.getItem("flippen.pressureEnabled") !== "false",
+	);
+	const [pressureCurve, setPressureCurve] = useState<[number, number][]>(() => {
+		try {
+			const value: unknown = JSON.parse(
+				localStorage.getItem("flippen.pressureCurve") ?? "null",
+			);
+			if (
+				Array.isArray(value) &&
+				value.length >= 2 &&
+				value[0]?.[0] === 0 &&
+				value.at(-1)?.[0] === 1 &&
+				value.every(
+					(point) =>
+						Array.isArray(point) &&
+						point.length === 2 &&
+						point.every((n) => typeof n === "number" && n >= 0 && n <= 1),
+				) &&
+				value.every(
+					(point, index) => index === 0 || value[index - 1][0] < point[0],
+				)
+			) {
+				return value as [number, number][];
+			}
+		} catch {
+			return [
+				[0, 0],
+				[1, 1],
+			];
+		}
+		return [
+			[0, 0],
+			[1, 1],
+		];
+	});
 	const [color, setColor] = useState<HSVAColor>({
 		h: 0,
 		s: 0,
@@ -32,6 +68,16 @@ export const ToolProvider = ({ children }: Props) => {
 	const pushColorHistory = (color: HSVAColor) => {
 		setColorHistory((prev) => [color, ...prev.slice(0, COLOR_HISTORY_LIMIT)]);
 	};
+
+	useEffect(() => {
+		localStorage.setItem("flippen.pressureEnabled", String(pressureEnabled));
+	}, [pressureEnabled]);
+	useEffect(() => {
+		localStorage.setItem(
+			"flippen.pressureCurve",
+			JSON.stringify(pressureCurve),
+		);
+	}, [pressureCurve]);
 
 	useEffect(() => {
 		let active = true;
@@ -53,7 +99,11 @@ export const ToolProvider = ({ children }: Props) => {
 				colorHistory,
 				pushColorHistory,
 				properties,
+				pressureEnabled,
+				pressureCurve,
 				setProperty,
+				setPressureEnabled,
+				setPressureCurve,
 			}}
 		>
 			{children}

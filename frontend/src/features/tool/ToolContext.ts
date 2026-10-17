@@ -8,7 +8,11 @@ export type ToolContextValue = {
 	color: HSVAColor;
 	colorHistory: HSVAColor[];
 	properties: ToolProperty[];
+	pressureEnabled: boolean;
+	pressureCurve: [number, number][];
 	setTool: (tool: ToolKind) => void;
+	setPressureEnabled: (enabled: boolean) => void;
+	setPressureCurve: (curve: [number, number][]) => void;
 	setColor: (color: HSVAColor) => void;
 	setProperty: (key: string, value: unknown) => void;
 	pushColorHistory: (color: HSVAColor) => void;

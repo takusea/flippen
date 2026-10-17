@@ -274,6 +274,10 @@ const GlobalMenubar = () => {
 					onSelect={() => dialogs.open("appearanceSettings")}
 				/>
 				<MenubarItem
+					label={t("menubar.inputSettings")}
+					onSelect={() => dialogs.open("inputSettings")}
+				/>
+				<MenubarItem
 					label={t("menubar.shortcutSettings")}
 					onSelect={() => dialogs.open("shortcutSettings")}
 				/>

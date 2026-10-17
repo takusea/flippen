@@ -5,6 +5,7 @@ import CreateNewProjectDialog from "~/features/project/CreateNewProjectDialog";
 import EditProjectSettingsDialog from "~/features/project/EditProjectSettingsDialog";
 import ProjectExportDialog from "~/features/project/ProjectExportDialog";
 import ShortcutSettingsDialog from "~/features/shortcuts/ShortcutSettingsDialog";
+import InputSettingsDialog from "~/features/tool/InputSettingsDialog";
 import AboutDialog from "./AboutDialog";
 import { type AppDialog, DialogsContext } from "./DialogsContext";
 
@@ -43,6 +44,10 @@ export const DialogsProvider = ({ children }: Props) => {
 			<AppearanceSettingsDialog
 				open={activeDialog === "appearanceSettings"}
 				onOpenChange={handleOpenChange("appearanceSettings")}
+			/>
+			<InputSettingsDialog
+				open={activeDialog === "inputSettings"}
+				onOpenChange={handleOpenChange("inputSettings")}
 			/>
 			<LanguageSettingDialog
 				open={activeDialog === "languageSettings"}
