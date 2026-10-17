@@ -8,6 +8,8 @@ import { useDialogs } from "~/editor/dialogs/useDialogs";
 import { useClip } from "~/features/clip/useClip";
 import { useUndo } from "~/features/history/useUndo";
 import { useI18n } from "~/features/i18n/useI18n";
+import { useImageImport } from "~/features/io/import/useImageImport";
+import { useLayer } from "~/features/layer/useLayer";
 import { usePlayback } from "~/features/playback/usePlayback";
 import { useProject } from "~/features/project/useProject";
 import { formatShortcut } from "~/features/shortcuts/shortcutDefinitions";
@@ -19,10 +21,12 @@ const GlobalMenubar = () => {
 	const { shortcuts } = useShortcuts();
 	const undoStack = useUndo();
 	const clipContext = useClip();
+	const layerContext = useLayer();
 	const playbackContext = usePlayback();
 	const project = useProject();
 	const dialogs = useDialogs();
 	const canvasView = useCanvasView();
+	const importImage = useImageImport();
 
 	const fitToView = () => {
 		if (project.settings == null) {
@@ -88,6 +92,15 @@ const GlobalMenubar = () => {
 				/>
 				<MenubarItem label={t("menubar.saveWith")} shortcut="Ctrl+Shift+S" />
 				<MenubarSeparator />
+				<MenubarItem
+					label={t("menubar.import")}
+					disabled={
+						project.settings == null ||
+						layerContext.selectedLayerId == null ||
+						layerContext.isLayerLocked(layerContext.selectedLayerId)
+					}
+					onSelect={importImage}
+				/>
 				<MenubarItem
 					label={t("menubar.export")}
 					disabled={project.settings == null}

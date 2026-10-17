@@ -147,6 +147,7 @@
 	"menubar.open": "開く",
 	"menubar.save": "保存",
 	"menubar.saveWith": "名前をつけて保存…",
+	"menubar.import": "インポート…",
 	"menubar.export": "エクスポート…",
 	"menubar.projectSettings": "プロジェクトの設定…",
 	"menubar.undo": "元に戻す",

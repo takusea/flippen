@@ -93,6 +93,38 @@ impl FlippenCore {
         Ok(())
     }
 
+    pub fn add_clip_with_size(
+        &mut self,
+        start_frame: u32,
+        layer_id_str: String,
+        width: u32,
+        height: u32,
+    ) -> Result<(), JsValue> {
+        if width == 0 || height == 0 {
+            return Err(JsValue::from_str("Clip dimensions must be positive"));
+        }
+        let layer_id = layer_id_str
+            .parse::<LayerId>()
+            .map_err(|error| JsValue::from_str(&error.to_string()))?;
+        let project = self
+            .project
+            .as_mut()
+            .ok_or_else(|| JsValue::from_str("Project is not initialized"))?;
+        if project.composition.layer_index(layer_id).is_none() {
+            return Err(JsValue::from_str("Layer does not exist"));
+        }
+        self.action_manager.do_action(
+            Box::new(AddClipAction::with_image_size(
+                start_frame,
+                layer_id,
+                width,
+                height,
+            )),
+            project,
+        );
+        Ok(())
+    }
+
     pub fn delete_clip(&mut self, clip_id_str: String) {
         let clip_id = match Uuid::parse_str(&clip_id_str) {
             Ok(id) => id,

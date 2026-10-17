@@ -147,6 +147,7 @@
 	"menubar.open": "Open",
 	"menubar.save": "Save",
 	"menubar.saveWith": "Save As...",
+	"menubar.import": "Import...",
 	"menubar.export": "Export...",
 	"menubar.projectSettings": "Project Settings...",
 	"menubar.undo": "Undo",

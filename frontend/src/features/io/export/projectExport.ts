@@ -1,5 +1,5 @@
 import type { MessageKey } from "~/features/i18n/I18nContext";
-import type { ProjectSettings } from "./type";
+import type { ProjectSettings } from "~/features/project/type";
 
 export type ProjectExportFormat = "gif" | "apng" | "png-sequence";
 

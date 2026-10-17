@@ -200,6 +200,13 @@ export class CoreService {
 		}, true);
 	}
 
+	addClipWithSize(start: number, layerId: LayerId, width: number, height: number) {
+		return this.enqueue((core) => {
+			core.add_clip_with_size(start, layerId, width, height);
+			return (core.get_clips() as ClipMetadata[] | undefined) ?? [];
+		}, true);
+	}
+
 	deleteClip(id: string) {
 		return this.enqueue((core) => core.delete_clip(id), true);
 	}

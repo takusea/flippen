@@ -3,7 +3,7 @@ import AppearanceSettingsDialog from "~/features/appearance/AppearanceSettingDia
 import LanguageSettingDialog from "~/features/i18n/LanguageSettingDialog";
 import CreateNewProjectDialog from "~/features/project/CreateNewProjectDialog";
 import EditProjectSettingsDialog from "~/features/project/EditProjectSettingsDialog";
-import ProjectExportDialog from "~/features/project/ProjectExportDialog";
+import ProjectExportDialog from "~/features/io/export/ProjectExportDialog";
 import ShortcutSettingsDialog from "~/features/shortcuts/ShortcutSettingsDialog";
 import InputSettingsDialog from "~/features/tool/InputSettingsDialog";
 import AboutDialog from "./AboutDialog";

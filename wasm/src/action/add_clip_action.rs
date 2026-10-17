@@ -12,6 +12,7 @@ use crate::core::transform::Transform;
 pub struct AddClipAction {
     start_frame: u32,
     layer_id: LayerId,
+    image_size: Option<(u32, u32)>,
     clip_id: Option<Uuid>,
     name: Option<String>,
 }
@@ -21,6 +22,22 @@ impl AddClipAction {
         Self {
             start_frame,
             layer_id,
+            image_size: None,
+            clip_id: None,
+            name: None,
+        }
+    }
+
+    pub fn with_image_size(
+        start_frame: u32,
+        layer_id: LayerId,
+        width: u32,
+        height: u32,
+    ) -> Self {
+        Self {
+            start_frame,
+            layer_id,
+            image_size: Some((width, height)),
             clip_id: None,
             name: None,
         }
@@ -48,7 +65,12 @@ impl Action for AddClipAction {
                 blend_mode: crate::app::clip::BlendMode::default(),
             },
             transform: Transform::default(),
-            image: Image::new(project.settings.width, project.settings.height),
+            image: {
+                let (width, height) = self
+                    .image_size
+                    .unwrap_or((project.settings.width, project.settings.height));
+                Image::new(width, height)
+            },
             image_revision: 0,
         };
         project.composition.add_clip(clip);

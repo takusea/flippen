@@ -7,7 +7,7 @@ import Tooltip from "~/components/Tooltip";
 import { useDialogs } from "~/editor/dialogs/useDialogs";
 import { useI18n } from "~/features/i18n/useI18n";
 import { useProject } from "~/features/project/useProject";
-import { useProjectExport } from "~/features/project/useProjectExport";
+import { useProjectExport } from "~/features/io/export/useProjectExport";
 import GlobalMenubar from "./GlobalMenubar";
 
 const GlobalHeader = () => {
