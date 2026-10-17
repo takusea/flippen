@@ -1,8 +1,11 @@
-import { useEffect, useRef } from "react";
+import { IconBucketDroplet } from "@tabler/icons-react";
+import { type PointerEvent, useEffect, useRef, useState } from "react";
+import { useMediaQuery } from "usehooks-ts";
 import { useClip } from "~/features/clip/useClip";
 import { useLayer } from "~/features/layer/useLayer";
 import { usePlayback } from "~/features/playback/usePlayback";
 import { useProject } from "~/features/project/useProject";
+import { useTool } from "~/features/tool/useTool";
 import { CanvasOverlay } from "./CanvasOverlay";
 import { useCanvasNavigation } from "./useCanvasNavigation";
 import { useCanvasPointer } from "./useCanvasPointer";
@@ -14,6 +17,8 @@ const DrawCanvas = () => {
 	const playbackContext = usePlayback();
 	const clipContext = useClip();
 	const layerContext = useLayer();
+	const toolContext = useTool();
+	const isDesktop = useMediaQuery("(min-width: 720px)");
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const canvasRender = useCanvasRender();
 	const canvasView = useCanvasView();
@@ -26,6 +31,39 @@ const DrawCanvas = () => {
 	const canvasNavigation = useCanvasNavigation(canvasRef, canvasView);
 	const canvasWidth = projectContext.settings?.width;
 	const canvasHeight = projectContext.settings?.height;
+	const [cursorPosition, setCursorPosition] = useState<{
+		x: number;
+		y: number;
+	} | null>(null);
+	const sizeProperty = toolContext.properties.find(
+		(property) => property.name === "size",
+	);
+	const brushSize =
+		typeof sizeProperty?.value === "number"
+			? sizeProperty.value
+			: Number(sizeProperty?.value ?? 1);
+	const cursorSize =
+		Math.max(1, Number.isFinite(brushSize) ? brushSize : 1) * canvasView.scale;
+	const cursorStyle =
+		toolContext.tool === "move"
+			? "move"
+			: toolContext.tool === "fill"
+				? isDesktop
+					? "none"
+					: "cell"
+				: toolContext.tool === "select"
+					? "crosshair"
+					: "none";
+	const updateCursorPosition = (event: PointerEvent<HTMLCanvasElement>) => {
+		if (cursorStyle !== "none") return;
+		const bounds = event.currentTarget.parentElement?.getBoundingClientRect();
+		if (bounds != null) {
+			setCursorPosition({
+				x: event.clientX - bounds.left,
+				y: event.clientY - bounds.top,
+			});
+		}
+	};
 
 	useEffect(() => {
 		const canvas = canvasRef.current;
@@ -119,12 +157,47 @@ const DrawCanvas = () => {
 				width={canvasWidth}
 				height={canvasHeight}
 				className="absolute inset-0 outline outline-zinc-500/40 [image-rendering:pixelated]"
-				style={canvasTransform}
+				style={{ ...canvasTransform, cursor: cursorStyle }}
+				onPointerEnter={updateCursorPosition}
+				onPointerLeave={() => setCursorPosition(null)}
+				onPointerMove={(event) => {
+					canvasPointer.handlePointerMove(event);
+					updateCursorPosition(event);
+				}}
 				onPointerDown={canvasPointer.handlePointerDown}
-				onPointerMove={canvasPointer.handlePointerMove}
 				onPointerUp={canvasPointer.handlePointerUp}
 				onPointerCancel={canvasPointer.handlePointerUp}
 			/>
+			{cursorStyle === "none" &&
+				cursorPosition != null &&
+				toolContext.tool === "fill" && (
+					<div
+						aria-hidden="true"
+						className="pointer-events-none absolute text-white drop-shadow-[0_0_1px_#111]"
+						style={{
+							left: cursorPosition.x,
+							top: cursorPosition.y,
+							transform: "translate(-20%, -80%)",
+						}}
+					>
+						<IconBucketDroplet size={24} stroke={2.25} />
+					</div>
+				)}
+			{cursorStyle === "none" &&
+				cursorPosition != null &&
+				toolContext.tool !== "fill" && (
+					<div
+						aria-hidden="true"
+						className={`pointer-events-none absolute rounded-full border border-white mix-blend-difference ${toolContext.tool === "eraser" ? "border-dashed" : ""}`}
+						style={{
+							left: cursorPosition.x,
+							top: cursorPosition.y,
+							width: cursorSize,
+							height: cursorSize,
+							transform: "translate(-50%, -50%)",
+						}}
+					/>
+				)}
 			<CanvasOverlay
 				width={projectContext.settings.width}
 				height={projectContext.settings.height}
